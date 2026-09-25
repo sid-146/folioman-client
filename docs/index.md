@@ -1,7 +1,7 @@
 # Folioman Client
 
-[![PyPI version](https://img.shields.io/pypi/v/folioman-client.svg)](https://pypi.org/project/folioman-client/)
-[![Python versions](https://img.shields.io/pypi/pyversions/folioman-client.svg)](https://pypi.org/project/folioman-client/)
+[![PyPI version](https://img.shields.io/badge/pypi-v0.1.0-blue.svg)](https://pypi.org/project/folioman-client/)
+[![Python versions](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://pypi.org/project/folioman-client/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Official typed asynchronous Python SDK for the **Folioman REST API**.
