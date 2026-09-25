@@ -4,6 +4,17 @@ This guide walks you through installing `folioman-client`, configuring credentia
 
 ---
 
+## Prerequisites
+
+This client library depends on a running instance of the **[Folioman](https://github.com/codereverser/folioman)** backend service.
+
+Before using `folioman-client`, ensure that:
+
+1. **Running Folioman Service**: A Folioman server instance is running and reachable (default: `http://localhost:8000`, or configured via `base_url` / `FOLIOMAN_BASE_URL`). Refer to the [Folioman repository](https://github.com/codereverser/folioman) for instructions on setting up and starting the service.
+2. **Valid Credentials**: You have registered advisor or user credentials (`username` and `password`) on the Folioman service.
+
+---
+
 ## 1. Installation
 
 ### Using pip

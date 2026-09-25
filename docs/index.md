@@ -8,6 +8,9 @@ Official typed asynchronous Python SDK for the **Folioman REST API**.
 
 The `folioman-client` library provides a high-performance, asynchronous, and strictly typed interface for financial advisors, wealth management platforms, and algorithmic systems to interact with Folioman services.
 
+!!! important "Service Dependency"
+This client library depends on a running instance of the **[Folioman](https://github.com/codereverser/folioman)** backend service. Ensure your Folioman API server is running and accessible (by default at `http://localhost:8000`, or configured via `base_url` / `FOLIOMAN_BASE_URL`) before connecting.
+
 ---
 
 ## Key Features

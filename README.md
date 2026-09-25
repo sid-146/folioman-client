@@ -9,6 +9,9 @@ Official typed asynchronous Python SDK for the **Folioman REST API**.
 
 The `folioman-client` library provides an asynchronous, strongly typed interface for interacting with Folioman services. It handles HTTP communication, JWT authentication lifecycles, proactive and reactive token refresh, concurrent locking, and response mapping into Pydantic models.
 
+> [!IMPORTANT]
+> This client library depends on a running service of **[Folioman](https://github.com/codereverser/folioman)**. Ensure that the Folioman API server is running and accessible (defaulting to `http://localhost:8000`, or configured via `FOLIOMAN_BASE_URL` / `base_url`) before connecting.
+
 ---
 
 ## Key Features
@@ -19,6 +22,15 @@ The `folioman-client` library provides an asynchronous, strongly typed interface
 - **Proactive Expiry Absorption**: Evaluates token expiry using an embedded payload decoder and proactively refreshes 30 seconds before actual token expiration (`EXP_SKEW_SECONDS = 30`).
 - **Typed Response Parsing**: Parses JSON payloads into Pydantic v2 models that handle `Decimal` serializations and ignore unknown extra attributes for forward-compatibility.
 - **Structured Exception Hierarchy**: Maps HTTP status codes into specific client exceptions (`FoliomanAuthError`, `FoliomanNotFoundError`, `FoliomanAPIError`).
+
+---
+
+## Prerequisites
+
+This client depends on a running instance of the **[Folioman](https://github.com/codereverser/folioman)** service:
+
+- A running [Folioman](https://github.com/codereverser/folioman) backend server (default URL: `http://localhost:8000`, or configured via `FOLIOMAN_BASE_URL` / `base_url`).
+- Valid advisor / user credentials (`username` and `password`) configured on the Folioman service.
 
 ---
 
