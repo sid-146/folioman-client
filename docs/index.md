@@ -4,12 +4,12 @@
 [![Python versions](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://pypi.org/project/folioman-client/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Official typed asynchronous Python SDK for the **Folioman REST API**.
+Typed asynchronous Python SDK for the **Folioman REST API**.
 
 The `folioman-client` library provides a high-performance, asynchronous, and strictly typed interface for financial advisors, wealth management platforms, and algorithmic systems to interact with Folioman services.
 
 !!! important "Service Dependency"
-This client library depends on a running instance of the **[Folioman](https://github.com/codereverser/folioman)** backend service. Ensure your Folioman API server is running and accessible (by default at `http://localhost:8000`, or configured via `base_url` / `FOLIOMAN_BASE_URL`) before connecting.
+    This client library depends on a running instance of the **[Folioman](https://github.com/codereverser/folioman)** backend service. Ensure your Folioman API server is running and accessible (by default at `http://localhost:8000`, or configured via `base_url` / `FOLIOMAN_BASE_URL`) before connecting.
 
 ---
 

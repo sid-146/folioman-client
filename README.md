@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Documentation](https://img.shields.io/badge/docs-GitHub_Pages-blue.svg)](https://sid-146.github.io/folioman-client/)
 
-Official typed asynchronous Python SDK for the **Folioman REST API**.
+Typed asynchronous Python SDK for the **Folioman REST API**.
 
 The `folioman-client` library provides an asynchronous, strongly typed interface for interacting with Folioman services. It handles HTTP communication, JWT authentication lifecycles, proactive and reactive token refresh, concurrent locking, and response mapping into Pydantic models.
 

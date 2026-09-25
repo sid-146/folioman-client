@@ -1,5 +1,5 @@
 site_name: Folioman Client
-site_description: Official typed asynchronous Python SDK for the Folioman REST API.
+site_description: Typed asynchronous Python SDK for the Folioman REST API.
 site_url: https://sid-146.github.io/folioman-client/
 repo_name: sid-146/folioman-client
 repo_url: https://github.com/sid-146/folioman-client

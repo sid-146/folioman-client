@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "folioman-client"
 version = "0.1.0"
-description = "Official typed asynchronous Python SDK for Folioman REST API."
+description = "Typed asynchronous Python SDK for Folioman REST API."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"

@@ -1,6 +1,6 @@
 """Folioman API Client Package.
 
-Official typed asynchronous Python SDK for the Folioman REST API.
+Typed asynchronous Python SDK for the Folioman REST API.
 """
 
 from __future__ import annotations
