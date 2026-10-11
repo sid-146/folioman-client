@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Typed asynchronous Python SDK for the Folioman REST API.">
+        <meta name="description" content="Embedded typed Python portfolio engine and CLI for Indian mutual funds and equities.">
       
       
       
@@ -269,7 +269,7 @@
   
     
   
-  Configuration
+  Storage & Database
 
       </a>
     </li>
@@ -282,13 +282,13 @@
   
   
     <li class="md-tabs__item">
-      <a href="../authentication/" class="md-tabs__link">
+      <a href="../cli/" class="md-tabs__link">
         
   
   
     
   
-  Authentication
+  CLI Reference
 
       </a>
     </li>
@@ -307,7 +307,26 @@
   
     
   
-  Client
+  Python Client SDK
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../security/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Security & Privacy
 
       </a>
     </li>
@@ -524,7 +543,7 @@
   <span class="md-ellipsis">
     
   
-    Configuration
+    Storage & Database
   
 
     
@@ -544,14 +563,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../authentication/" class="md-nav__link">
+      <a href="../cli/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Authentication
+    CLI Reference
   
 
     
@@ -578,7 +597,34 @@
   <span class="md-ellipsis">
     
   
-    Client
+    Python Client SDK
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security & Privacy
   
 
     
@@ -712,10 +758,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-quickstart-with-environment-variables" class="md-nav__link">
+  <a href="#1-complete-end-to-end-ingestion-portfolio-valuation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Quickstart with Environment Variables
+        1. Complete End-to-End Ingestion &amp; Portfolio Valuation
       
     </span>
   </a>
@@ -723,10 +769,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-querying-portfolio-summaries-holdings" class="md-nav__link">
+  <a href="#2-generating-schedule-112a-realized-capital-gains-tax-filing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Querying Portfolio Summaries &amp; Holdings
+        2. Generating Schedule 112A Realized Capital Gains (Tax Filing)
       
     </span>
   </a>
@@ -734,10 +780,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-scheme-detail-and-historical-nav-curves" class="md-nav__link">
+  <a href="#3-extracting-historical-net-worth-time-series" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Scheme Detail and Historical NAV Curves
+        3. Extracting Historical Net-Worth Time Series
       
     </span>
   </a>
@@ -745,10 +791,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-historical-net-worth-valuation-series" class="md-nav__link">
+  <a href="#4-multi-tenant-setup-with-postgresql" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Historical Net Worth Valuation Series
+        4. Multi-Tenant Setup with PostgreSQL
       
     </span>
   </a>
@@ -756,21 +802,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-tax-capital-gains-reporting" class="md-nav__link">
+  <a href="#5-automated-weekly-nav-sync-with-embedded-scheduler" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. Tax Capital Gains Reporting
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#6-concurrent-investor-fetching-with-asynciogather" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6. Concurrent Investor Fetching with asyncio.gather
+        5. Automated Weekly NAV Sync with Embedded Scheduler
       
     </span>
   </a>
@@ -866,10 +901,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-quickstart-with-environment-variables" class="md-nav__link">
+  <a href="#1-complete-end-to-end-ingestion-portfolio-valuation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Quickstart with Environment Variables
+        1. Complete End-to-End Ingestion &amp; Portfolio Valuation
       
     </span>
   </a>
@@ -877,10 +912,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-querying-portfolio-summaries-holdings" class="md-nav__link">
+  <a href="#2-generating-schedule-112a-realized-capital-gains-tax-filing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Querying Portfolio Summaries &amp; Holdings
+        2. Generating Schedule 112A Realized Capital Gains (Tax Filing)
       
     </span>
   </a>
@@ -888,10 +923,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-scheme-detail-and-historical-nav-curves" class="md-nav__link">
+  <a href="#3-extracting-historical-net-worth-time-series" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Scheme Detail and Historical NAV Curves
+        3. Extracting Historical Net-Worth Time Series
       
     </span>
   </a>
@@ -899,10 +934,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-historical-net-worth-valuation-series" class="md-nav__link">
+  <a href="#4-multi-tenant-setup-with-postgresql" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Historical Net Worth Valuation Series
+        4. Multi-Tenant Setup with PostgreSQL
       
     </span>
   </a>
@@ -910,21 +945,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-tax-capital-gains-reporting" class="md-nav__link">
+  <a href="#5-automated-weekly-nav-sync-with-embedded-scheduler" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. Tax Capital Gains Reporting
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#6-concurrent-investor-fetching-with-asynciogather" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6. Concurrent Investor Fetching with asyncio.gather
+        5. Automated Weekly NAV Sync with Embedded Scheduler
       
     </span>
   </a>
@@ -957,187 +981,147 @@
 
 
 <h1 id="practical-examples-recipes">Practical Examples &amp; Recipes<a class="headerlink" href="#practical-examples-recipes" title="Permanent link">&para;</a></h1>
-<p>This page provides practical, copy-pasteable examples for common tasks with <code>folioman-client</code>.</p>
+<p>This page provides practical, copy-pasteable recipes for common workflows using <code>folioman-client</code>.</p>
 <hr />
-<h2 id="1-quickstart-with-environment-variables">1. Quickstart with Environment Variables<a class="headerlink" href="#1-quickstart-with-environment-variables" title="Permanent link">&para;</a></h2>
-<p>Set your environment variables:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">FOLIOMAN_BASE_URL</span><span class="o">=</span><span class="s2">"http://localhost:8000"</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">FOLIOMAN_USERNAME</span><span class="o">=</span><span class="s2">"advisor_demo"</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nb">export</span><span class="w"> </span><span class="nv">FOLIOMAN_PASSWORD</span><span class="o">=</span><span class="s2">"secretpassword"</span>
+<h2 id="1-complete-end-to-end-ingestion-portfolio-valuation">1. Complete End-to-End Ingestion &amp; Portfolio Valuation<a class="headerlink" href="#1-complete-end-to-end-ingestion-portfolio-valuation" title="Permanent link">&para;</a></h2>
+<p>This script initializes the local database, ingests a CAMS/KFintech CAS statement, updates market prices, and prints portfolio metrics:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">folioman_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">FoliomanClient</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">FoliomanClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="c1"># Step 1: Ingest statement PDF</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"Parsing CAS statement..."</span><span class="p">)</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="n">job</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">imports</span><span class="o">.</span><span class="n">cas_pdf</span><span class="p">(</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>            <span class="n">file_path</span><span class="o">=</span><span class="s2">"CAMS_CAS_Jan2026.pdf"</span><span class="p">,</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>            <span class="n">password</span><span class="o">=</span><span class="s2">"ABCDE1234F"</span><span class="p">,</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>        <span class="p">)</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Transactions created: </span><span class="si">{</span><span class="n">job</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'transactions_created'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>        <span class="c1"># Step 2: Fetch latest NAVs and prices</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"Updating market prices..."</span><span class="p">)</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>        <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">navs</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>        <span class="c1"># Step 3: Print portfolio valuation</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>        <span class="n">summary</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">investor_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">=== Portfolio Summary as of </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">as_of</span><span class="si">}</span><span class="s2"> ==="</span><span class="p">)</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Market Value: INR </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">total_inr</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Cost Basis:   INR </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">invested_inr</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Absolute P&amp;L: INR </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">unrealized_pnl_inr</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">return_pct</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%)"</span><span class="p">)</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>        <span class="k">if</span> <span class="n">summary</span><span class="o">.</span><span class="n">xirr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Annual XIRR:  </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">xirr</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%"</span><span class="p">)</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>        <span class="c1"># Step 4: Asset allocation breakdown</span>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">--- Asset Allocation ---"</span><span class="p">)</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>        <span class="k">for</span> <span class="n">mix</span> <span class="ow">in</span> <span class="n">summary</span><span class="o">.</span><span class="n">asset_mix</span><span class="p">:</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mix</span><span class="o">.</span><span class="n">security_type</span><span class="o">.</span><span class="n">title</span><span class="p">()</span><span class="si">:</span><span class="s2">&lt;12</span><span class="si">}</span><span class="s2">: INR </span><span class="si">{</span><span class="n">mix</span><span class="o">.</span><span class="n">value_inr</span><span class="si">:</span><span class="s2">&gt;12,.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </span></code></pre></div>
-<p>Run script:</p>
+<hr />
+<h2 id="2-generating-schedule-112a-realized-capital-gains-tax-filing">2. Generating Schedule 112A Realized Capital Gains (Tax Filing)<a class="headerlink" href="#2-generating-schedule-112a-realized-capital-gains-tax-filing" title="Permanent link">&para;</a></h2>
+<p>Generate a detailed lot-level report for the Indian Income Tax Return (ITR):</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">folioman_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">FoliomanClient</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
 </span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">FoliomanClient</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="n">investors</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">investors</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total investors found: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">investors</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>        <span class="k">for</span> <span class="n">inv</span> <span class="ow">in</span> <span class="n">investors</span><span class="p">:</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"- </span><span class="si">{</span><span class="n">inv</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (ID: </span><span class="si">{</span><span class="n">inv</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">FoliomanClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="c1"># Generate capital gains report for Financial Year 2024-25 (Apr 2024 - Mar 2025)</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        <span class="n">report</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">capital_gains</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">investor_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fy</span><span class="o">=</span><span class="s2">"2024-25"</span><span class="p">)</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"=== Capital Gains Report for FY </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">fy</span><span class="si">}</span><span class="s2"> ==="</span><span class="p">)</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total Disposals: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">rows</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Realized STCG:   INR </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">stcg_inr</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Realized LTCG:   INR </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">ltcg_inr</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total Gain:      INR </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">total_gain_inr</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>        <span class="c1"># Display Schedule 112A eligible lots</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">--- Disposal Lot Details ---"</span><span class="p">)</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">rows</span><span class="p">[:</span><span class="mi">5</span><span class="p">]:</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>            <span class="nb">print</span><span class="p">(</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">security_name</span><span class="p">[:</span><span class="mi">25</span><span class="p">]</span><span class="si">:</span><span class="s2">&lt;26</span><span class="si">}</span><span class="s2"> | Sold: </span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">date</span><span class="si">}</span><span class="s2"> | "</span>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>                <span class="sa">f</span><span class="s2">"Units: </span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">units</span><span class="si">:</span><span class="s2">&gt;8.3f</span><span class="si">}</span><span class="s2"> | Gain: INR </span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">gain_inr</span><span class="si">:</span><span class="s2">&gt;10,.2f</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">term</span><span class="si">}</span><span class="s2">)"</span>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>            <span class="p">)</span>
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>
+</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>
+</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </span></code></pre></div>
 <hr />
-<h2 id="2-querying-portfolio-summaries-holdings">2. Querying Portfolio Summaries &amp; Holdings<a class="headerlink" href="#2-querying-portfolio-summaries-holdings" title="Permanent link">&para;</a></h2>
-<p>Retrieve full portfolio metrics, asset mix, and underlying holdings for an investor:</p>
+<h2 id="3-extracting-historical-net-worth-time-series">3. Extracting Historical Net-Worth Time Series<a class="headerlink" href="#3-extracting-historical-net-worth-time-series" title="Permanent link">&para;</a></h2>
+<p>Reconstruct the daily, weekly, or monthly net-worth progression of an investor:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">folioman_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">FoliomanClient</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
 </span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">FoliomanClient</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="n">investor_id</span> <span class="o">=</span> <span class="mi">1</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>        <span class="n">summary</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">investor_id</span><span class="p">)</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"=== Portfolio for Investor #</span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">investor_id</span><span class="si">}</span><span class="s2"> ==="</span><span class="p">)</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"As of: </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">as_of</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total Value: INR </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">total_inr</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Day Change: INR </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">day_change_inr</span><span class="si">}</span><span class="s2"> "</span> <span class="k">if</span> <span class="n">summary</span><span class="o">.</span><span class="n">day_change_inr</span> <span class="k">else</span> <span class="s2">""</span><span class="p">)</span>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"XIRR: </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">xirr</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%"</span> <span class="k">if</span> <span class="n">summary</span><span class="o">.</span><span class="n">xirr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">"XIRR: N/A"</span><span class="p">)</span>
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">--- Asset Allocation Mix ---"</span><span class="p">)</span>
-</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>        <span class="k">for</span> <span class="n">mix</span> <span class="ow">in</span> <span class="n">summary</span><span class="o">.</span><span class="n">asset_mix</span><span class="p">:</span>
-</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mix</span><span class="o">.</span><span class="n">security_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">:</span><span class="s2">&lt;12</span><span class="si">}</span><span class="s2"> : INR </span><span class="si">{</span><span class="n">mix</span><span class="o">.</span><span class="n">value_inr</span><span class="si">:</span><span class="s2">&gt;12,.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">FoliomanClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="c1"># Fetch monthly progression over the last year</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>        <span class="n">series</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">valuations</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>            <span class="n">investor_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>            <span class="n">from_date</span><span class="o">=</span><span class="s2">"2025-01-01"</span><span class="p">,</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>            <span class="n">to_date</span><span class="o">=</span><span class="s2">"2026-01-01"</span><span class="p">,</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>            <span class="n">granularity</span><span class="o">=</span><span class="s2">"monthly"</span><span class="p">,</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>        <span class="p">)</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Historical Net-Worth Points (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">series</span><span class="o">.</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2"> entries):"</span><span class="p">)</span>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>        <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">series</span><span class="o">.</span><span class="n">points</span><span class="p">:</span>
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Date: </span><span class="si">{</span><span class="n">point</span><span class="o">.</span><span class="n">date</span><span class="si">}</span><span class="s2"> | Net Worth: INR </span><span class="si">{</span><span class="n">point</span><span class="o">.</span><span class="n">value_inr</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>
 </span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>
-</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">--- Priced Holdings ---"</span><span class="p">)</span>
-</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>        <span class="k">for</span> <span class="n">holding</span> <span class="ow">in</span> <span class="n">summary</span><span class="o">.</span><span class="n">holdings</span><span class="p">:</span>
-</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>            <span class="nb">print</span><span class="p">(</span>
-</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">holding</span><span class="o">.</span><span class="n">name</span><span class="si">:</span><span class="s2">&lt;30</span><span class="si">}</span><span class="s2"> | Units: </span><span class="si">{</span><span class="n">holding</span><span class="o">.</span><span class="n">units</span><span class="si">:</span><span class="s2">&gt;10</span><span class="si">}</span><span class="s2"> | Value: INR </span><span class="si">{</span><span class="n">holding</span><span class="o">.</span><span class="n">value_inr</span><span class="si">}</span><span class="s2">"</span>
-</span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>            <span class="p">)</span>
-</span><span id="__span-2-25"><a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>
-</span><span id="__span-2-26"><a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>
-</span><span id="__span-2-27"><a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
-</span><span id="__span-2-28"><a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </span></code></pre></div>
 <hr />
-<h2 id="3-scheme-detail-and-historical-nav-curves">3. Scheme Detail and Historical NAV Curves<a class="headerlink" href="#3-scheme-detail-and-historical-nav-curves" title="Permanent link">&para;</a></h2>
-<p>Drill down into a specific scheme holding to inspect historical NAV points and folio breakdown:</p>
+<h2 id="4-multi-tenant-setup-with-postgresql">4. Multi-Tenant Setup with PostgreSQL<a class="headerlink" href="#4-multi-tenant-setup-with-postgresql" title="Permanent link">&para;</a></h2>
+<p>In a wealth advisory or multi-tenant system, use <code>user_id</code> to enforce logical multi-tenancy:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">folioman_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">FoliomanClient</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">FoliomanClient</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>        <span class="n">investor_id</span> <span class="o">=</span> <span class="mi">1</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>        <span class="n">security_id</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># Scheme ID</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>        <span class="n">scheme</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">holdings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">investor_id</span><span class="p">,</span> <span class="n">security_id</span><span class="p">)</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Scheme: </span><span class="si">{</span><span class="n">scheme</span><span class="o">.</span><span class="n">security</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ISIN: </span><span class="si">{</span><span class="n">scheme</span><span class="o">.</span><span class="n">security</span><span class="o">.</span><span class="n">isin</span><span class="si">}</span><span class="s2"> | Category: </span><span class="si">{</span><span class="n">scheme</span><span class="o">.</span><span class="n">security</span><span class="o">.</span><span class="n">category</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total Units: </span><span class="si">{</span><span class="n">scheme</span><span class="o">.</span><span class="n">units</span><span class="si">}</span><span class="s2"> | Value: INR </span><span class="si">{</span><span class="n">scheme</span><span class="o">.</span><span class="n">value_inr</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>
-</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Historical NAV Points (Total </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">scheme</span><span class="o">.</span><span class="n">nav_history</span><span class="p">)</span><span class="si">}</span><span class="s2">):"</span><span class="p">)</span>
-</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>        <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">scheme</span><span class="o">.</span><span class="n">nav_history</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">:]:</span>
-</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">pt</span><span class="o">.</span><span class="n">date</span><span class="si">}</span><span class="s2">: NAV </span><span class="si">{</span><span class="n">pt</span><span class="o">.</span><span class="n">nav</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>
-</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Folios (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">scheme</span><span class="o">.</span><span class="n">folios</span><span class="p">)</span><span class="si">}</span><span class="s2">):"</span><span class="p">)</span>
-</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>        <span class="k">for</span> <span class="n">folio</span> <span class="ow">in</span> <span class="n">scheme</span><span class="o">.</span><span class="n">folios</span><span class="p">:</span>
-</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Folio #</span><span class="si">{</span><span class="n">folio</span><span class="o">.</span><span class="n">number</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">folio</span><span class="o">.</span><span class="n">units</span><span class="si">}</span><span class="s2"> units (</span><span class="si">{</span><span class="n">folio</span><span class="o">.</span><span class="n">broker</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
-</span><span id="__span-3-23"><a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>
-</span><span id="__span-3-24"><a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a>
-</span><span id="__span-3-25"><a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
-</span><span id="__span-3-26"><a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a>    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">DATABASE_URL</span> <span class="o">=</span> <span class="s2">"postgresql+psycopg://advisor:secret@localhost:5432/wealth_db"</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="c1"># Client for Advisor A</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">FoliomanClient</span><span class="p">(</span><span class="n">database_url</span><span class="o">=</span><span class="n">DATABASE_URL</span><span class="p">,</span> <span class="n">user_id</span><span class="o">=</span><span class="s2">"advisor_alpha"</span><span class="p">)</span> <span class="k">as</span> <span class="n">client_a</span><span class="p">:</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>        <span class="n">inv_a</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client_a</span><span class="o">.</span><span class="n">investors</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">"Ramesh Sharma"</span><span class="p">)</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Created Investor in Alpha: </span><span class="si">{</span><span class="n">inv_a</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (ID: </span><span class="si">{</span><span class="n">inv_a</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    <span class="c1"># Client for Advisor B</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">FoliomanClient</span><span class="p">(</span><span class="n">database_url</span><span class="o">=</span><span class="n">DATABASE_URL</span><span class="p">,</span> <span class="n">user_id</span><span class="o">=</span><span class="s2">"advisor_beta"</span><span class="p">)</span> <span class="k">as</span> <span class="n">client_b</span><span class="p">:</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>        <span class="n">inv_b</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client_b</span><span class="o">.</span><span class="n">investors</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">"Priya Verma"</span><span class="p">)</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Created Investor in Beta: </span><span class="si">{</span><span class="n">inv_b</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (ID: </span><span class="si">{</span><span class="n">inv_b</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>        <span class="c1"># Advisor B cannot see Advisor A's investors</span>
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>        <span class="n">investors</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client_b</span><span class="o">.</span><span class="n">investors</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Advisor B sees </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">investors</span><span class="p">)</span><span class="si">}</span><span class="s2"> investor(s)."</span><span class="p">)</span>
+</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>
+</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>
+</span><span id="__span-3-23"><a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+</span><span id="__span-3-24"><a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a>    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </span></code></pre></div>
 <hr />
-<h2 id="4-historical-net-worth-valuation-series">4. Historical Net Worth Valuation Series<a class="headerlink" href="#4-historical-net-worth-valuation-series" title="Permanent link">&para;</a></h2>
-<p>Reconstruct an investor's historical net worth time series across monthly intervals:</p>
+<h2 id="5-automated-weekly-nav-sync-with-embedded-scheduler">5. Automated Weekly NAV Sync with Embedded Scheduler<a class="headerlink" href="#5-automated-weekly-nav-sync-with-embedded-scheduler" title="Permanent link">&para;</a></h2>
+<p>For persistent processes (e.g. desktop apps or long-running worker services), enable the embedded scheduler:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">folioman_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">FoliomanClient</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
 </span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
 </span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">FoliomanClient</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>        <span class="n">investor_id</span> <span class="o">=</span> <span class="mi">1</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>        <span class="n">series</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">valuations</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>            <span class="n">investor_id</span><span class="p">,</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>            <span class="n">from_date</span><span class="o">=</span><span class="s2">"2025-01-01"</span><span class="p">,</span>
-</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>            <span class="n">to_date</span><span class="o">=</span><span class="s2">"2026-01-01"</span><span class="p">,</span>
-</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>            <span class="n">granularity</span><span class="o">=</span><span class="s2">"monthly"</span><span class="p">,</span>
-</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>        <span class="p">)</span>
-</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>
-</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Valuation Series from </span><span class="si">{</span><span class="n">series</span><span class="o">.</span><span class="n">start</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">series</span><span class="o">.</span><span class="n">end</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>        <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">series</span><span class="o">.</span><span class="n">points</span><span class="p">:</span>
-</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>            <span class="n">gain</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">value_inr</span> <span class="o">-</span> <span class="n">pt</span><span class="o">.</span><span class="n">invested_inr</span>
-</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>            <span class="nb">print</span><span class="p">(</span>
-</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pt</span><span class="o">.</span><span class="n">date</span><span class="si">}</span><span class="s2"> | Value: INR </span><span class="si">{</span><span class="n">pt</span><span class="o">.</span><span class="n">value_inr</span><span class="si">:</span><span class="s2">&gt;12,.2f</span><span class="si">}</span><span class="s2"> | "</span>
-</span><span id="__span-4-21"><a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>                <span class="sa">f</span><span class="s2">"Cost: INR </span><span class="si">{</span><span class="n">pt</span><span class="o">.</span><span class="n">invested_inr</span><span class="si">:</span><span class="s2">&gt;12,.2f</span><span class="si">}</span><span class="s2"> | Unrealized Gain: INR </span><span class="si">{</span><span class="n">gain</span><span class="si">:</span><span class="s2">&gt;12,.2f</span><span class="si">}</span><span class="s2">"</span>
-</span><span id="__span-4-22"><a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>            <span class="p">)</span>
-</span><span id="__span-4-23"><a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>
-</span><span id="__span-4-24"><a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>
-</span><span id="__span-4-25"><a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
-</span><span id="__span-4-26"><a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a>    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
-</span></code></pre></div>
-<hr />
-<h2 id="5-tax-capital-gains-reporting">5. Tax Capital Gains Reporting<a class="headerlink" href="#5-tax-capital-gains-reporting" title="Permanent link">&para;</a></h2>
-<p>Fetch realized capital gains reports for tax filing:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">folioman_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">FoliomanClient</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">FoliomanClient</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        <span class="n">investor_id</span> <span class="o">=</span> <span class="mi">1</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>        <span class="c1"># Summary across all financial years</span>
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>        <span class="n">fy_summaries</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">capital_gains</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">investor_id</span><span class="p">)</span>
-</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"Capital Gains by Financial Year:"</span><span class="p">)</span>
-</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>        <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">fy_summaries</span><span class="p">:</span>
-</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  FY </span><span class="si">{</span><span class="n">pt</span><span class="o">.</span><span class="n">fy</span><span class="si">}</span><span class="s2"> -&gt; STCG: INR </span><span class="si">{</span><span class="n">pt</span><span class="o">.</span><span class="n">stcg</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2"> | LTCG: INR </span><span class="si">{</span><span class="n">pt</span><span class="o">.</span><span class="n">ltcg</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>
-</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>        <span class="c1"># Detailed report for a specific financial year</span>
-</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>        <span class="n">target_fy</span> <span class="o">=</span> <span class="s2">"2024-25"</span>
-</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>        <span class="n">report</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">capital_gains</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">investor_id</span><span class="p">,</span> <span class="n">fy</span><span class="o">=</span><span class="n">target_fy</span><span class="p">)</span>
-</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Detailed Gains for </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">fy</span><span class="si">}</span><span class="s2">:"</span><span class="p">)</span>
-</span><span id="__span-5-19"><a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total STCG: INR </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">stcg_total</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total LTCG: INR </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">ltcg_total</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-5-21"><a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>
-</span><span id="__span-5-22"><a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">rows</span><span class="p">:</span>
-</span><span id="__span-5-23"><a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>            <span class="nb">print</span><span class="p">(</span>
-</span><span id="__span-5-24"><a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>                <span class="sa">f</span><span class="s2">" - </span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">sold_on</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">term</span><span class="si">}</span><span class="s2">) | "</span>
-</span><span id="__span-5-25"><a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a>                <span class="sa">f</span><span class="s2">"Proceeds: INR </span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">sale_value</span><span class="si">}</span><span class="s2"> | Cost: INR </span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">cost</span><span class="si">}</span><span class="s2"> | Gain: INR </span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">gain</span><span class="si">}</span><span class="s2">"</span>
-</span><span id="__span-5-26"><a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a>            <span class="p">)</span>
-</span><span id="__span-5-27"><a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a>
-</span><span id="__span-5-28"><a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a>
-</span><span id="__span-5-29"><a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
-</span><span id="__span-5-30"><a id="__codelineno-5-30" name="__codelineno-5-30" href="#__codelineno-5-30"></a>    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
-</span></code></pre></div>
-<hr />
-<h2 id="6-concurrent-investor-fetching-with-asynciogather">6. Concurrent Investor Fetching with <code>asyncio.gather</code><a class="headerlink" href="#6-concurrent-investor-fetching-with-asynciogather" title="Permanent link">&para;</a></h2>
-<p>Execute multiple async operations concurrently with shared connection pooling and single-flight token authentication:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">folioman_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">FoliomanClient</span><span class="p">,</span> <span class="n">PortfolioSummary</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_summary_safe</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">FoliomanClient</span><span class="p">,</span> <span class="n">investor_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PortfolioSummary</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="k">try</span><span class="p">:</span>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>        <span class="k">return</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">investor_id</span><span class="p">)</span>
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to fetch portfolio for investor </span><span class="si">{</span><span class="n">investor_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>        <span class="k">return</span> <span class="kc">None</span>
-</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>
-</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>
-</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">FoliomanClient</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>        <span class="n">investors</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">investors</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
-</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>        <span class="n">investor_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">inv</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">inv</span> <span class="ow">in</span> <span class="n">investors</span><span class="p">]</span>
-</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>
-</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>        <span class="c1"># Fetch portfolios concurrently</span>
-</span><span id="__span-6-19"><a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">get_summary_safe</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">inv_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">inv_id</span> <span class="ow">in</span> <span class="n">investor_ids</span><span class="p">]</span>
-</span><span id="__span-6-20"><a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>        <span class="n">summaries</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">)</span>
-</span><span id="__span-6-21"><a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>
-</span><span id="__span-6-22"><a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>        <span class="n">valid_summaries</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">summaries</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
-</span><span id="__span-6-23"><a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a>        <span class="n">total_aum</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">total_inr</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">valid_summaries</span><span class="p">)</span>
-</span><span id="__span-6-24"><a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total Assets Under Management across </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">valid_summaries</span><span class="p">)</span><span class="si">}</span><span class="s2"> investors: INR </span><span class="si">{</span><span class="n">total_aum</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-6-25"><a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a>
-</span><span id="__span-6-26"><a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a>
-</span><span id="__span-6-27"><a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
-</span><span id="__span-6-28"><a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a>    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="c1"># Launch with background scheduler enabled (runs daemon thread)</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">FoliomanClient</span><span class="p">(</span><span class="n">start_scheduler</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"Folioman engine running with 6-hourly background NAV sync..."</span><span class="p">)</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>        <span class="c1"># Keep process alive</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3600</span><span class="p">)</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </span></code></pre></div>
 
 

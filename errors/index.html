@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Typed asynchronous Python SDK for the Folioman REST API.">
+        <meta name="description" content="Embedded typed Python portfolio engine and CLI for Indian mutual funds and equities.">
       
       
       
@@ -269,7 +269,7 @@
   
     
   
-  Configuration
+  Storage & Database
 
       </a>
     </li>
@@ -282,13 +282,13 @@
   
   
     <li class="md-tabs__item">
-      <a href="../authentication/" class="md-tabs__link">
+      <a href="../cli/" class="md-tabs__link">
         
   
   
     
   
-  Authentication
+  CLI Reference
 
       </a>
     </li>
@@ -307,7 +307,26 @@
   
     
   
-  Client
+  Python Client SDK
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../security/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Security & Privacy
 
       </a>
     </li>
@@ -524,7 +543,7 @@
   <span class="md-ellipsis">
     
   
-    Configuration
+    Storage & Database
   
 
     
@@ -544,14 +563,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../authentication/" class="md-nav__link">
+      <a href="../cli/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Authentication
+    CLI Reference
   
 
     
@@ -578,7 +597,34 @@
   <span class="md-ellipsis">
     
   
-    Client
+    Python Client SDK
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security & Privacy
   
 
     
@@ -719,17 +765,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#foliomanautherror" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        FoliomanAuthError
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#foliomannotfounderror" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -741,38 +776,43 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#foliomanapierror" class="md-nav__link">
+  <a href="#foliomanparseerror" class="md-nav__link">
     <span class="md-ellipsis">
       
-        FoliomanAPIError
+        FoliomanParseError
       
     </span>
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#error-handling-examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Error Handling Examples
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Error Handling Examples">
-      <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#granular-tryexcept-pattern" class="md-nav__link">
+  <a href="#foliomanpassworderror" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Granular Try/Except Pattern
+        FoliomanPasswordError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#foliomanfeederror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FoliomanFeedError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#foliomandatabaseerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FoliomanDatabaseError
       
     </span>
   </a>
@@ -934,17 +974,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#foliomanautherror" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        FoliomanAuthError
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#foliomannotfounderror" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -956,38 +985,43 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#foliomanapierror" class="md-nav__link">
+  <a href="#foliomanparseerror" class="md-nav__link">
     <span class="md-ellipsis">
       
-        FoliomanAPIError
+        FoliomanParseError
       
     </span>
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#error-handling-examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Error Handling Examples
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Error Handling Examples">
-      <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#granular-tryexcept-pattern" class="md-nav__link">
+  <a href="#foliomanpassworderror" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Granular Try/Except Pattern
+        FoliomanPasswordError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#foliomanfeederror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FoliomanFeedError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#foliomandatabaseerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FoliomanDatabaseError
       
     </span>
   </a>
@@ -1025,15 +1059,16 @@
 
 
 <h1 id="error-handling-exceptions">Error Handling &amp; Exceptions<a class="headerlink" href="#error-handling-exceptions" title="Permanent link">&para;</a></h1>
-<p><code>folioman-client</code> provides a focused, predictable exception hierarchy derived from <code>FoliomanError</code>. This allows applications to distinguish between network errors, authentication failures, missing resources, and server faults.</p>
+<p><code>folioman-client</code> provides a focused, predictable exception hierarchy derived from <code>FoliomanError</code>. This allows your application to handle missing entities, PDF password errors, parsing failures, and external price feed issues cleanly.</p>
 <hr />
 <h2 id="exception-hierarchy">Exception Hierarchy<a class="headerlink" href="#exception-hierarchy" title="Permanent link">&para;</a></h2>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>graph TD
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    Exception[Python Exception]
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    Exception --&gt; FoliomanError[FoliomanError]
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    FoliomanError --&gt; FoliomanAuthError[FoliomanAuthError]
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    FoliomanError --&gt; FoliomanNotFoundError[FoliomanNotFoundError]
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    FoliomanError --&gt; FoliomanAPIError[FoliomanAPIError]
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    Exception[Python Exception] --&gt; FoliomanError[FoliomanError]
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    FoliomanError --&gt; FoliomanNotFoundError[FoliomanNotFoundError]
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    FoliomanError --&gt; FoliomanParseError[FoliomanParseError]
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    FoliomanParseError --&gt; FoliomanPasswordError[FoliomanPasswordError]
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    FoliomanError --&gt; FoliomanFeedError[FoliomanFeedError]
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    FoliomanError --&gt; FoliomanDatabaseError[FoliomanDatabaseError]
 </span></code></pre></div>
 <hr />
 <h2 id="exception-classes">Exception Classes<a class="headerlink" href="#exception-classes" title="Permanent link">&para;</a></h2>
@@ -1041,106 +1076,76 @@
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FoliomanError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="sd">"""Base exception for all Folioman client errors."""</span>
 </span></code></pre></div>
-<p>The common ancestor of all SDK exceptions. Catching <code>FoliomanError</code> guarantees you intercept any client-specific exception.</p>
-<hr />
-<h3 id="foliomanautherror"><code>FoliomanAuthError</code><a class="headerlink" href="#foliomanautherror" title="Permanent link">&para;</a></h3>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FoliomanAuthError</span><span class="p">(</span><span class="n">FoliomanError</span><span class="p">):</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="sd">"""Raised when authentication fails (invalid credentials, expired/rejected token refresh)."""</span>
-</span></code></pre></div>
-<ul>
-<li><strong>When Raised</strong>:<ul>
-<li>Invalid username or password supplied during initial token pair generation (<code>HTTP 401</code> on <code>/api/auth/token/pair</code>).</li>
-<li>Refresh token expired, rejected, or revoked (<code>HTTP 401</code> on <code>/api/auth/token/refresh</code>).</li>
-<li>Malformed authentication payload returned by the server.</li>
-<li>Connection or network failure while requesting tokens.</li>
-</ul>
-</li>
-<li><strong>Recommended Action</strong>:<ul>
-<li>Prompt advisor or system operator to re-authenticate or verify credentials.</li>
-<li>Clear cached tokens or invalidate session state.</li>
-</ul>
-</li>
-</ul>
+<p>The common ancestor of all SDK exceptions. Catching <code>FoliomanError</code> intercepts any library-specific error.</p>
 <hr />
 <h3 id="foliomannotfounderror"><code>FoliomanNotFoundError</code><a class="headerlink" href="#foliomannotfounderror" title="Permanent link">&para;</a></h3>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FoliomanNotFoundError</span><span class="p">(</span><span class="n">FoliomanError</span><span class="p">):</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="sd">"""Raised when the requested resource is not found (HTTP 404)."""</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FoliomanNotFoundError</span><span class="p">(</span><span class="n">FoliomanError</span><span class="p">):</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="sd">"""Raised when a requested resource (investor, security, transaction) does not exist."""</span>
 </span></code></pre></div>
 <ul>
 <li><strong>When Raised</strong>:<ul>
-<li>The requested investor ID, security ID, or transaction does not exist (<code>HTTP 404</code>).</li>
+<li>Requesting an <code>investor_id</code> that is not present in the database.</li>
+<li>Querying a <code>security_id</code> not found in the catalog.</li>
 </ul>
 </li>
 <li><strong>Recommended Action</strong>:<ul>
-<li>Handle missing resources gracefully (e.g. return HTTP 404 to your web client, skip entity processing, or create the record).</li>
+<li>Catch and return a 404 or prompt the user to create the entity.</li>
 </ul>
 </li>
 </ul>
 <hr />
-<h3 id="foliomanapierror"><code>FoliomanAPIError</code><a class="headerlink" href="#foliomanapierror" title="Permanent link">&para;</a></h3>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FoliomanAPIError</span><span class="p">(</span><span class="n">FoliomanError</span><span class="p">):</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>        <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>        <span class="n">status_code</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>        <span class="n">response_data</span><span class="p">:</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>        <span class="o">...</span>
+<h3 id="foliomanparseerror"><code>FoliomanParseError</code><a class="headerlink" href="#foliomanparseerror" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FoliomanParseError</span><span class="p">(</span><span class="n">FoliomanError</span><span class="p">):</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="sd">"""Raised when statement parsing fails or document shape is unsupported."""</span>
 </span></code></pre></div>
 <ul>
-<li><strong>Attributes</strong>:<ul>
-<li><code>status_code</code> (<em>int</em>): The exact HTTP status code returned by the server (e.g. <code>400</code>, <code>403</code>, <code>422</code>, <code>500</code>).</li>
-<li><code>response_data</code> (<em>Any | None</em>): The parsed JSON payload or raw text string returned by the server detailing the error.</li>
-</ul>
-</li>
 <li><strong>When Raised</strong>:<ul>
-<li>Business rule violations (<code>HTTP 400</code>).</li>
-<li>Unprocessable entity validation errors (<code>HTTP 422</code>).</li>
-<li>Upstream server failures or database connectivity issues (<code>HTTP 500</code>, <code>502</code>, <code>503</code>).</li>
-<li>Response payload is not valid JSON.</li>
+<li>The supplied file is not a valid CAMS/KFintech or NSDL/CDSL PDF statement.</li>
+<li>The PDF structure is corrupted.</li>
 </ul>
 </li>
 </ul>
 <hr />
-<h2 id="error-handling-examples">Error Handling Examples<a class="headerlink" href="#error-handling-examples" title="Permanent link">&para;</a></h2>
-<h3 id="granular-tryexcept-pattern">Granular Try/Except Pattern<a class="headerlink" href="#granular-tryexcept-pattern" title="Permanent link">&para;</a></h3>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">folioman_client</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">FoliomanClient</span><span class="p">,</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">FoliomanAuthError</span><span class="p">,</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">FoliomanNotFoundError</span><span class="p">,</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">FoliomanAPIError</span><span class="p">,</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="n">FoliomanError</span><span class="p">,</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="p">)</span>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>
-</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fetch_investor_safe</span><span class="p">(</span><span class="n">investor_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">FoliomanClient</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>        <span class="k">try</span><span class="p">:</span>
-</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>            <span class="n">investor</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">investors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">investor_id</span><span class="p">)</span>
-</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Loaded: </span><span class="si">{</span><span class="n">investor</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>
-</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>        <span class="k">except</span> <span class="n">FoliomanAuthError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Authentication failed: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">. Please check your credentials."</span><span class="p">)</span>
-</span><span id="__span-5-19"><a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>
-</span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>        <span class="k">except</span> <span class="n">FoliomanNotFoundError</span><span class="p">:</span>
-</span><span id="__span-5-21"><a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Investor with ID </span><span class="si">{</span><span class="n">investor_id</span><span class="si">}</span><span class="s2"> does not exist."</span><span class="p">)</span>
-</span><span id="__span-5-22"><a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>
-</span><span id="__span-5-23"><a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>        <span class="k">except</span> <span class="n">FoliomanAPIError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-</span><span id="__span-5-24"><a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"API Error [</span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">]: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-5-25"><a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a>            <span class="k">if</span> <span class="n">exc</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">422</span><span class="p">:</span>
-</span><span id="__span-5-26"><a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Validation details: </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">response_data</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-5-27"><a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a>
-</span><span id="__span-5-28"><a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a>        <span class="k">except</span> <span class="n">FoliomanError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-</span><span id="__span-5-29"><a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Generic Folioman client error: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-5-30"><a id="__codelineno-5-30" name="__codelineno-5-30" href="#__codelineno-5-30"></a>
-</span><span id="__span-5-31"><a id="__codelineno-5-31" name="__codelineno-5-31" href="#__codelineno-5-31"></a>        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-</span><span id="__span-5-32"><a id="__codelineno-5-32" name="__codelineno-5-32" href="#__codelineno-5-32"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unexpected application error: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-5-33"><a id="__codelineno-5-33" name="__codelineno-5-33" href="#__codelineno-5-33"></a>
-</span><span id="__span-5-34"><a id="__codelineno-5-34" name="__codelineno-5-34" href="#__codelineno-5-34"></a>
-</span><span id="__span-5-35"><a id="__codelineno-5-35" name="__codelineno-5-35" href="#__codelineno-5-35"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
-</span><span id="__span-5-36"><a id="__codelineno-5-36" name="__codelineno-5-36" href="#__codelineno-5-36"></a>    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">fetch_investor_safe</span><span class="p">(</span><span class="mi">9999</span><span class="p">))</span>
+<h3 id="foliomanpassworderror"><code>FoliomanPasswordError</code><a class="headerlink" href="#foliomanpassworderror" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FoliomanPasswordError</span><span class="p">(</span><span class="n">FoliomanParseError</span><span class="p">):</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="sd">"""Raised when the PDF password is wrong or missing."""</span>
 </span></code></pre></div>
+<ul>
+<li><strong>When Raised</strong>:<ul>
+<li>Encrypted CAS PDF cannot be unlocked with the provided password.</li>
+</ul>
+</li>
+<li><strong>Recommended Action</strong>:<ul>
+<li>Prompt the user to re-enter their statement password (usually the investor's PAN).</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="foliomanfeederror"><code>FoliomanFeedError</code><a class="headerlink" href="#foliomanfeederror" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FoliomanFeedError</span><span class="p">(</span><span class="n">FoliomanError</span><span class="p">):</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="sd">"""Raised when external price feed APIs fail or return malformed data."""</span>
+</span></code></pre></div>
+<ul>
+<li><strong>When Raised</strong>:<ul>
+<li>Network timeout or HTTP 5xx errors from <code>mfapi.in</code>, AMFI, Yahoo Finance, or CoinGecko.</li>
+</ul>
+</li>
+<li><strong>Recommended Action</strong>:<ul>
+<li>Retain existing stale prices and retry the sync later.</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="foliomandatabaseerror"><code>FoliomanDatabaseError</code><a class="headerlink" href="#foliomandatabaseerror" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FoliomanDatabaseError</span><span class="p">(</span><span class="n">FoliomanError</span><span class="p">):</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="sd">"""Raised on database connection failures or integrity constraint violations."""</span>
+</span></code></pre></div>
+<ul>
+<li><strong>When Raised</strong>:<ul>
+<li>Database URL is unreachable or connection pool is exhausted.</li>
+</ul>
+</li>
+</ul>
 
 
 

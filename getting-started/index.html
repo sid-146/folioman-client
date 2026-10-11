@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Typed asynchronous Python SDK for the Folioman REST API.">
+        <meta name="description" content="Embedded typed Python portfolio engine and CLI for Indian mutual funds and equities.">
       
       
       
@@ -271,7 +271,7 @@
   
     
   
-  Configuration
+  Storage & Database
 
       </a>
     </li>
@@ -284,13 +284,13 @@
   
   
     <li class="md-tabs__item">
-      <a href="../authentication/" class="md-tabs__link">
+      <a href="../cli/" class="md-tabs__link">
         
   
   
     
   
-  Authentication
+  CLI Reference
 
       </a>
     </li>
@@ -309,7 +309,26 @@
   
     
   
-  Client
+  Python Client SDK
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../security/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Security & Privacy
 
       </a>
     </li>
@@ -550,17 +569,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Prerequisites
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#1-installation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -573,32 +581,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#using-pip" class="md-nav__link">
+  <a href="#optional-postgresql-support" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Using pip
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#using-uv" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Using uv
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#from-source" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        From Source
+        Optional PostgreSQL Support
       
     </span>
   </a>
@@ -611,22 +597,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-basic-client-creation" class="md-nav__link">
+  <a href="#2-quick-cli-tour" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Basic Client Creation
+        2. Quick CLI Tour
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="2. Basic Client Creation">
+    <nav class="md-nav" aria-label="2. Quick CLI Tour">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#explicit-arguments" class="md-nav__link">
+  <a href="#step-a-initialize-and-seed-reference-data" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Explicit Arguments
+        Step A: Initialize and Seed Reference Data
       
     </span>
   </a>
@@ -634,10 +620,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#from-foliomansettings" class="md-nav__link">
+  <a href="#step-b-ingest-a-cas-pdf" class="md-nav__link">
     <span class="md-ellipsis">
       
-        From FoliomanSettings
+        Step B: Ingest a CAS PDF
       
     </span>
   </a>
@@ -645,10 +631,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#from-environment-variables-from_env" class="md-nav__link">
+  <a href="#step-c-fetch-latest-market-navs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        From Environment Variables (from_env)
+        Step C: Fetch Latest Market NAVs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-d-reconcile-balances" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step D: Reconcile Balances
       
     </span>
   </a>
@@ -661,32 +658,77 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-asynchronous-context-manager-usage" class="md-nav__link">
+  <a href="#3-python-sdk-quickstart" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Asynchronous Context Manager Usage
+        3. Python SDK Quickstart
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Python SDK Quickstart">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#minimal-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Minimal Script
       
     </span>
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
-  <a href="#4-making-your-first-api-request" class="md-nav__link">
+  <a href="#4-connecting-to-postgresql-or-mysql" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Making Your First API Request
+        4. Connecting to PostgreSQL or MySQL
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Connecting to PostgreSQL or MySQL">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#via-environment-variable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Via Environment Variable
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#5-next-steps" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#in-python-code" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. Next Steps
+        In Python Code
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
       
     </span>
   </a>
@@ -715,7 +757,7 @@
   <span class="md-ellipsis">
     
   
-    Configuration
+    Storage & Database
   
 
     
@@ -735,14 +777,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../authentication/" class="md-nav__link">
+      <a href="../cli/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Authentication
+    CLI Reference
   
 
     
@@ -769,7 +811,34 @@
   <span class="md-ellipsis">
     
   
-    Client
+    Python Client SDK
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security & Privacy
   
 
     
@@ -944,17 +1013,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Prerequisites
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#1-installation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -967,32 +1025,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#using-pip" class="md-nav__link">
+  <a href="#optional-postgresql-support" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Using pip
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#using-uv" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Using uv
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#from-source" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        From Source
+        Optional PostgreSQL Support
       
     </span>
   </a>
@@ -1005,22 +1041,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-basic-client-creation" class="md-nav__link">
+  <a href="#2-quick-cli-tour" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Basic Client Creation
+        2. Quick CLI Tour
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="2. Basic Client Creation">
+    <nav class="md-nav" aria-label="2. Quick CLI Tour">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#explicit-arguments" class="md-nav__link">
+  <a href="#step-a-initialize-and-seed-reference-data" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Explicit Arguments
+        Step A: Initialize and Seed Reference Data
       
     </span>
   </a>
@@ -1028,10 +1064,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#from-foliomansettings" class="md-nav__link">
+  <a href="#step-b-ingest-a-cas-pdf" class="md-nav__link">
     <span class="md-ellipsis">
       
-        From FoliomanSettings
+        Step B: Ingest a CAS PDF
       
     </span>
   </a>
@@ -1039,10 +1075,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#from-environment-variables-from_env" class="md-nav__link">
+  <a href="#step-c-fetch-latest-market-navs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        From Environment Variables (from_env)
+        Step C: Fetch Latest Market NAVs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-d-reconcile-balances" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step D: Reconcile Balances
       
     </span>
   </a>
@@ -1055,32 +1102,77 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-asynchronous-context-manager-usage" class="md-nav__link">
+  <a href="#3-python-sdk-quickstart" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Asynchronous Context Manager Usage
+        3. Python SDK Quickstart
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Python SDK Quickstart">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#minimal-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Minimal Script
       
     </span>
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
-  <a href="#4-making-your-first-api-request" class="md-nav__link">
+  <a href="#4-connecting-to-postgresql-or-mysql" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Making Your First API Request
+        4. Connecting to PostgreSQL or MySQL
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Connecting to PostgreSQL or MySQL">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#via-environment-variable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Via Environment Variable
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#5-next-steps" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#in-python-code" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. Next Steps
+        In Python Code
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
       
     </span>
   </a>
@@ -1113,144 +1205,124 @@
 
 
 <h1 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h1>
-<p>This guide walks you through installing <code>folioman-client</code>, configuring credentials, instantiating the asynchronous client, and executing your first API requests.</p>
-<hr />
-<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
-<p>This client library depends on a running instance of the <strong><a href="https://github.com/codereverser/folioman">Folioman</a></strong> backend service.</p>
-<p>Before using <code>folioman-client</code>, ensure that:</p>
-<ol>
-<li><strong>Running Folioman Service</strong>: A Folioman server instance is running and reachable (default: <code>http://localhost:8000</code>, or configured via <code>base_url</code> / <code>FOLIOMAN_BASE_URL</code>). Refer to the <a href="https://github.com/codereverser/folioman">Folioman repository</a> for instructions on setting up and starting the service.</li>
-<li><strong>Valid Credentials</strong>: You have registered advisor or user credentials (<code>username</code> and <code>password</code>) on the Folioman service.</li>
-</ol>
+<p>This guide walks you through installing <code>folioman-client</code>, initializing the database, importing a Consolidated Account Statement (CAS), syncing market NAVs, and inspecting portfolio metrics and capital gains.</p>
 <hr />
 <h2 id="1-installation">1. Installation<a class="headerlink" href="#1-installation" title="Permanent link">&para;</a></h2>
-<h3 id="using-pip">Using pip<a class="headerlink" href="#using-pip" title="Permanent link">&para;</a></h3>
+<p>Install the package using your preferred package manager:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">pip</label><label for="__tabbed_1_2">uv</label><label for="__tabbed_1_3">poetry</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>folioman-client
 </span></code></pre></div>
-<h3 id="using-uv">Using uv<a class="headerlink" href="#using-uv" title="Permanent link">&para;</a></h3>
-<p>If you are using Astral's <code>uv</code>:</p>
+</div>
+<div class="tabbed-block">
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uv<span class="w"> </span>add<span class="w"> </span>folioman-client
 </span></code></pre></div>
-<h3 id="from-source">From Source<a class="headerlink" href="#from-source" title="Permanent link">&para;</a></h3>
-<p>For development or bleeding-edge features:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/sid-146/folioman-client.git
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nb">cd</span><span class="w"> </span>folioman-client
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>uv<span class="w"> </span>sync
+</div>
+<div class="tabbed-block">
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>poetry<span class="w"> </span>add<span class="w"> </span>folioman-client
+</span></code></pre></div>
+</div>
+</div>
+</div>
+<h3 id="optional-postgresql-support">Optional PostgreSQL Support<a class="headerlink" href="#optional-postgresql-support" title="Permanent link">&para;</a></h3>
+<p>If you plan to use a PostgreSQL database instead of the default SQLite:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"folioman-client[postgres]"</span>
 </span></code></pre></div>
 <hr />
-<h2 id="2-basic-client-creation">2. Basic Client Creation<a class="headerlink" href="#2-basic-client-creation" title="Permanent link">&para;</a></h2>
-<p><code>FoliomanClient</code> offers three primary ways to initialize connection settings:</p>
-<h3 id="explicit-arguments">Explicit Arguments<a class="headerlink" href="#explicit-arguments" title="Permanent link">&para;</a></h3>
-<p>Pass configuration directly when creating the instance:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">folioman_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">FoliomanClient</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">FoliomanClient</span><span class="p">(</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">base_url</span><span class="o">=</span><span class="s2">"http://localhost:8000"</span><span class="p">,</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">username</span><span class="o">=</span><span class="s2">"advisor_1"</span><span class="p">,</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">password</span><span class="o">=</span><span class="s2">"supersecretpassword"</span><span class="p">,</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="n">timeout</span><span class="o">=</span><span class="mf">30.0</span><span class="p">,</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="p">)</span>
+<h2 id="2-quick-cli-tour">2. Quick CLI Tour<a class="headerlink" href="#2-quick-cli-tour" title="Permanent link">&para;</a></h2>
+<p><code>folioman-client</code> provides a terminal command <code>folioman</code>.</p>
+<h3 id="step-a-initialize-and-seed-reference-data">Step A: Initialize and Seed Reference Data<a class="headerlink" href="#step-a-initialize-and-seed-reference-data" title="Permanent link">&para;</a></h3>
+<p>On a fresh installation, seed the national ISIN reference dictionary:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>folioman<span class="w"> </span>isin<span class="w"> </span>seed
 </span></code></pre></div>
-<h3 id="from-foliomansettings">From <code>FoliomanSettings</code><a class="headerlink" href="#from-foliomansettings" title="Permanent link">&para;</a></h3>
-<p>Configure using strongly typed Pydantic settings:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">folioman_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">FoliomanClient</span><span class="p">,</span> <span class="n">FoliomanSettings</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">settings</span> <span class="o">=</span> <span class="n">FoliomanSettings</span><span class="p">(</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">base_url</span><span class="o">=</span><span class="s2">"https://api.folioman.internal"</span><span class="p">,</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">username</span><span class="o">=</span><span class="s2">"advisor_1"</span><span class="p">,</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="n">password</span><span class="o">=</span><span class="s2">"supersecretpassword"</span><span class="p">,</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="n">timeout</span><span class="o">=</span><span class="mf">45.0</span><span class="p">,</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="p">)</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="n">client</span> <span class="o">=</span> <span class="n">FoliomanClient</span><span class="o">.</span><span class="n">from_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+<p>This populates the <code>ref_schemes</code>, <code>ref_isins</code>, and <code>ref_grandfathering_navs</code> tables inside your database (defaulting to <code>~/.folioman/folioman.db</code>).</p>
+<h3 id="step-b-ingest-a-cas-pdf">Step B: Ingest a CAS PDF<a class="headerlink" href="#step-b-ingest-a-cas-pdf" title="Permanent link">&para;</a></h3>
+<p>Download your Consolidated Account Statement PDF from CAMS, KFintech, or NSDL/CDSL, and import it:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>folioman<span class="w"> </span>import<span class="w"> </span>cas<span class="w"> </span>~/Downloads/CAS_Jan_2026.pdf<span class="w"> </span>--password<span class="w"> </span><span class="s2">"MYPAN1234F"</span>
 </span></code></pre></div>
-<h3 id="from-environment-variables-from_env">From Environment Variables (<code>from_env</code>)<a class="headerlink" href="#from-environment-variables-from_env" title="Permanent link">&para;</a></h3>
-<p>Automatically detect credentials from system environment variables or a local <code>.env</code> file:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">folioman_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">FoliomanClient</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">FoliomanClient</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
+<p>The CLI parses all schemes and transactions, normalizes folios, deduplicates historical rows, and establishes the investor profile.</p>
+<h3 id="step-c-fetch-latest-market-navs">Step C: Fetch Latest Market NAVs<a class="headerlink" href="#step-c-fetch-latest-market-navs" title="Permanent link">&para;</a></h3>
+<p>Sync latest daily NAVs and market closing quotes:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>folioman<span class="w"> </span>navs<span class="w"> </span>refresh
+</span></code></pre></div>
+<p>To backfill historical NAV gaps back to the earliest transaction date:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>folioman<span class="w"> </span>navs<span class="w"> </span>backfill
+</span></code></pre></div>
+<h3 id="step-d-reconcile-balances">Step D: Reconcile Balances<a class="headerlink" href="#step-d-reconcile-balances" title="Permanent link">&para;</a></h3>
+<p>Verify your trade ledger against the reported statement closing units:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>folioman<span class="w"> </span>reconcile<span class="w"> </span>all
 </span></code></pre></div>
 <hr />
-<h2 id="3-asynchronous-context-manager-usage">3. Asynchronous Context Manager Usage<a class="headerlink" href="#3-asynchronous-context-manager-usage" title="Permanent link">&para;</a></h2>
-<p>We strongly recommend using <code>FoliomanClient</code> inside an <code>async with</code> block. The context manager guarantees that the underlying <code>httpx.AsyncClient</code> transport and its connection pools are cleanly closed when execution exits:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">folioman_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">FoliomanClient</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">FoliomanClient</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>        <span class="n">investors</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">investors</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">investors</span><span class="p">)</span><span class="si">}</span><span class="s2"> accessible investors."</span><span class="p">)</span>
-</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>
-</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>
-</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
-</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
-</span></code></pre></div>
-<p>If you manage the client manually without a context manager, ensure you invoke <code>await client.close()</code> in a <code>finally</code> block:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">client</span> <span class="o">=</span> <span class="n">FoliomanClient</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">try</span><span class="p">:</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">investors</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">investors</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="k">finally</span><span class="p">:</span>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-</span></code></pre></div>
-<hr />
-<h2 id="4-making-your-first-api-request">4. Making Your First API Request<a class="headerlink" href="#4-making-your-first-api-request" title="Permanent link">&para;</a></h2>
-<p>Here is a complete, executable script that connects to the Folioman service, lists investors, fetches a detailed profile, and retrieves an investor's portfolio valuation:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">folioman_client</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="n">FoliomanClient</span><span class="p">,</span>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="n">FoliomanNotFoundError</span><span class="p">,</span>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="n">FoliomanAuthError</span><span class="p">,</span>
-</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    <span class="n">FoliomanAPIError</span><span class="p">,</span>
-</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="p">)</span>
-</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>
-</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>
-</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">FoliomanClient</span><span class="p">(</span>
-</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>        <span class="n">base_url</span><span class="o">=</span><span class="s2">"http://localhost:8000"</span><span class="p">,</span>
-</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>        <span class="n">username</span><span class="o">=</span><span class="s2">"advisor"</span><span class="p">,</span>
-</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>        <span class="n">password</span><span class="o">=</span><span class="s2">"password123"</span><span class="p">,</span>
-</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>    <span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>        <span class="k">try</span><span class="p">:</span>
-</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>            <span class="c1"># 1. List accessible investors</span>
-</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>            <span class="n">investors</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">investors</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
-</span><span id="__span-8-19"><a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>            <span class="k">if</span> <span class="ow">not</span> <span class="n">investors</span><span class="p">:</span>
-</span><span id="__span-8-20"><a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a>                <span class="nb">print</span><span class="p">(</span><span class="s2">"No investors found."</span><span class="p">)</span>
-</span><span id="__span-8-21"><a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a>                <span class="k">return</span>
-</span><span id="__span-8-22"><a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a>
-</span><span id="__span-8-23"><a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a>            <span class="n">first_investor</span> <span class="o">=</span> <span class="n">investors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span id="__span-8-24"><a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Primary Investor: </span><span class="si">{</span><span class="n">first_investor</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (ID: </span><span class="si">{</span><span class="n">first_investor</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
-</span><span id="__span-8-25"><a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a>
-</span><span id="__span-8-26"><a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a>            <span class="c1"># 2. Fetch detailed profile with masked PAN</span>
-</span><span id="__span-8-27"><a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a>            <span class="n">detail</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">investors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">first_investor</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
-</span><span id="__span-8-28"><a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"PAN: </span><span class="si">{</span><span class="n">detail</span><span class="o">.</span><span class="n">pan_masked</span><span class="si">}</span><span class="s2"> | Email: </span><span class="si">{</span><span class="n">detail</span><span class="o">.</span><span class="n">email</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-8-29"><a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a>
-</span><span id="__span-8-30"><a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a>            <span class="c1"># 3. Retrieve portfolio summary</span>
-</span><span id="__span-8-31"><a id="__codelineno-8-31" name="__codelineno-8-31" href="#__codelineno-8-31"></a>            <span class="n">summary</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">first_investor</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
-</span><span id="__span-8-32"><a id="__codelineno-8-32" name="__codelineno-8-32" href="#__codelineno-8-32"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Portfolio Total: INR </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">total_inr</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-8-33"><a id="__codelineno-8-33" name="__codelineno-8-33" href="#__codelineno-8-33"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"XIRR: </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">xirr</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%"</span> <span class="k">if</span> <span class="n">summary</span><span class="o">.</span><span class="n">xirr</span> <span class="k">else</span> <span class="s2">"XIRR: N/A"</span><span class="p">)</span>
-</span><span id="__span-8-34"><a id="__codelineno-8-34" name="__codelineno-8-34" href="#__codelineno-8-34"></a>
-</span><span id="__span-8-35"><a id="__codelineno-8-35" name="__codelineno-8-35" href="#__codelineno-8-35"></a>            <span class="c1"># 4. Inspect holdings</span>
-</span><span id="__span-8-36"><a id="__codelineno-8-36" name="__codelineno-8-36" href="#__codelineno-8-36"></a>            <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Top Holdings:"</span><span class="p">)</span>
-</span><span id="__span-8-37"><a id="__codelineno-8-37" name="__codelineno-8-37" href="#__codelineno-8-37"></a>            <span class="k">for</span> <span class="n">holding</span> <span class="ow">in</span> <span class="n">summary</span><span class="o">.</span><span class="n">holdings</span><span class="p">[:</span><span class="mi">5</span><span class="p">]:</span>
-</span><span id="__span-8-38"><a id="__codelineno-8-38" name="__codelineno-8-38" href="#__codelineno-8-38"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">" - </span><span class="si">{</span><span class="n">holding</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">holding</span><span class="o">.</span><span class="n">security_type</span><span class="si">}</span><span class="s2">): INR </span><span class="si">{</span><span class="n">holding</span><span class="o">.</span><span class="n">value_inr</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-8-39"><a id="__codelineno-8-39" name="__codelineno-8-39" href="#__codelineno-8-39"></a>
-</span><span id="__span-8-40"><a id="__codelineno-8-40" name="__codelineno-8-40" href="#__codelineno-8-40"></a>        <span class="k">except</span> <span class="n">FoliomanAuthError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-</span><span id="__span-8-41"><a id="__codelineno-8-41" name="__codelineno-8-41" href="#__codelineno-8-41"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Authentication failed: </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-8-42"><a id="__codelineno-8-42" name="__codelineno-8-42" href="#__codelineno-8-42"></a>        <span class="k">except</span> <span class="n">FoliomanNotFoundError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-</span><span id="__span-8-43"><a id="__codelineno-8-43" name="__codelineno-8-43" href="#__codelineno-8-43"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Requested resource not found: </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-8-44"><a id="__codelineno-8-44" name="__codelineno-8-44" href="#__codelineno-8-44"></a>        <span class="k">except</span> <span class="n">FoliomanAPIError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-</span><span id="__span-8-45"><a id="__codelineno-8-45" name="__codelineno-8-45" href="#__codelineno-8-45"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Folioman API returned error [</span><span class="si">{</span><span class="n">err</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">]: </span><span class="si">{</span><span class="n">err</span><span class="o">.</span><span class="n">response_data</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-8-46"><a id="__codelineno-8-46" name="__codelineno-8-46" href="#__codelineno-8-46"></a>
-</span><span id="__span-8-47"><a id="__codelineno-8-47" name="__codelineno-8-47" href="#__codelineno-8-47"></a>
-</span><span id="__span-8-48"><a id="__codelineno-8-48" name="__codelineno-8-48" href="#__codelineno-8-48"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
-</span><span id="__span-8-49"><a id="__codelineno-8-49" name="__codelineno-8-49" href="#__codelineno-8-49"></a>    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+<h2 id="3-python-sdk-quickstart">3. Python SDK Quickstart<a class="headerlink" href="#3-python-sdk-quickstart" title="Permanent link">&para;</a></h2>
+<p>You can perform the exact same workflows programmatically within your Python code.</p>
+<h3 id="minimal-script">Minimal Script<a class="headerlink" href="#minimal-script" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">folioman_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">FoliomanClient</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="c1"># 1. Connect (defaults to SQLite; or pass database_url="postgresql+psycopg://...")</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">FoliomanClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>        <span class="c1"># 2. Ingest statement</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"Importing CAS statement..."</span><span class="p">)</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>        <span class="n">job</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">imports</span><span class="o">.</span><span class="n">cas_pdf</span><span class="p">(</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>            <span class="n">file_path</span><span class="o">=</span><span class="s2">"CAS_Jan_2026.pdf"</span><span class="p">,</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>            <span class="n">password</span><span class="o">=</span><span class="s2">"ABCDE1234F"</span><span class="p">,</span>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>        <span class="p">)</span>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Imported successfully! Created </span><span class="si">{</span><span class="n">job</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'transactions_created'</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="si">}</span><span class="s2"> transactions."</span><span class="p">)</span>
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>        <span class="c1"># 3. Refresh market NAVs</span>
+</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"Refreshing market NAVs..."</span><span class="p">)</span>
+</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>        <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">navs</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
+</span><span id="__span-9-19"><a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>
+</span><span id="__span-9-20"><a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>        <span class="c1"># 4. List investors</span>
+</span><span id="__span-9-21"><a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>        <span class="n">investors</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">investors</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+</span><span id="__span-9-22"><a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>        <span class="k">for</span> <span class="n">inv</span> <span class="ow">in</span> <span class="n">investors</span><span class="p">:</span>
+</span><span id="__span-9-23"><a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Investor: </span><span class="si">{</span><span class="n">inv</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (ID: </span><span class="si">{</span><span class="n">inv</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+</span><span id="__span-9-24"><a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>
+</span><span id="__span-9-25"><a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a>            <span class="c1"># 5. Fetch full portfolio summary</span>
+</span><span id="__span-9-26"><a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a>            <span class="n">summary</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">inv</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+</span><span id="__span-9-27"><a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Total Portfolio Value: INR </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">total_inr</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-9-28"><a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Total Cost Basis:     INR </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">invested_inr</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-9-29"><a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a>            <span class="k">if</span> <span class="n">summary</span><span class="o">.</span><span class="n">xirr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-9-30"><a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Annualized XIRR:      </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">xirr</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%"</span><span class="p">)</span>
+</span><span id="__span-9-31"><a id="__codelineno-9-31" name="__codelineno-9-31" href="#__codelineno-9-31"></a>
+</span><span id="__span-9-32"><a id="__codelineno-9-32" name="__codelineno-9-32" href="#__codelineno-9-32"></a>            <span class="c1"># 6. Inspect priced holdings</span>
+</span><span id="__span-9-33"><a id="__codelineno-9-33" name="__codelineno-9-33" href="#__codelineno-9-33"></a>            <span class="n">holdings</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">holdings</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">inv</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+</span><span id="__span-9-34"><a id="__codelineno-9-34" name="__codelineno-9-34" href="#__codelineno-9-34"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Holdings count:       </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">holdings</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-9-35"><a id="__codelineno-9-35" name="__codelineno-9-35" href="#__codelineno-9-35"></a>            <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">holdings</span><span class="p">[:</span><span class="mi">5</span><span class="p">]:</span>
+</span><span id="__span-9-36"><a id="__codelineno-9-36" name="__codelineno-9-36" href="#__codelineno-9-36"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    - </span><span class="si">{</span><span class="n">h</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">h</span><span class="o">.</span><span class="n">units</span><span class="si">}</span><span class="s2"> units | INR </span><span class="si">{</span><span class="n">h</span><span class="o">.</span><span class="n">value_inr</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-9-37"><a id="__codelineno-9-37" name="__codelineno-9-37" href="#__codelineno-9-37"></a>
+</span><span id="__span-9-38"><a id="__codelineno-9-38" name="__codelineno-9-38" href="#__codelineno-9-38"></a>            <span class="c1"># 7. Generate Realized Capital Gains Report (Schedule 112A)</span>
+</span><span id="__span-9-39"><a id="__codelineno-9-39" name="__codelineno-9-39" href="#__codelineno-9-39"></a>            <span class="n">gains</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">capital_gains</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">inv</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">fy</span><span class="o">=</span><span class="s2">"2024-25"</span><span class="p">)</span>
+</span><span id="__span-9-40"><a id="__codelineno-9-40" name="__codelineno-9-40" href="#__codelineno-9-40"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  FY 2024-25 Realized LTCG: INR </span><span class="si">{</span><span class="n">gains</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">ltcg_inr</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-9-41"><a id="__codelineno-9-41" name="__codelineno-9-41" href="#__codelineno-9-41"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  FY 2024-25 Realized STCG: INR </span><span class="si">{</span><span class="n">gains</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">stcg_inr</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-9-42"><a id="__codelineno-9-42" name="__codelineno-9-42" href="#__codelineno-9-42"></a>
+</span><span id="__span-9-43"><a id="__codelineno-9-43" name="__codelineno-9-43" href="#__codelineno-9-43"></a>
+</span><span id="__span-9-44"><a id="__codelineno-9-44" name="__codelineno-9-44" href="#__codelineno-9-44"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+</span><span id="__span-9-45"><a id="__codelineno-9-45" name="__codelineno-9-45" href="#__codelineno-9-45"></a>    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </span></code></pre></div>
 <hr />
-<h2 id="5-next-steps">5. Next Steps<a class="headerlink" href="#5-next-steps" title="Permanent link">&para;</a></h2>
+<h2 id="4-connecting-to-postgresql-or-mysql">4. Connecting to PostgreSQL or MySQL<a class="headerlink" href="#4-connecting-to-postgresql-or-mysql" title="Permanent link">&para;</a></h2>
+<p>To switch from SQLite to PostgreSQL or MySQL, pass the connection URL to the client or set the <code>FOLIOMAN_DATABASE_URL</code> environment variable:</p>
+<h3 id="via-environment-variable">Via Environment Variable<a class="headerlink" href="#via-environment-variable" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">FOLIOMAN_DATABASE_URL</span><span class="o">=</span><span class="s2">"postgresql+psycopg://postgres:secret@localhost:5432/my_portfolio"</span>
+</span></code></pre></div>
+<h3 id="in-python-code">In Python Code<a class="headerlink" href="#in-python-code" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">folioman_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">FoliomanClient</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">FoliomanClient</span><span class="p">(</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="n">database_url</span><span class="o">=</span><span class="s2">"postgresql+psycopg://postgres:secret@localhost:5432/my_portfolio"</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="p">)</span>
+</span></code></pre></div>
+<p>The library automatically creates all tables and indexes, seeds reference dictionaries, and configures connection pooling.</p>
+<hr />
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Explore <a href="../configuration/">Configuration</a> to set up <code>.env</code> files and production overrides.</li>
-<li>Learn about <a href="../authentication/">Authentication</a> and automated token refresh mechanics.</li>
-<li>Inspect the <a href="../client/">Client Resource Reference</a> to see all methods available on <code>client.portfolio</code>, <code>client.holdings</code>, <code>client.transactions</code>, <code>client.valuations</code>, and <code>client.capital_gains</code>.</li>
+<li>Explore <a href="../configuration/">Storage &amp; Database Configuration</a> to learn about SQLite concurrency and PostgreSQL setup.</li>
+<li>Read the <a href="../cli/">CLI Reference</a> for full terminal command options.</li>
+<li>Review the <a href="../client/">Python Client SDK</a> for detailed resource APIs and methods.</li>
 </ul>
 
 

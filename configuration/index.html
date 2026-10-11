@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Typed asynchronous Python SDK for the Folioman REST API.">
+        <meta name="description" content="Embedded typed Python portfolio engine and CLI for Indian mutual funds and equities.">
       
       
       
@@ -16,7 +16,7 @@
         <link rel="prev" href="../getting-started/">
       
       
-        <link rel="next" href="../authentication/">
+        <link rel="next" href="../cli/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Configuration - Folioman Client</title>
+        <title>Storage & Database - Folioman Client</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#configuration" class="md-skip">
+        <a href="#storage-configuration" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Configuration
+              Storage & Database
             
           </span>
         </div>
@@ -271,7 +271,7 @@
   
     
   
-  Configuration
+  Storage & Database
 
       </a>
     </li>
@@ -284,13 +284,13 @@
   
   
     <li class="md-tabs__item">
-      <a href="../authentication/" class="md-tabs__link">
+      <a href="../cli/" class="md-tabs__link">
         
   
   
     
   
-  Authentication
+  CLI Reference
 
       </a>
     </li>
@@ -309,7 +309,26 @@
   
     
   
-  Client
+  Python Client SDK
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../security/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Security & Privacy
 
       </a>
     </li>
@@ -533,7 +552,7 @@
   <span class="md-ellipsis">
     
   
-    Configuration
+    Storage & Database
   
 
     
@@ -551,7 +570,7 @@
   <span class="md-ellipsis">
     
   
-    Configuration
+    Storage & Database
   
 
     
@@ -599,11 +618,67 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#helper-properties" class="md-nav__link">
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Helper Properties
+        Database Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Database Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-sqlite-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. SQLite (Default)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. SQLite (Default)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sqlite-concurrency-guards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SQLite Concurrency Guards
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-postgresql-production-team-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. PostgreSQL (Production &amp; Team Use)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-mysql-mariadb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. MySQL / MariaDB
       
     </span>
   </a>
@@ -616,130 +691,35 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#environment-variables-and-env-files" class="md-nav__link">
+  <a href="#unified-database-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Environment Variables and .env Files
+        Unified Database Model
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Environment Variables and .env Files">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#example-env-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Example .env Configuration
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#loading-and-overriding-configuration" class="md-nav__link">
+  <a href="#schema-initialization-versioning" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Loading and Overriding Configuration
+        Schema Initialization &amp; Versioning
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Loading and Overriding Configuration">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-default-global-settings-settings" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Default Global Settings (settings)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-loading-via-from_env" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. Loading via from_env()
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-programmatic-overrides-with-from_settings" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Programmatic Overrides with from_settings()
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-direct-constructor-overrides" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. Direct Constructor Overrides
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#recommended-configurations" class="md-nav__link">
+  <a href="#sensitive-data-pan-encryption" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Recommended Configurations
+        Sensitive Data &amp; PAN Encryption
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Recommended Configurations">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#local-development" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Local Development
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#production-workloads" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Production Workloads
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -758,14 +738,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../authentication/" class="md-nav__link">
+      <a href="../cli/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Authentication
+    CLI Reference
   
 
     
@@ -792,7 +772,34 @@
   <span class="md-ellipsis">
     
   
-    Client
+    Python Client SDK
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security & Privacy
   
 
     
@@ -989,11 +996,67 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#helper-properties" class="md-nav__link">
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Helper Properties
+        Database Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Database Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-sqlite-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. SQLite (Default)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. SQLite (Default)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sqlite-concurrency-guards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SQLite Concurrency Guards
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-postgresql-production-team-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. PostgreSQL (Production &amp; Team Use)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-mysql-mariadb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. MySQL / MariaDB
       
     </span>
   </a>
@@ -1006,130 +1069,35 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#environment-variables-and-env-files" class="md-nav__link">
+  <a href="#unified-database-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Environment Variables and .env Files
+        Unified Database Model
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Environment Variables and .env Files">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#example-env-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Example .env Configuration
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#loading-and-overriding-configuration" class="md-nav__link">
+  <a href="#schema-initialization-versioning" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Loading and Overriding Configuration
+        Schema Initialization &amp; Versioning
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Loading and Overriding Configuration">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-default-global-settings-settings" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Default Global Settings (settings)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-loading-via-from_env" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. Loading via from_env()
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-programmatic-overrides-with-from_settings" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Programmatic Overrides with from_settings()
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-direct-constructor-overrides" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. Direct Constructor Overrides
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#recommended-configurations" class="md-nav__link">
+  <a href="#sensitive-data-pan-encryption" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Recommended Configurations
+        Sensitive Data &amp; PAN Encryption
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Recommended Configurations">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#local-development" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Local Development
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#production-workloads" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Production Workloads
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1158,11 +1126,12 @@
   
 
 
-<h1 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h1>
-<p><code>folioman-client</code> uses Pydantic's <code>pydantic-settings</code> to manage configuration backed by environment variables and <code>.env</code> files.</p>
+<h1 id="storage-configuration">Storage &amp; Configuration<a class="headerlink" href="#storage-configuration" title="Permanent link">&para;</a></h1>
+<p><code>folioman-client</code> is designed to be zero-setup by default, while supporting production databases (PostgreSQL, MySQL) via standard SQLAlchemy connection strings.</p>
+<p>Configuration is managed using Pydantic's <code>pydantic-settings</code>, reading from environment variables or a local <code>.env</code> file.</p>
 <hr />
 <h2 id="the-foliomansettings-class">The <code>FoliomanSettings</code> Class<a class="headerlink" href="#the-foliomansettings-class" title="Permanent link">&para;</a></h2>
-<p>The configuration object is defined in <code>folioman_client.config.FoliomanSettings</code>. All settings use the <code>FOLIOMAN_</code> environment variable prefix.</p>
+<p>The settings object is defined in <code>folioman_client.config.FoliomanSettings</code>. All settings use the <code>FOLIOMAN_</code> environment variable prefix.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">folioman_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">FoliomanSettings</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">settings</span> <span class="o">=</span> <span class="n">FoliomanSettings</span><span class="p">()</span>
@@ -1180,116 +1149,110 @@
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><code>base_url</code></td>
-<td style="text-align: left;"><code>FOLIOMAN_BASE_URL</code></td>
-<td style="text-align: left;"><code>str</code></td>
-<td style="text-align: left;"><code>"http://localhost:8000"</code></td>
-<td style="text-align: left;">Root URL of the Folioman REST API service.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>username</code></td>
-<td style="text-align: left;"><code>FOLIOMAN_USERNAME</code></td>
+<td style="text-align: left;"><code>database_url</code></td>
+<td style="text-align: left;"><code>FOLIOMAN_DATABASE_URL</code></td>
 <td style="text-align: left;"><code>str</code></td>
 <td style="text-align: left;"><code>""</code></td>
-<td style="text-align: left;">Advisor username or client identifier for JWT authentication.</td>
+<td style="text-align: left;">SQLAlchemy connection URL. If empty, defaults to SQLite under <code>data_dir</code>.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>password</code></td>
-<td style="text-align: left;"><code>FOLIOMAN_PASSWORD</code></td>
+<td style="text-align: left;"><code>data_dir</code></td>
+<td style="text-align: left;"><code>FOLIOMAN_DATA_DIR</code></td>
 <td style="text-align: left;"><code>str</code></td>
 <td style="text-align: left;"><code>""</code></td>
-<td style="text-align: left;">User password or secret credentials for JWT authentication.</td>
+<td style="text-align: left;">Base directory for storage and logs. Defaults to OS user data dir (<code>~/.folioman</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>fernet_key</code></td>
+<td style="text-align: left;"><code>FOLIOMAN_FERNET_KEY</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;"><code>""</code></td>
+<td style="text-align: left;">32-byte url-safe base64 key for PAN encryption. Auto-generated if omitted.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>timeout</code></td>
 <td style="text-align: left;"><code>FOLIOMAN_TIMEOUT</code></td>
 <td style="text-align: left;"><code>float</code></td>
 <td style="text-align: left;"><code>30.0</code></td>
-<td style="text-align: left;">Default timeout in seconds applied to HTTP requests.</td>
+<td style="text-align: left;">HTTP timeout (seconds) for external price feeds (mfapi, Yahoo, AMFI).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>user_id</code></td>
+<td style="text-align: left;"><code>FOLIOMAN_USER_ID</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;"><code>"default"</code></td>
+<td style="text-align: left;">Multi-tenancy tenant or advisor scope identifier.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="helper-properties">Helper Properties<a class="headerlink" href="#helper-properties" title="Permanent link">&para;</a></h3>
-<p>For backwards-compatibility and convenience, <code>FoliomanSettings</code> also exposes the following aliases:</p>
+<hr />
+<h2 id="database-configuration">Database Configuration<a class="headerlink" href="#database-configuration" title="Permanent link">&para;</a></h2>
+<p>Storage is fully pluggable via SQLAlchemy 2.0.</p>
+<h3 id="1-sqlite-default">1. SQLite (Default)<a class="headerlink" href="#1-sqlite-default" title="Permanent link">&para;</a></h3>
+<p>If no connection string is provided, <code>folioman-client</code> automatically resolves a file path under the user data directory:</p>
 <ul>
-<li><code>settings.folioman_url</code> -&gt; returns <code>settings.base_url</code></li>
-<li><code>settings.folioman_username</code> -&gt; returns <code>settings.username</code></li>
-<li><code>settings.folioman_password</code> -&gt; returns <code>settings.password</code></li>
+<li>Linux: <code>~/.local/share/folioman/folioman.db</code></li>
+<li>macOS: <code>~/Library/Application Support/folioman/folioman.db</code></li>
+<li>Windows: <code>%LOCALAPPDATA%\folioman\folioman.db</code></li>
 </ul>
-<hr />
-<h2 id="environment-variables-and-env-files">Environment Variables and <code>.env</code> Files<a class="headerlink" href="#environment-variables-and-env-files" title="Permanent link">&para;</a></h2>
-<p><code>FoliomanSettings</code> automatically parses <code>.env</code> files in your working directory.</p>
-<h3 id="example-env-configuration">Example <code>.env</code> Configuration<a class="headerlink" href="#example-env-configuration" title="Permanent link">&para;</a></h3>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a># Folioman API Service Endpoint
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>FOLIOMAN_BASE_URL=http://localhost:8000
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a># Advisor Credentials
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>FOLIOMAN_USERNAME=advisor@firm.com
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>FOLIOMAN_PASSWORD=correct-horse-battery-staple
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a># Request Timeout (seconds)
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>FOLIOMAN_TIMEOUT=45.0
+<h4 id="sqlite-concurrency-guards">SQLite Concurrency Guards<a class="headerlink" href="#sqlite-concurrency-guards" title="Permanent link">&para;</a></h4>
+<p>To prevent <code>OperationalError: database is locked</code> errors during concurrent operations, <code>folioman-client</code> automatically configures every SQLite connection with:</p>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">PRAGMA</span><span class="w"> </span><span class="n">journal_mode</span><span class="o">=</span><span class="n">WAL</span><span class="p">;</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">PRAGMA</span><span class="w"> </span><span class="n">synchronous</span><span class="o">=</span><span class="n">NORMAL</span><span class="p">;</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">PRAGMA</span><span class="w"> </span><span class="n">busy_timeout</span><span class="o">=</span><span class="mi">5000</span><span class="p">;</span>
 </span></code></pre></div>
-<blockquote>
-<p>[!WARNING]
-<strong>Never commit your <code>.env</code> files or hardcode passwords in version control.</strong>
-Add <code>.env</code> to your <code>.gitignore</code> file immediately. For containerized deployments (Docker, Kubernetes), supply configuration using environment secrets or secrets managers (e.g. AWS Secrets Manager, GCP Secret Manager, HashiCorp Vault).</p>
-</blockquote>
-<hr />
-<h2 id="loading-and-overriding-configuration">Loading and Overriding Configuration<a class="headerlink" href="#loading-and-overriding-configuration" title="Permanent link">&para;</a></h2>
-<h3 id="1-default-global-settings-settings">1. Default Global Settings (<code>settings</code>)<a class="headerlink" href="#1-default-global-settings-settings" title="Permanent link">&para;</a></h3>
-<p>A default pre-instantiated singleton is available via <code>folioman_client.settings</code>:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">folioman_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">settings</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nb">print</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">base_url</span><span class="p">)</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="nb">print</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
+<p>Transactions are executed in <code>IMMEDIATE</code> mode to prevent read-upgrade deadlocks.</p>
+<h3 id="2-postgresql-production-team-use">2. PostgreSQL (Production &amp; Team Use)<a class="headerlink" href="#2-postgresql-production-team-use" title="Permanent link">&para;</a></h3>
+<p>For multi-user applications, web backends, or containerized deployments (Docker / Kubernetes), connect to PostgreSQL using <code>psycopg</code>:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">FOLIOMAN_DATABASE_URL</span><span class="o">=</span><span class="s2">"postgresql+psycopg://username:password@localhost:5432/portfolio"</span>
 </span></code></pre></div>
-<h3 id="2-loading-via-from_env">2. Loading via <code>from_env()</code><a class="headerlink" href="#2-loading-via-from_env" title="Permanent link">&para;</a></h3>
-<p>When initializing the client with <code>FoliomanClient.from_env()</code>, a fresh <code>FoliomanSettings()</code> instance is created reading current process environment variables:</p>
+<p>In Python:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">folioman_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">FoliomanClient</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">async</span> <span class="k">with</span> <span class="n">FoliomanClient</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="c1"># Uses environment variables</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">investors</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">investors</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">FoliomanClient</span><span class="p">(</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">database_url</span><span class="o">=</span><span class="s2">"postgresql+psycopg://username:password@localhost:5432/portfolio"</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">)</span>
 </span></code></pre></div>
-<h3 id="3-programmatic-overrides-with-from_settings">3. Programmatic Overrides with <code>from_settings()</code><a class="headerlink" href="#3-programmatic-overrides-with-from_settings" title="Permanent link">&para;</a></h3>
-<p>You can instantiate <code>FoliomanSettings</code> programmatically with keyword arguments to override selected parameters:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">folioman_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">FoliomanClient</span><span class="p">,</span> <span class="n">FoliomanSettings</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">custom_settings</span> <span class="o">=</span> <span class="n">FoliomanSettings</span><span class="p">(</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">base_url</span><span class="o">=</span><span class="s2">"https://folioman.staging.internal"</span><span class="p">,</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">username</span><span class="o">=</span><span class="s2">"service_account_staging"</span><span class="p">,</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="n">password</span><span class="o">=</span><span class="s2">"staging_password"</span><span class="p">,</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="n">timeout</span><span class="o">=</span><span class="mf">60.0</span><span class="p">,</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="p">)</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="k">async</span> <span class="k">with</span> <span class="n">FoliomanClient</span><span class="o">.</span><span class="n">from_settings</span><span class="p">(</span><span class="n">custom_settings</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    <span class="n">investors</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">investors</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+<p>Ensure <code>psycopg</code> is installed:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"folioman-client[postgres]"</span>
 </span></code></pre></div>
-<h3 id="4-direct-constructor-overrides">4. Direct Constructor Overrides<a class="headerlink" href="#4-direct-constructor-overrides" title="Permanent link">&para;</a></h3>
-<p>Individual settings can also be overridden directly in <code>FoliomanClient.__init__</code>:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">folioman_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">FoliomanClient</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># Only override timeout while reading base_url and credentials from the environment</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="k">async</span> <span class="k">with</span> <span class="n">FoliomanClient</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">investors</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">investors</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+<h3 id="3-mysql-mariadb">3. MySQL / MariaDB<a class="headerlink" href="#3-mysql-mariadb" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">FOLIOMAN_DATABASE_URL</span><span class="o">=</span><span class="s2">"mysql+aiomysql://username:password@localhost:3306/portfolio"</span>
 </span></code></pre></div>
 <hr />
-<h2 id="recommended-configurations">Recommended Configurations<a class="headerlink" href="#recommended-configurations" title="Permanent link">&para;</a></h2>
-<h3 id="local-development">Local Development<a class="headerlink" href="#local-development" title="Permanent link">&para;</a></h3>
-<p>For local development against a dockerized or localhost Folioman instance:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>FOLIOMAN_BASE_URL=http://127.0.0.1:8000
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>FOLIOMAN_USERNAME=dev_advisor
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>FOLIOMAN_PASSWORD=dev_secret
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>FOLIOMAN_TIMEOUT=15.0
-</span></code></pre></div>
-<h3 id="production-workloads">Production Workloads<a class="headerlink" href="#production-workloads" title="Permanent link">&para;</a></h3>
-<p>For production deployments:</p>
+<h2 id="unified-database-model">Unified Database Model<a class="headerlink" href="#unified-database-model" title="Permanent link">&para;</a></h2>
+<p>In <code>folioman-client</code> v0.2.0, <strong>100% of data lives inside your configured database</strong>:</p>
 <ol>
-<li><strong>Use TLS/HTTPS</strong>: Set <code>FOLIOMAN_BASE_URL</code> with an <code>https://</code> prefix to protect tokens in transit.</li>
-<li><strong>Dedicated Service Accounts</strong>: Provision isolated advisor credentials for each background consumer or service.</li>
-<li><strong>Appropriate Timeouts</strong>: Adjust <code>FOLIOMAN_TIMEOUT</code> based on report complexity. Large multi-year capital gains queries or valuation series can take several seconds to compute. A timeout of <code>30.0</code> to <code>60.0</code> seconds is typical.</li>
+<li><strong>User Portfolios &amp; Ledgers</strong>: Investors, folios, transactions, holdings, partial blocks, and daily net-worth points.</li>
+<li><strong>Market &amp; Daily Prices</strong>: Canonical securities, daily NAV history from AMFI / mfapi / Yahoo, and corporate action events.</li>
+<li><strong>Reference Master</strong>: The 100,000-row national ISIN and mutual fund scheme reference dictionary (<code>ref_schemes</code>, <code>ref_isins</code>, <code>ref_grandfathering_navs</code>).</li>
 </ol>
+<p>This architecture ensures:</p>
+<ul>
+<li><strong>Stateless Applications</strong>: You can spin up multiple containers or serverless workers pointing to a single RDS/PostgreSQL instance without needing shared persistent disk volumes.</li>
+<li><strong>Single Backup</strong>: A single <code>pg_dump</code> backup captures your entire portfolio and reference state.</li>
+</ul>
+<hr />
+<h2 id="schema-initialization-versioning">Schema Initialization &amp; Versioning<a class="headerlink" href="#schema-initialization-versioning" title="Permanent link">&para;</a></h2>
+<p><code>folioman-client</code> handles database creation and upgrades automatically.</p>
+<p>When <code>FoliomanClient()</code> initializes or when running <code>folioman isin seed</code>:</p>
+<ol>
+<li>It executes <code>Base.metadata.create_all()</code> to ensure all 18 tables exist.</li>
+<li>It inspects the <code>_schema_version</code> table.</li>
+<li>If an older version is detected, it automatically executes non-destructive schema migrations.</li>
+</ol>
+<hr />
+<h2 id="sensitive-data-pan-encryption">Sensitive Data &amp; PAN Encryption<a class="headerlink" href="#sensitive-data-pan-encryption" title="Permanent link">&para;</a></h2>
+<p>Under Indian data privacy guidelines, Permanent Account Numbers (PAN) must be protected.</p>
+<ul>
+<li><strong>Encryption at Rest</strong>: PANs are stored encrypted using symmetric Fernet encryption (<code>cryptography</code>).</li>
+<li><strong>Deterministic Lookup</strong>: An HMAC-SHA256 hash (<code>pan_hash</code>) is generated using the encryption key, allowing statements to match existing investors without decrypting all rows.</li>
+<li><strong>Key Resolution</strong>:<ol>
+<li><code>FOLIOMAN_FERNET_KEY</code> environment variable.</li>
+<li>Auto-generated file (<code>~/.folioman/fernet.key</code>) created with restricted owner permissions (<code>0600</code>).</li>
+</ol>
+</li>
+</ul>
 
 
 
