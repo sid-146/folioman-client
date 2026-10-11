@@ -109,7 +109,9 @@ def _fmt_money(value: Decimal | None) -> str:
     return format(value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP), "f")
 
 
-def _is_tax_ready(status: IntegrityStatus | None, *, include_unreconciled: bool) -> bool:
+def _is_tax_ready(
+    status: IntegrityStatus | None, *, include_unreconciled: bool
+) -> bool:
     # Fail CLOSED: a security with no integrity status has never been reconciled
     # (or reconcile failed — see ImportJob partial-success). It is not trustworthy
     # for a tax filing, so it is excluded even when unreconciled rows are forced.
@@ -125,7 +127,9 @@ def _is_tax_ready(status: IntegrityStatus | None, *, include_unreconciled: bool)
     return status in (IntegrityStatus.FULL_HISTORY, IntegrityStatus.RECONCILED)
 
 
-def gain_line_to_112a_row(line: GainLine, *, fmv_per_unit: Decimal | None) -> Schedule112ARow:
+def gain_line_to_112a_row(
+    line: GainLine, *, fmv_per_unit: Decimal | None
+) -> Schedule112ARow:
     """Map one LTCG ``GainLine`` to Schedule 112A columns."""
     disposal = line.disposal
     acquired = disposal.acquired_on

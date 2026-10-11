@@ -41,7 +41,13 @@ def test_scheduler_trigger_jobs(test_engine):
         patch(
             "folioman_client.services.nav_service.NAVService.backfill_navs",
             new_callable=AsyncMock,
-            return_value={"securities": 1, "points": 10, "skipped": 0, "closed": 0, "errors": 0},
+            return_value={
+                "securities": 1,
+                "points": 10,
+                "skipped": 0,
+                "closed": 0,
+                "errors": 0,
+            },
         ),
         patch(
             "folioman_client.services.isin_service.ISINService.update_reference_data",
@@ -66,7 +72,9 @@ def test_cli_scheduler_help():
     runner = CliRunner()
     result = runner.invoke(cli, ["scheduler", "--help"])
     assert result.exit_code == 0
-    assert "Manage background schedulers and automated maintenance jobs." in result.output
+    assert (
+        "Manage background schedulers and automated maintenance jobs." in result.output
+    )
     assert "run" in result.output
 
 

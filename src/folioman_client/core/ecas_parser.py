@@ -78,7 +78,10 @@ def _map_mf_holding(mf: object) -> EcasHoldingLine:
     fund_type = (getattr(mf, "type", None) or "").strip()
     metadata: dict[str, object] = {}
     if fund_type:
-        metadata = {"equity_oriented": fund_type == FundType.EQUITY.value, "fund_type": fund_type}
+        metadata = {
+            "equity_oriented": fund_type == FundType.EQUITY.value,
+            "fund_type": fund_type,
+        }
     return EcasHoldingLine(
         security=Security(
             type=SecurityType.MF,
@@ -116,7 +119,11 @@ def _map_account(account: object) -> EcasAccountBlock:
     dp_id = str(account.dp_id or "").strip()
     client_id = str(account.client_id or "").strip()
     number = (
-        f"{dp_id}{client_id}" or client_id or dp_id or str(account.name or "").strip() or "UNKNOWN"
+        f"{dp_id}{client_id}"
+        or client_id
+        or dp_id
+        or str(account.name or "").strip()
+        or "UNKNOWN"
     )
     broker = str(account.name or "").strip() or "UNKNOWN"
     folio = Folio(folio_type=FolioType.DEMAT, number=number[:64], broker=broker[:64])

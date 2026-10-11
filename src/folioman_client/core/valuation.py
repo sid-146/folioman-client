@@ -21,7 +21,10 @@ from decimal import Decimal
 from pydantic import Field
 
 from folioman_client.core.models.base import DomainModel
-from folioman_client.core.models.decimal_fields import DecimalField, OptionalDecimalField
+from folioman_client.core.models.decimal_fields import (
+    DecimalField,
+    OptionalDecimalField,
+)
 from folioman_client.core.models.holding import Holding
 from folioman_client.core.models.quote import Quote
 from folioman_client.core.models.security import Security, SecurityType
@@ -33,7 +36,12 @@ QuoteProvider = Callable[[Security, _date_cls], "Quote | None"]
 CryptoProvider = Callable[[Security, _date_cls], "Quote | None"]
 
 _QUOTE_TYPES = frozenset(
-    {SecurityType.EQUITY, SecurityType.ETF, SecurityType.BOND, SecurityType.FOREIGN_EQUITY}
+    {
+        SecurityType.EQUITY,
+        SecurityType.ETF,
+        SecurityType.BOND,
+        SecurityType.FOREIGN_EQUITY,
+    }
 )
 
 
@@ -105,7 +113,9 @@ def _value_one(
     if stype is SecurityType.MF:
         return _value_mf(holding, as_of, nav_provider, base)
     if stype in _QUOTE_TYPES:
-        return _value_quote(holding, as_of, quote_provider, base, asset_label=stype.value)
+        return _value_quote(
+            holding, as_of, quote_provider, base, asset_label=stype.value
+        )
     if stype is SecurityType.CRYPTO:
         return _value_quote(holding, as_of, crypto_provider, base, asset_label="crypto")
     if stype is SecurityType.FD:
@@ -113,9 +123,13 @@ def _value_one(
         # set explicitly on the Holding (manual entry).
         observed = holding.value_observed
         if observed is None:
-            return HoldingValuation(**base, stale=True, note="FD value_observed not set")
+            return HoldingValuation(
+                **base, stale=True, note="FD value_observed not set"
+            )
         return HoldingValuation(**base, value_inr=observed)
-    return HoldingValuation(**base, stale=True, note=f"unsupported security type: {stype.value}")
+    return HoldingValuation(
+        **base, stale=True, note=f"unsupported security type: {stype.value}"
+    )
 
 
 def _value_mf(
@@ -142,10 +156,14 @@ def _value_quote(
     asset_label: str,
 ) -> HoldingValuation:
     if provider is None:
-        return HoldingValuation(**base, stale=True, note=f"no {asset_label} quote provider")
+        return HoldingValuation(
+            **base, stale=True, note=f"no {asset_label} quote provider"
+        )
     quote = provider(holding.security, as_of)
     if quote is None:
-        return HoldingValuation(**base, stale=True, note=f"{asset_label} quote unavailable")
+        return HoldingValuation(
+            **base, stale=True, note=f"{asset_label} quote unavailable"
+        )
     if quote.currency.upper() != "INR":
         return HoldingValuation(
             **base,

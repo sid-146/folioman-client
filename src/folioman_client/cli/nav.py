@@ -95,10 +95,16 @@ def status_cmd(ctx: click.Context) -> None:
         sec_id = str(sec["security_id"])
         stype = sec["security_type"]
         status = sec["status"]
-        lag = f"{sec['lag_trading_days']}d" if sec["lag_trading_days"] is not None else "-"
+        lag = (
+            f"{sec['lag_trading_days']}d"
+            if sec["lag_trading_days"] is not None
+            else "-"
+        )
         latest = str(sec["latest_nav_date"] or "None")
         pts = str(sec["points"])
         name = sec["name"][:29]
-        click.echo(f"{sec_id:<4} {stype:<8} {status:<8} {lag:<5} {latest:<12} {pts:<8} {name:<30}")
+        click.echo(
+            f"{sec_id:<4} {stype:<8} {status:<8} {lag:<5} {latest:<12} {pts:<8} {name:<30}"
+        )
 
     click.echo("=" * 80)

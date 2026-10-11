@@ -84,7 +84,9 @@ async def test_apply_corporate_action_bonus(ca_service: CorporateActionService):
 
 
 @pytest.mark.asyncio
-async def test_apply_corporate_action_validation_errors(ca_service: CorporateActionService):
+async def test_apply_corporate_action_validation_errors(
+    ca_service: CorporateActionService,
+):
     async with ca_service.session_factory() as session:
         inv = Investor(name="Virat Kohli")
         session.add(inv)

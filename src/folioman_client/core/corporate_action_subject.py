@@ -148,7 +148,9 @@ def parse_subject(subject: str) -> ParsedCorporateAction:
         m = _RATIO.search(s)
         ratio = (int(m.group(1)), int(m.group(2))) if m else None
         # The cash leg (issue price) isn't reliably in the subject → manual.
-        return ParsedCorporateAction(CorpActionType.RIGHTS, raw, ratio=ratio, needs_review=True)
+        return ParsedCorporateAction(
+            CorpActionType.RIGHTS, raw, ratio=ratio, needs_review=True
+        )
 
     if "buy back" in s or "buyback" in s:
         return ParsedCorporateAction(CorpActionType.BUYBACK, raw, needs_review=True)

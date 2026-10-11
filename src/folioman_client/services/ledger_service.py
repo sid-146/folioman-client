@@ -54,7 +54,11 @@ class LedgerService:
         await init_schema(self.engine)
 
         async with self.session_factory() as session:
-            stmt = select(Investor).where(Investor.user_id == user_id).order_by(Investor.name)
+            stmt = (
+                select(Investor)
+                .where(Investor.user_id == user_id)
+                .order_by(Investor.name)
+            )
             if family_id is not None:
                 stmt = stmt.where(Investor.family_id == family_id)
             if unaffiliated:
@@ -147,7 +151,11 @@ class LedgerService:
         await init_schema(self.engine)
 
         async with self.session_factory() as session:
-            stmt = select(Folio).where(Folio.investor_id == investor_id).order_by(Folio.number)
+            stmt = (
+                select(Folio)
+                .where(Folio.investor_id == investor_id)
+                .order_by(Folio.number)
+            )
             folios = (await session.execute(stmt)).scalars().all()
             return [
                 {
@@ -221,9 +229,13 @@ class LedgerService:
             source = await session.get(Folio, source_folio_id)
             target = await session.get(Folio, target_folio_id)
             if not source or source.investor_id != investor_id:
-                raise ValueError(f"Source folio {source_folio_id} not found for investor.")
+                raise ValueError(
+                    f"Source folio {source_folio_id} not found for investor."
+                )
             if not target or target.investor_id != investor_id:
-                raise ValueError(f"Target folio {target_folio_id} not found for investor.")
+                raise ValueError(
+                    f"Target folio {target_folio_id} not found for investor."
+                )
 
             # Move transactions
             tx_res = await session.execute(
@@ -277,7 +289,9 @@ class LedgerService:
         async with self.session_factory() as session:
             stmt = (
                 select(Transaction)
-                .options(selectinload(Transaction.security), selectinload(Transaction.folio))
+                .options(
+                    selectinload(Transaction.security), selectinload(Transaction.folio)
+                )
                 .where(Transaction.investor_id == investor_id)
                 .order_by(Transaction.date.asc(), Transaction.id.asc())
             )
@@ -437,14 +451,22 @@ class LedgerService:
 
         async with self.session_factory() as session:
             # Query active securities for investor
-            stmt = select(Security).where(
-                Security.id.in_(
-                    select(Transaction.security_id).where(Transaction.investor_id == investor_id).distinct()
+            stmt = (
+                select(Security)
+                .where(
+                    Security.id.in_(
+                        select(Transaction.security_id)
+                        .where(Transaction.investor_id == investor_id)
+                        .distinct()
+                    )
+                    | Security.id.in_(
+                        select(Holding.security_id)
+                        .where(Holding.investor_id == investor_id)
+                        .distinct()
+                    )
                 )
-                | Security.id.in_(
-                    select(Holding.security_id).where(Holding.investor_id == investor_id).distinct()
-                )
-            ).order_by(Security.name)
+                .order_by(Security.name)
+            )
 
             securities = (await session.execute(stmt)).scalars().all()
             results: list[dict[str, Any]] = []
@@ -455,8 +477,18 @@ class LedgerService:
                     func.coalesce(
                         func.sum(
                             case(
-                                (Transaction.transaction_type.in_(["BUY", "BONUS", "TRANSFER_IN"]), Transaction.units),
-                                (Transaction.transaction_type.in_(["SELL", "TRANSFER_OUT"]), -Transaction.units),
+                                (
+                                    Transaction.transaction_type.in_(
+                                        ["BUY", "BONUS", "TRANSFER_IN"]
+                                    ),
+                                    Transaction.units,
+                                ),
+                                (
+                                    Transaction.transaction_type.in_(
+                                        ["SELL", "TRANSFER_OUT"]
+                                    ),
+                                    -Transaction.units,
+                                ),
                                 else_=_ZERO,
                             )
                         ),
@@ -469,13 +501,20 @@ class LedgerService:
                 net_units = Decimal(str(await session.scalar(txns_net_stmt) or 0))
 
                 # Check latest holding snapshot
-                snap_stmt = select(Holding).where(
-                    Holding.investor_id == investor_id,
-                    Holding.security_id == sec.id,
-                ).order_by(Holding.as_of_date.desc()).limit(1)
+                snap_stmt = (
+                    select(Holding)
+                    .where(
+                        Holding.investor_id == investor_id,
+                        Holding.security_id == sec.id,
+                    )
+                    .order_by(Holding.as_of_date.desc())
+                    .limit(1)
+                )
                 snap = (await session.execute(snap_stmt)).scalars().first()
 
-                effective_units = net_units if net_units > 0 else (snap.units if snap else _ZERO)
+                effective_units = (
+                    net_units if net_units > 0 else (snap.units if snap else _ZERO)
+                )
                 if effective_units <= 0:
                     continue  # fully redeemed / closed position
 
@@ -487,7 +526,11 @@ class LedgerService:
                         "symbol": sec.symbol,
                         "type": sec.security_type,
                         "units": str(effective_units),
-                        "source": "ledger" if net_units > 0 else (snap.source if snap else "unknown"),
+                        "source": (
+                            "ledger"
+                            if net_units > 0
+                            else (snap.source if snap else "unknown")
+                        ),
                     }
                 )
 

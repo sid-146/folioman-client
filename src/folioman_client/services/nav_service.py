@@ -141,7 +141,9 @@ class _FeedClients:
                     pass
 
 
-def _fetch_mf_latest(security: Security, clients: _FeedClients) -> tuple[date, Decimal, str] | None:
+def _fetch_mf_latest(
+    security: Security, clients: _FeedClients
+) -> tuple[date, Decimal, str] | None:
     """Fetch latest MF NAV: mfapi (amfi_code) primary, captnemo (isin) fallback."""
     if security.amfi_code:
         try:
@@ -164,7 +166,9 @@ def _fetch_mf_latest(security: Security, clients: _FeedClients) -> tuple[date, D
     return None
 
 
-def _fetch_equity_latest(security: Security, clients: _FeedClients) -> tuple[date, Decimal, str] | None:
+def _fetch_equity_latest(
+    security: Security, clients: _FeedClients
+) -> tuple[date, Decimal, str] | None:
     """Fetch latest equity close: NSE-first for Indian symbols, Yahoo fallback."""
     stype = security.security_type
     if stype != SecurityType.FOREIGN_EQUITY.value and security.exchange in ("", "NSE"):
@@ -184,7 +188,9 @@ def _fetch_equity_latest(security: Security, clients: _FeedClients) -> tuple[dat
     return (quote.as_of, quote.price, quote.source) if quote else None
 
 
-def _fetch_point(security: Security, clients: _FeedClients) -> tuple[date, Decimal, str] | None:
+def _fetch_point(
+    security: Security, clients: _FeedClients
+) -> tuple[date, Decimal, str] | None:
     """Return (date, nav, source) for the latest price, or None if unavailable."""
     stype = security.security_type
     if stype == SecurityType.MF.value:
@@ -199,7 +205,9 @@ def _fetch_point(security: Security, clients: _FeedClients) -> tuple[date, Decim
     return None
 
 
-def _prime_bulk(clients: _FeedClients) -> tuple[dict[str, tuple[date, Decimal, str]], dict[str, tuple[date, Decimal, str]]]:
+def _prime_bulk(
+    clients: _FeedClients,
+) -> tuple[dict[str, tuple[date, Decimal, str]], dict[str, tuple[date, Decimal, str]]]:
     """Fetch whole-market snapshots once: AMFI NAVAll + NSE bhavcopy."""
     mf_map: dict[str, tuple[date, Decimal, str]] = {}
     eq_map: dict[str, tuple[date, Decimal, str]] = {}
@@ -218,7 +226,10 @@ def _prime_bulk(clients: _FeedClients) -> tuple[dict[str, tuple[date, Decimal, s
             for _ in range(_BHAVCOPY_LOOKBACK):
                 closes = nse_bhavcopy.fetch_close_by_symbol(day, client=bhav)
                 if closes:
-                    eq_map = {sym: (p.date, p.nav, "nse-bhavcopy") for sym, p in closes.items()}
+                    eq_map = {
+                        sym: (p.date, p.nav, "nse-bhavcopy")
+                        for sym, p in closes.items()
+                    }
                     break
                 day = last_trading_day(day - timedelta(days=1))
         finally:
@@ -229,7 +240,9 @@ def _prime_bulk(clients: _FeedClients) -> tuple[dict[str, tuple[date, Decimal, s
     return mf_map, eq_map
 
 
-def _bulk_point(security: Security, mf_map: dict, eq_map: dict) -> tuple[date, Decimal, str] | None:
+def _bulk_point(
+    security: Security, mf_map: dict, eq_map: dict
+) -> tuple[date, Decimal, str] | None:
     """Lookup latest price in pre-fetched bulk maps."""
     stype = security.security_type
     if stype == SecurityType.MF.value:
@@ -246,11 +259,15 @@ def _bulk_point(security: Security, mf_map: dict, eq_map: dict) -> tuple[date, D
     return None
 
 
-def _fetch_mf_history(security: Security, *, since: date | None, mfapi_client, captnemo_client):
+def _fetch_mf_history(
+    security: Security, *, since: date | None, mfapi_client, captnemo_client
+):
     """Full MF history: captnemo (ISIN) primary, mfapi (AMFI) fallback."""
     if security.isin:
         try:
-            history = captnemo.fetch_nav_history(security.isin, since=since, client=captnemo_client)
+            history = captnemo.fetch_nav_history(
+                security.isin, since=since, client=captnemo_client
+            )
             return history, "captnemo"
         except NAVFetchError as exc:
             if not security.amfi_code:
@@ -262,23 +279,32 @@ def _fetch_mf_history(security: Security, *, since: date | None, mfapi_client, c
                 exc,
             )
     if security.amfi_code:
-        history = mfapi.fetch_nav_history(security.amfi_code, since=since, client=mfapi_client)
+        history = mfapi.fetch_nav_history(
+            security.amfi_code, since=since, client=mfapi_client
+        )
         return history, "mfapi"
     return None
 
 
-def _fetch_equity_history(security: Security, *, since: date | None, nse_client, yahoo_client):
+def _fetch_equity_history(
+    security: Security, *, since: date | None, nse_client, yahoo_client
+):
     """Full equity history: NSE security-wise primary, Yahoo fallback."""
     if security.exchange in ("", "NSE"):
         try:
-            history = nse_history.fetch_history(security.symbol, start=since, client=nse_client)
+            history = nse_history.fetch_history(
+                security.symbol, start=since, client=nse_client
+            )
             if history is not None and history.points:
                 return history, "nse"
         except PriceFetchError:
             pass
     return (
         yfinance_feed.fetch_history(
-            security.symbol, exchange=security.exchange, start=since, client=yahoo_client
+            security.symbol,
+            exchange=security.exchange,
+            start=since,
+            client=yahoo_client,
         ),
         "yfinance",
     )
@@ -297,11 +323,17 @@ class NAVService:
         self.session_factory = create_sessionmaker(self.engine)
         self.request_spacing = request_spacing
 
-    async def _span_start(self, session: AsyncSession, security: Security) -> date | None:
+    async def _span_start(
+        self, session: AsyncSession, security: Security
+    ) -> date | None:
         """Earliest date transactions or holdings require pricing back to."""
-        stmt_txn = select(func.min(Transaction.date)).where(Transaction.security_id == security.id)
+        stmt_txn = select(func.min(Transaction.date)).where(
+            Transaction.security_id == security.id
+        )
         txn_first = (await session.execute(stmt_txn)).scalar_one_or_none()
-        stmt_hold = select(func.min(Holding.as_of_date)).where(Holding.security_id == security.id)
+        stmt_hold = select(func.min(Holding.as_of_date)).where(
+            Holding.security_id == security.id
+        )
         hold_first = (await session.execute(stmt_hold)).scalar_one_or_none()
         dates = [d for d in (txn_first, hold_first) if d is not None]
         return min(dates) if dates else None
@@ -367,7 +399,9 @@ class NAVService:
                             await asyncio.sleep(self.request_spacing)
                         live_fetched = True
                         try:
-                            point = await asyncio.to_thread(_fetch_point, security, clients)
+                            point = await asyncio.to_thread(
+                                _fetch_point, security, clients
+                            )
                         except (NAVFetchError, PriceFetchError) as exc:
                             logger.warning(
                                 "NAV refresh failed for security %s (%s): %s",
@@ -404,7 +438,11 @@ class NAVService:
                     summary["updated"] += 1
 
                     if security.nav_feed_closed:
-                        logger.info("Security %s (%s): feed reopened", security.id, security.name)
+                        logger.info(
+                            "Security %s (%s): feed reopened",
+                            security.id,
+                            security.name,
+                        )
                         security.nav_feed_closed = False
 
                 await session.commit()
@@ -498,7 +536,9 @@ class NAVService:
                         stmt_existing = select(NAVHistory.date).where(
                             NAVHistory.security_id == security.id
                         )
-                        existing_dates = set((await session.execute(stmt_existing)).scalars().all())
+                        existing_dates = set(
+                            (await session.execute(stmt_existing)).scalars().all()
+                        )
                         to_add = [
                             NAVHistory(
                                 security_id=security.id,
@@ -582,7 +622,9 @@ class NAVService:
             for sec in securities:
                 stat = stats.get(sec.id)
                 latest = stat[2] if stat else None
-                lag = trading_days_between(latest, cutoff) if latest is not None else None
+                lag = (
+                    trading_days_between(latest, cutoff) if latest is not None else None
+                )
                 status = _classify(sec, latest, lag)
                 rows.append(
                     {
@@ -599,13 +641,28 @@ class NAVService:
                     }
                 )
 
-            _order = {"stale": 0, "pending": 1, "closed": 2, "grace": 3, "no_feed": 4, "fresh": 5}
-            rows.sort(key=lambda r: (_order[r["status"]], -(r["lag_trading_days"] or 0), r["name"]))
+            _order = {
+                "stale": 0,
+                "pending": 1,
+                "closed": 2,
+                "grace": 3,
+                "no_feed": 4,
+                "fresh": 5,
+            }
+            rows.sort(
+                key=lambda r: (
+                    _order[r["status"]],
+                    -(r["lag_trading_days"] or 0),
+                    r["name"],
+                )
+            )
 
             last_written_stmt = select(func.max(NAVHistory.updated_at)).where(
                 NAVHistory.security_id.in_(target_ids)
             )
-            last_written = (await session.execute(last_written_stmt)).scalar_one_or_none()
+            last_written = (
+                await session.execute(last_written_stmt)
+            ).scalar_one_or_none()
 
             return {
                 "as_of": cutoff,

@@ -31,18 +31,24 @@ def test_cli_isin_lifecycle(tmp_path: Path, monkeypatch) -> None:
     assert "Seeded:                 Yes" in res_status_after.output
 
     # 4. Resolve a mutual fund ISIN
-    res_resolve = runner.invoke(cli, ["--database-url", db_url, "isin", "resolve", "INF179K01319"])
+    res_resolve = runner.invoke(
+        cli, ["--database-url", db_url, "isin", "resolve", "INF179K01319"]
+    )
     assert res_resolve.exit_code == 0
     assert "INF179K01319" in res_resolve.output
     assert "HDFC" in res_resolve.output
 
     # 5. Resolve nonexistent ISIN
-    res_resolve_none = runner.invoke(cli, ["--database-url", db_url, "isin", "resolve", "IN9999999999"])
+    res_resolve_none = runner.invoke(
+        cli, ["--database-url", db_url, "isin", "resolve", "IN9999999999"]
+    )
     assert res_resolve_none.exit_code == 0
     assert "No security or scheme found" in res_resolve_none.output
 
     # 6. Search schemes
-    res_search = runner.invoke(cli, ["--database-url", db_url, "isin", "search", "Arbitrage", "--limit", "3"])
+    res_search = runner.invoke(
+        cli, ["--database-url", db_url, "isin", "search", "Arbitrage", "--limit", "3"]
+    )
     assert res_search.exit_code == 0
     assert "match(es)" in res_search.output
 

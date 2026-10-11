@@ -89,11 +89,15 @@ def _account(
     )
 
 
-def _ecas(accounts: list[DematAccount], *, file_type: FileType = FileType.CDSL) -> NSDLCASData:
+def _ecas(
+    accounts: list[DematAccount], *, file_type: FileType = FileType.CDSL
+) -> NSDLCASData:
     return NSDLCASData(
         accounts=accounts,
         statement_period=StatementPeriod(from_="2025-03-01", to="2025-03-15"),
-        investor_info=InvestorInfo(name="Sample", email="s@example.com", address="a", mobile="9"),
+        investor_info=InvestorInfo(
+            name="Sample", email="s@example.com", address="a", mobile="9"
+        ),
         file_type=file_type,
     )
 
@@ -123,13 +127,19 @@ def test_cdsl_multi_account_with_mixed_holdings():
     a, b = stmt.accounts
     assert a.folio.broker == "ZERODHA"
     assert a.folio.number == "1208160001234567"
-    assert {h.security.type for h in a.holdings} == {SecurityType.EQUITY, SecurityType.MF}
-    assert next(h for h in a.holdings if h.security.type is SecurityType.MF).avg_cost_observed == (
-        Decimal("100")
-    )
+    assert {h.security.type for h in a.holdings} == {
+        SecurityType.EQUITY,
+        SecurityType.MF,
+    }
+    assert next(
+        h for h in a.holdings if h.security.type is SecurityType.MF
+    ).avg_cost_observed == (Decimal("100"))
 
     assert b.folio.broker == "HDFC SEC"
-    assert {h.security.type for h in b.holdings} == {SecurityType.EQUITY, SecurityType.BOND}
+    assert {h.security.type for h in b.holdings} == {
+        SecurityType.EQUITY,
+        SecurityType.BOND,
+    }
 
 
 def test_mutual_fund_folios_section_is_tagged_not_demat():
@@ -198,8 +208,16 @@ def test_same_security_across_accounts_is_hashable_and_groupable():
     # for the same scrip in two demat accounts compare equal and dedupe.
     cas = _ecas(
         [
-            _account("ZERODHA", "C1", equities=[_equity("Reliance", "INE002A01018", "10", "2850")]),
-            _account("HDFC SEC", "C2", equities=[_equity("Reliance", "INE002A01018", "5", "2850")]),
+            _account(
+                "ZERODHA",
+                "C1",
+                equities=[_equity("Reliance", "INE002A01018", "10", "2850")],
+            ),
+            _account(
+                "HDFC SEC",
+                "C2",
+                equities=[_equity("Reliance", "INE002A01018", "5", "2850")],
+            ),
         ]
     )
     holdings = ecas_parser.holdings_from_ecas_statement(ecas_parser.map_ecas_data(cas))
@@ -233,7 +251,9 @@ def _owner(name: str, pan: str) -> DematOwner:
 
 
 def test_ecas_investor_identity_uses_primary_owner_pan():
-    cas = _ecas([_account("Zerodha", "C1", owners=[_owner("RAHUL SHARMA", "ABCDE1234F")])])
+    cas = _ecas(
+        [_account("Zerodha", "C1", owners=[_owner("RAHUL SHARMA", "ABCDE1234F")])]
+    )
     identity = ecas_parser.ecas_investor_identity(cas)
     assert identity.pan == "ABCDE1234F"
     assert identity.name == "Sample"
@@ -282,7 +302,10 @@ def test_equity_holding_without_symbol_maps_empty():
     # An eCAS equity the ISIN DB couldn't map (or an older casparser with no
     # symbol field) stays symbol-less rather than crashing.
     eq = SimpleNamespace(
-        name="Unlisted Co", isin="INE000X00X00", num_shares=Decimal("5"), value=Decimal("50")
+        name="Unlisted Co",
+        isin="INE000X00X00",
+        num_shares=Decimal("5"),
+        value=Decimal("50"),
     )
     line = ecas_parser._map_equity_holding(eq)
     assert line.security.symbol == ""
@@ -292,5 +315,7 @@ def test_equity_holding_without_symbol_maps_empty():
 def test_demat_folio_number_is_dp_id_plus_client_id():
     """The folio identity is DP ID + Client ID (the full CDSL BO ID / NSDL id),
     so it's unique across DPs and matches what the tradebook wizard reconstructs."""
-    stmt = ecas_parser.map_ecas_data(_ecas([_account("ZERODHA", "14771491", dp_id="12081600")]))
+    stmt = ecas_parser.map_ecas_data(
+        _ecas([_account("ZERODHA", "14771491", dp_id="12081600")])
+    )
     assert stmt.accounts[0].folio.number == "1208160014771491"

@@ -14,7 +14,11 @@ from datetime import date
 from decimal import ROUND_HALF_EVEN, Decimal
 
 from folioman_client.core.models.security import Security
-from folioman_client.core.models.transaction import Transaction, TransactionSource, TransactionType
+from folioman_client.core.models.transaction import (
+    Transaction,
+    TransactionSource,
+    TransactionType,
+)
 
 _ZERO = Decimal("0")
 _BALANCE_EPSILON = Decimal("0.0001")
@@ -121,8 +125,9 @@ class FIFOUnits:
         elif txn.type in (TransactionType.SELL, TransactionType.TRANSFER_OUT):
             # A buyback disposal still consumes lots (the shares are gone), but its
             # gain is exempt (s.10(34A)); carry the flag so the tax policy classifies it.
-            is_buyback = txn.source is TransactionSource.CORPORATE_ACTION and "buyback" in (
-                txn.source_ref or ""
+            is_buyback = (
+                txn.source is TransactionSource.CORPORATE_ACTION
+                and "buyback" in (txn.source_ref or "")
             )
             self.sell(
                 txn.units,
@@ -178,7 +183,9 @@ class FIFOUnits:
         # basis. ``stamp_duty`` rides with the lot as a transfer charge - NOT in cost.
         # Per-unit cost is derived (total / units) on read, so it never drifts.
         del amount  # keep the signature for back-compat; total above is authoritative
-        lot_cost_total = cost_total if cost_total is not None else quantity * nav + brokerage
+        lot_cost_total = (
+            cost_total if cost_total is not None else quantity * nav + brokerage
+        )
         self.balance += quantity
         self.invested += lot_cost_total
         self._lots.append((quantity, lot_cost_total, acquired_on, stamp_duty))
@@ -212,7 +219,9 @@ class FIFOUnits:
             # leaves ``total - consumed`` on the lot, so the lot never loses cost to
             # rounding and the per-unit drift from an indivisible CA ratio is avoided.
             consumed_cost = (
-                lot_cost_total if taken == lot_units else taken / lot_units * lot_cost_total
+                lot_cost_total
+                if taken == lot_units
+                else taken / lot_units * lot_cost_total
             )
             cost_price += consumed_cost
             # Allocate this consumed slice's share of the lot's stamp duty, rounded
@@ -368,7 +377,8 @@ def build_sell_disposals(
 
 def _scaled_to_units(txn: Transaction, units: Decimal) -> Transaction:
     """A copy of ``txn`` reduced to ``units``, scaling amount/cost_total by the ratio
-    (per-unit price unchanged). Used to trim the delivery portion of a same-day trade."""
+    (per-unit price unchanged). Used to trim the delivery portion of a same-day trade.
+    """
     ratio = units / txn.units
     updates: dict = {"units": units}
     if txn.amount is not None:
@@ -390,7 +400,11 @@ def net_intraday_offsets(transactions: Sequence[Transaction]) -> list[Transactio
     """
 
     def key(t: Transaction):
-        return (t.security.isin or t.security.symbol or t.security.name, t.folio_number, t.date)
+        return (
+            t.security.isin or t.security.symbol or t.security.name,
+            t.folio_number,
+            t.date,
+        )
 
     buys: dict = {}
     sells: dict = {}
@@ -430,7 +444,11 @@ def net_units_from_transactions(transactions: Iterable[Transaction]) -> Decimal:
     """Net units implied by the ledger (independent of FIFO cost basis)."""
     total = _ZERO
     for txn in transactions:
-        if txn.type in (TransactionType.BUY, TransactionType.BONUS, TransactionType.TRANSFER_IN):
+        if txn.type in (
+            TransactionType.BUY,
+            TransactionType.BONUS,
+            TransactionType.TRANSFER_IN,
+        ):
             total += txn.units
         elif txn.type in (TransactionType.SELL, TransactionType.TRANSFER_OUT):
             total -= txn.units

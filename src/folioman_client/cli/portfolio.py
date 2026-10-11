@@ -34,25 +34,41 @@ def summary_cmd(ctx: click.Context, investor_id: int, as_of: str | None) -> None
     if summary["xirr"] is not None:
         click.echo(f"XIRR:               {summary['xirr'] * 100:.2f}%")
     click.echo(f"Holdings:           {summary['holdings_count']}")
-    click.echo(f"Tax-Ready Folios:   {summary['tax_ready_count']} of {summary['integrity_unit_count']}")
+    click.echo(
+        f"Tax-Ready Folios:   {summary['tax_ready_count']} of {summary['integrity_unit_count']}"
+    )
     click.echo("=" * 60)
 
     if summary["asset_mix"]:
         click.echo("\nAsset Allocation:")
         for am in summary["asset_mix"]:
-            click.echo(f"  - {am['security_type'].title():<15} INR {am['value_inr']:,.2f}")
+            click.echo(
+                f"  - {am['security_type'].title():<15} INR {am['value_inr']:,.2f}"
+            )
 
     if summary["top_holdings"]:
         click.echo("\nTop Holdings:")
         for h in summary["top_holdings"]:
-            val_str = f"INR {h['value_inr']:,.2f}" if h["value_inr"] is not None else "Unpriced"
-            ret_str = f"({h['return_pct'] * 100:+.1f}%)" if h["return_pct"] is not None else ""
-            click.echo(f"  * {h['name'][:30]:<32} {h['units']:>10.3f} units  {val_str:>16} {ret_str}")
+            val_str = (
+                f"INR {h['value_inr']:,.2f}"
+                if h["value_inr"] is not None
+                else "Unpriced"
+            )
+            ret_str = (
+                f"({h['return_pct'] * 100:+.1f}%)"
+                if h["return_pct"] is not None
+                else ""
+            )
+            click.echo(
+                f"  * {h['name'][:30]:<32} {h['units']:>10.3f} units  {val_str:>16} {ret_str}"
+            )
 
     if summary["period_returns"]:
         click.echo("\nPeriod Returns:")
         for pr in summary["period_returns"]:
             ann_str = f"{pr['annualized'] * 100:.2f}% p.a."
-            abs_str = f"({pr['absolute'] * 100:+.2f}%)" if pr["absolute"] is not None else ""
+            abs_str = (
+                f"({pr['absolute'] * 100:+.2f}%)" if pr["absolute"] is not None else ""
+            )
             click.echo(f"  - {pr['period']:<6} {ann_str:<15} {abs_str}")
     click.echo("")

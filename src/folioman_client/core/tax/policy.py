@@ -24,7 +24,9 @@ class TaxPolicy(Protocol):
     def classify_term(self, disposal: Disposal, *, asset_type: SecurityType) -> Term:
         """Short- vs long-term for this asset under local law."""
 
-    def adjusted_cost(self, disposal: Disposal, *, fmv_lookup: FmvLookup | None = None) -> Decimal:
+    def adjusted_cost(
+        self, disposal: Disposal, *, fmv_lookup: FmvLookup | None = None
+    ) -> Decimal:
         """Cost of acquisition used for gain (may include grandfathering)."""
 
 

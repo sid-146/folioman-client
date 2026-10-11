@@ -34,20 +34,22 @@ async def async_engine():
     await engine.dispose()
 
 
-
 @pytest.fixture
 def session_factory(async_engine: AsyncEngine) -> async_sessionmaker[AsyncSession]:
     return create_sessionmaker(async_engine)
 
 
 @pytest.fixture
-def valuation_service(async_engine: AsyncEngine, session_factory: async_sessionmaker[AsyncSession]) -> ValuationService:
+def valuation_service(
+    async_engine: AsyncEngine, session_factory: async_sessionmaker[AsyncSession]
+) -> ValuationService:
     return ValuationService(engine=async_engine, session_factory=session_factory)
 
 
 @pytest.mark.asyncio
 async def test_build_investor_summary_mark_to_market(
-    session_factory: async_sessionmaker[AsyncSession], valuation_service: ValuationService
+    session_factory: async_sessionmaker[AsyncSession],
+    valuation_service: ValuationService,
 ):
     async with session_factory() as session:
         inv = Investor(name="Rohan Sharma", email="rohan@example.com")
@@ -70,7 +72,6 @@ async def test_build_investor_summary_mark_to_market(
         )
         session.add_all([sec_mf, sec_eq])
         await session.flush()
-
 
         folio = Folio(investor_id=inv.id, number="FOLIO101", broker="Zerodha")
         session.add(folio)
@@ -105,14 +106,20 @@ async def test_build_investor_summary_mark_to_market(
         # NAV history
         n1 = NAVHistory(security_id=sec_mf.id, date=date(2024, 1, 1), nav=Decimal("50"))
         n2 = NAVHistory(security_id=sec_mf.id, date=date(2024, 6, 1), nav=Decimal("60"))
-        n3 = NAVHistory(security_id=sec_eq.id, date=date(2024, 1, 1), nav=Decimal("1500"))
-        n4 = NAVHistory(security_id=sec_eq.id, date=date(2024, 6, 1), nav=Decimal("1600"))
+        n3 = NAVHistory(
+            security_id=sec_eq.id, date=date(2024, 1, 1), nav=Decimal("1500")
+        )
+        n4 = NAVHistory(
+            security_id=sec_eq.id, date=date(2024, 6, 1), nav=Decimal("1600")
+        )
         session.add_all([n1, n2, n3, n4])
         await session.commit()
 
         inv_id = inv.id
 
-    summary = await valuation_service.build_investor_summary(inv_id, as_of=date(2024, 6, 1))
+    summary = await valuation_service.build_investor_summary(
+        inv_id, as_of=date(2024, 6, 1)
+    )
 
     # MF value: 100 * 60 = 6000. EQ value: 10 * 1600 = 16000. Total: 22000.
     assert summary["total_inr"] == Decimal("22000")
@@ -129,7 +136,8 @@ async def test_build_investor_summary_mark_to_market(
 
 @pytest.mark.asyncio
 async def test_build_family_summary_aggregation(
-    session_factory: async_sessionmaker[AsyncSession], valuation_service: ValuationService
+    session_factory: async_sessionmaker[AsyncSession],
+    valuation_service: ValuationService,
 ):
     async with session_factory() as session:
         fam = Family(name="Sharma Family")
@@ -172,12 +180,18 @@ async def test_build_family_summary_aggregation(
             cost_basis_complete=True,
         )
         session.add_all([t1, t2])
-        session.add(NAVHistory(security_id=sec.id, date=date(2024, 1, 1), nav=Decimal("100")))
-        session.add(NAVHistory(security_id=sec.id, date=date(2024, 5, 1), nav=Decimal("110")))
+        session.add(
+            NAVHistory(security_id=sec.id, date=date(2024, 1, 1), nav=Decimal("100"))
+        )
+        session.add(
+            NAVHistory(security_id=sec.id, date=date(2024, 5, 1), nav=Decimal("110"))
+        )
         await session.commit()
         fam_id = fam.id
 
-    fam_sum = await valuation_service.build_family_summary(fam_id, as_of=date(2024, 5, 1))
+    fam_sum = await valuation_service.build_family_summary(
+        fam_id, as_of=date(2024, 5, 1)
+    )
     assert fam_sum["investor_count"] == 2
     assert fam_sum["folio_count"] == 2
     # Total units = 100 * 110 = 11000
@@ -186,7 +200,8 @@ async def test_build_family_summary_aggregation(
 
 @pytest.mark.asyncio
 async def test_build_scheme_detail_with_corporate_actions(
-    session_factory: async_sessionmaker[AsyncSession], valuation_service: ValuationService
+    session_factory: async_sessionmaker[AsyncSession],
+    valuation_service: ValuationService,
 ):
     async with session_factory() as session:
         inv = Investor(name="Trader")
@@ -225,12 +240,18 @@ async def test_build_scheme_detail_with_corporate_actions(
                 unit_multiplier=Decimal("10"),
             )
         )
-        session.add(NAVHistory(security_id=sec.id, date=date(2022, 1, 1), nav=Decimal("1000")))
-        session.add(NAVHistory(security_id=sec.id, date=date(2022, 8, 1), nav=Decimal("110")))
+        session.add(
+            NAVHistory(security_id=sec.id, date=date(2022, 1, 1), nav=Decimal("1000"))
+        )
+        session.add(
+            NAVHistory(security_id=sec.id, date=date(2022, 8, 1), nav=Decimal("110"))
+        )
         await session.commit()
         inv_id, sec_id = inv.id, sec.id
 
-    detail = await valuation_service.build_scheme_detail(inv_id, sec_id, as_of=date(2022, 8, 1))
+    detail = await valuation_service.build_scheme_detail(
+        inv_id, sec_id, as_of=date(2022, 8, 1)
+    )
 
     # After 1:10 split, units held = 1000
     assert detail["units"] == Decimal("1000")
@@ -242,14 +263,20 @@ async def test_build_scheme_detail_with_corporate_actions(
 
 @pytest.mark.asyncio
 async def test_recompute_investor_valuation_daily_series(
-    session_factory: async_sessionmaker[AsyncSession], valuation_service: ValuationService
+    session_factory: async_sessionmaker[AsyncSession],
+    valuation_service: ValuationService,
 ):
     async with session_factory() as session:
         inv = Investor(name="Series Test", valuation_status="pending")
         session.add(inv)
         await session.flush()
 
-        sec = Security(name="Fund Alpha", security_type="mf", isin="INF123456789", amfi_code="100001")
+        sec = Security(
+            name="Fund Alpha",
+            security_type="mf",
+            isin="INF123456789",
+            amfi_code="100001",
+        )
         session.add(sec)
         await session.flush()
 
@@ -270,21 +297,34 @@ async def test_recompute_investor_valuation_daily_series(
                 cost_basis_complete=True,
             )
         )
-        session.add(NAVHistory(security_id=sec.id, date=date(2025, 1, 1), nav=Decimal("10")))
-        session.add(NAVHistory(security_id=sec.id, date=date(2025, 1, 10), nav=Decimal("12")))
+        session.add(
+            NAVHistory(security_id=sec.id, date=date(2025, 1, 1), nav=Decimal("10"))
+        )
+        session.add(
+            NAVHistory(security_id=sec.id, date=date(2025, 1, 10), nav=Decimal("12"))
+        )
         await session.commit()
         inv_id = inv.id
 
-    status = await valuation_service.recompute_investor_valuation(inv_id, from_date=date(2025, 1, 1), prime_navs=False)
+    status = await valuation_service.recompute_investor_valuation(
+        inv_id, from_date=date(2025, 1, 1), prime_navs=False
+    )
     if status != "ready":
         async with session_factory() as session:
-            err = (await session.execute(select(Investor.valuation_error).where(Investor.id == inv_id))).scalar()
+            err = (
+                await session.execute(
+                    select(Investor.valuation_error).where(Investor.id == inv_id)
+                )
+            ).scalar()
             print("VALUATION ERROR:", err)
     assert status == "ready"
 
-
     async with session_factory() as session:
-        stmt_vals = select(InvestorValue).where(InvestorValue.investor_id == inv_id).order_by(InvestorValue.date)
+        stmt_vals = (
+            select(InvestorValue)
+            .where(InvestorValue.investor_id == inv_id)
+            .order_by(InvestorValue.date)
+        )
         vals = (await session.execute(stmt_vals)).scalars().all()
         # Verify daily contiguous rows
         assert len(vals) >= 10
@@ -298,14 +338,14 @@ async def test_recompute_investor_valuation_daily_series(
 
 @pytest.mark.asyncio
 async def test_provisional_value_seeding_and_superseding(
-    session_factory: async_sessionmaker[AsyncSession], valuation_service: ValuationService
+    session_factory: async_sessionmaker[AsyncSession],
+    valuation_service: ValuationService,
 ):
     async with session_factory() as session:
         inv = Investor(name="Provisional Test")
         session.add(inv)
         await session.commit()
         inv_id = inv.id
-
 
     # Queue recompute with provisional value
     await valuation_service.queue_recompute(
@@ -322,7 +362,12 @@ async def test_provisional_value_seeding_and_superseding(
 
     # Recompute supersedes provisional row
     async with session_factory() as session:
-        sec = Security(name="Fund Beta", security_type="mf", isin="INF987654321", amfi_code="100002")
+        sec = Security(
+            name="Fund Beta",
+            security_type="mf",
+            isin="INF987654321",
+            amfi_code="100002",
+        )
         session.add(sec)
         await session.flush()
         fol = Folio(investor_id=inv_id, number="F_BETA")
@@ -341,10 +386,14 @@ async def test_provisional_value_seeding_and_superseding(
                 cost_basis_complete=True,
             )
         )
-        session.add(NAVHistory(security_id=sec.id, date=date(2024, 1, 1), nav=Decimal("100")))
+        session.add(
+            NAVHistory(security_id=sec.id, date=date(2024, 1, 1), nav=Decimal("100"))
+        )
         await session.commit()
 
-    await valuation_service.recompute_investor_valuation(inv_id, from_date=date(2024, 1, 1), prime_navs=False)
+    await valuation_service.recompute_investor_valuation(
+        inv_id, from_date=date(2024, 1, 1), prime_navs=False
+    )
 
     st2 = await valuation_service.get_valuation_status(inv_id)
     assert st2["status"] == "ready"
@@ -353,11 +402,18 @@ async def test_provisional_value_seeding_and_superseding(
 
 @pytest.mark.asyncio
 async def test_enqueue_daily_extend_and_ticks(
-    session_factory: async_sessionmaker[AsyncSession], valuation_service: ValuationService
+    session_factory: async_sessionmaker[AsyncSession],
+    valuation_service: ValuationService,
 ):
     async with session_factory() as session:
-        inv1 = Investor(name="Ready Investor", valuation_status="ready", valuation_computed_through=date(2024, 1, 1))
-        inv2 = Investor(name="Error Investor", valuation_status="error", valuation_attempts=3)
+        inv1 = Investor(
+            name="Ready Investor",
+            valuation_status="ready",
+            valuation_computed_through=date(2024, 1, 1),
+        )
+        inv2 = Investor(
+            name="Error Investor", valuation_status="error", valuation_attempts=3
+        )
         session.add_all([inv1, inv2])
         await session.commit()
 

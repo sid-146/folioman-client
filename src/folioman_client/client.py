@@ -49,7 +49,6 @@ from folioman_client.services.scheduler import FoliomanScheduler
 from folioman_client.services.valuation_service import ValuationService
 
 
-
 class _BaseResource:
     """Base class for API resource sub-clients."""
 
@@ -166,11 +165,7 @@ class PortfolioResource(_BaseResource):
             FoliomanAuthError: If authentication fails.
             FoliomanAPIError: If the server returns an error response.
         """
-        as_of_date = (
-            date.fromisoformat(as_of)
-            if isinstance(as_of, str)
-            else as_of
-        )
+        as_of_date = date.fromisoformat(as_of) if isinstance(as_of, str) else as_of
         if not self._client.is_remote:
             data = await self._client._valuation_service.build_investor_summary(
                 investor_id, as_of=as_of_date
@@ -233,11 +228,7 @@ class HoldingsResource(_BaseResource):
             FoliomanAuthError: If authentication fails.
             FoliomanAPIError: If the server returns an error response.
         """
-        as_of_date = (
-            date.fromisoformat(as_of)
-            if isinstance(as_of, str)
-            else as_of
-        )
+        as_of_date = date.fromisoformat(as_of) if isinstance(as_of, str) else as_of
         if not self._client.is_remote:
             data = await self._client._valuation_service.build_scheme_detail(
                 investor_id, security_id, as_of=as_of_date
@@ -256,7 +247,6 @@ class HoldingsResource(_BaseResource):
             params=params,
         )
         return SchemeDetail.model_validate(data)
-
 
 
 class TransactionsResource(_BaseResource):
@@ -383,15 +373,9 @@ class ValuationsResource(_BaseResource):
             FoliomanAPIError: If the server returns an error response.
         """
         from_d = (
-            date.fromisoformat(from_date)
-            if isinstance(from_date, str)
-            else from_date
+            date.fromisoformat(from_date) if isinstance(from_date, str) else from_date
         )
-        to_d = (
-            date.fromisoformat(to_date)
-            if isinstance(to_date, str)
-            else to_date
-        )
+        to_d = date.fromisoformat(to_date) if isinstance(to_date, str) else to_date
         if not self._client.is_remote:
             data = await self._client._valuation_service.value_series(
                 investor_id, from_date=from_d, to_date=to_d, granularity=granularity
@@ -430,7 +414,9 @@ class ValuationsResource(_BaseResource):
             FoliomanAPIError: If the server returns an error response.
         """
         if not self._client.is_remote:
-            data = await self._client._valuation_service.get_valuation_status(investor_id)
+            data = await self._client._valuation_service.get_valuation_status(
+                investor_id
+            )
             return ValuationStatus.model_validate(data)
 
         data = await self._client.request(
@@ -541,7 +527,9 @@ class CapitalGainsResource(_BaseResource):
 class ImportsResource(_BaseResource):
     """Resource sub-client for importing CAS statement files."""
 
-    def __init__(self, client: FoliomanClient, import_service: CASImportService) -> None:
+    def __init__(
+        self, client: FoliomanClient, import_service: CASImportService
+    ) -> None:
         super().__init__(client)
         self._service = import_service
 
@@ -604,7 +592,9 @@ class ISINResource(_BaseResource):
         self, *, force: bool = False, source_path: Path | None = None
     ) -> dict[str, Any]:
         """Ingest the reference master dataset into the active database."""
-        return await self._service.seed_reference_data(force=force, source_path=source_path)
+        return await self._service.seed_reference_data(
+            force=force, source_path=source_path
+        )
 
     async def update(self) -> dict[str, Any]:
         """Check for and ingest upstream reference updates."""
@@ -655,9 +645,7 @@ class FoliosResource(_BaseResource):
 class ReconcileResource(_BaseResource):
     """Resource sub-client for running ledger and holding reconciliations."""
 
-    def __init__(
-        self, client: FoliomanClient, service: ReconciliationService
-    ) -> None:
+    def __init__(self, client: FoliomanClient, service: ReconciliationService) -> None:
         super().__init__(client)
         self._service = service
 
@@ -722,9 +710,7 @@ class SymbolsResource(_BaseResource):
 class CorporateActionsResource(_BaseResource):
     """Resource sub-client for corporate actions (bonuses, splits)."""
 
-    def __init__(
-        self, client: FoliomanClient, service: CorporateActionService
-    ) -> None:
+    def __init__(self, client: FoliomanClient, service: CorporateActionService) -> None:
         super().__init__(client)
         self._service = service
 
@@ -872,7 +858,6 @@ class FoliomanClient:
         self.ledger = self._ledger_service
         self.valuation_service = self._valuation_service
         self.capital_gains_service = self._capital_gains_service
-
 
     @classmethod
     def from_settings(cls, settings: FoliomanSettings) -> FoliomanClient:

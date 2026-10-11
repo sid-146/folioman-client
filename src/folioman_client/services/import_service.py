@@ -144,7 +144,9 @@ class CASImportService:
         await session.flush()
         return investor
 
-    async def _upsert_amc(self, session: AsyncSession, name: str, code: str = "") -> AMC | None:
+    async def _upsert_amc(
+        self, session: AsyncSession, name: str, code: str = ""
+    ) -> AMC | None:
         if not name and not code:
             return None
         search_name = name or code
@@ -179,7 +181,11 @@ class CASImportService:
             existing = (await session.execute(stmt)).scalar_one_or_none()
 
         if existing is None:
-            sec_type = "MF" if core_sec.type.value.lower() == "mf" else core_sec.type.value.upper()
+            sec_type = (
+                "MF"
+                if core_sec.type.value.lower() == "mf"
+                else core_sec.type.value.upper()
+            )
             existing = Security(
                 security_type=sec_type,
                 name=core_sec.name,
@@ -205,7 +211,10 @@ class CASImportService:
         if amc_id and not existing.amc_id:
             existing.amc_id = amc_id
         if core_sec.metadata:
-            existing.metadata_json = {**(existing.metadata_json or {}), **core_sec.metadata}
+            existing.metadata_json = {
+                **(existing.metadata_json or {}),
+                **core_sec.metadata,
+            }
 
         return existing
 
@@ -249,12 +258,21 @@ class CASImportService:
             return _ZERO
 
         from sqlalchemy import case
+
         stmt = select(
             func.coalesce(
                 func.sum(
                     case(
-                        (Transaction.transaction_type.in_(["BUY", "BONUS", "TRANSFER_IN"]), Transaction.units),
-                        (Transaction.transaction_type.in_(["SELL", "TRANSFER_OUT"]), -Transaction.units),
+                        (
+                            Transaction.transaction_type.in_(
+                                ["BUY", "BONUS", "TRANSFER_IN"]
+                            ),
+                            Transaction.units,
+                        ),
+                        (
+                            Transaction.transaction_type.in_(["SELL", "TRANSFER_OUT"]),
+                            -Transaction.units,
+                        ),
                         else_=_ZERO,
                     )
                 ),
@@ -275,6 +293,7 @@ class CASImportService:
     ) -> set[int]:
         """Upgrade previously incomplete partial blocks if prior statements completed the chain."""
         from sqlalchemy import case
+
         affected: set[int] = set()
         while True:
             progressed = False
@@ -291,8 +310,18 @@ class CASImportService:
                         func.coalesce(
                             func.sum(
                                 case(
-                                    (Transaction.transaction_type.in_(["BUY", "BONUS", "TRANSFER_IN"]), Transaction.units),
-                                    (Transaction.transaction_type.in_(["SELL", "TRANSFER_OUT"]), -Transaction.units),
+                                    (
+                                        Transaction.transaction_type.in_(
+                                            ["BUY", "BONUS", "TRANSFER_IN"]
+                                        ),
+                                        Transaction.units,
+                                    ),
+                                    (
+                                        Transaction.transaction_type.in_(
+                                            ["SELL", "TRANSFER_OUT"]
+                                        ),
+                                        -Transaction.units,
+                                    ),
                                     else_=_ZERO,
                                 )
                             ),
@@ -306,9 +335,11 @@ class CASImportService:
                     )
                     net = Decimal(str(await session.scalar(stmt_net) or 0))
 
-                    if pb.closing_units is not None and abs(
-                        pb.opening_units + net - pb.closing_units
-                    ) <= _HISTORY_TOLERANCE:
+                    if (
+                        pb.closing_units is not None
+                        and abs(pb.opening_units + net - pb.closing_units)
+                        <= _HISTORY_TOLERANCE
+                    ):
                         # Upgrade rows to complete cost basis
                         await session.execute(
                             update(Transaction)
@@ -427,10 +458,9 @@ class CASImportService:
                 for block in parsed.mf.schemes:
                     try:
                         async with session.begin_nested():
-                            amc_name = (
-                                (block.security.metadata or {}).get("amc")
-                                or block.folio.amc_code
-                            )
+                            amc_name = (block.security.metadata or {}).get(
+                                "amc"
+                            ) or block.folio.amc_code
                             amc = await self._upsert_amc(
                                 session, amc_name, block.folio.amc_code
                             )
@@ -466,7 +496,9 @@ class CASImportService:
                                     Transaction.investor_id == investor.id,
                                     Transaction.dedup_key == key,
                                 )
-                                dup = (await session.execute(stmt_dup)).scalar_one_or_none()
+                                dup = (
+                                    await session.execute(stmt_dup)
+                                ).scalar_one_or_none()
                                 if dup is not None:
                                     summary["transactions_skipped"] += 1
                                     continue
@@ -501,7 +533,9 @@ class CASImportService:
                                     PartialBlock.security_id == security.id,
                                     PartialBlock.folio_id == folio.id,
                                 )
-                                pb = (await session.execute(stmt_pb)).scalar_one_or_none()
+                                pb = (
+                                    await session.execute(stmt_pb)
+                                ).scalar_one_or_none()
                                 if pb is None:
                                     pb = PartialBlock(
                                         investor_id=investor.id,
@@ -518,16 +552,25 @@ class CASImportService:
                                     pb.statement_from = parsed.mf.statement_from
 
                                 as_of = parsed.mf.statement_to or max(
-                                    (transaction.date for transaction in block.transactions), default=None
+                                    (
+                                        transaction.date
+                                        for transaction in block.transactions
+                                    ),
+                                    default=None,
                                 )
-                                if block.closing_units is not None and as_of is not None:
+                                if (
+                                    block.closing_units is not None
+                                    and as_of is not None
+                                ):
                                     stmt_h = select(Holding).where(
                                         Holding.investor_id == investor.id,
                                         Holding.security_id == security.id,
                                         Holding.folio_id == folio.id,
                                         Holding.as_of_date == as_of,
                                     )
-                                    h = (await session.execute(stmt_h)).scalar_one_or_none()
+                                    h = (
+                                        await session.execute(stmt_h)
+                                    ).scalar_one_or_none()
                                     if h is None:
                                         h = Holding(
                                             investor_id=investor.id,
@@ -548,12 +591,16 @@ class CASImportService:
                                         "security": security.name,
                                         "folio": folio.number,
                                         "reason": gap,
-                                        "opening_units": str(block.opening_units)
-                                        if block.opening_units is not None
-                                        else None,
-                                        "closing_units": str(block.closing_units)
-                                        if block.closing_units is not None
-                                        else None,
+                                        "opening_units": (
+                                            str(block.opening_units)
+                                            if block.opening_units is not None
+                                            else None
+                                        ),
+                                        "closing_units": (
+                                            str(block.closing_units)
+                                            if block.closing_units is not None
+                                            else None
+                                        ),
                                     }
                                 )
 
@@ -569,7 +616,9 @@ class CASImportService:
                         q_entry = {
                             "security": getattr(block.security, "name", "") or "",
                             "isin": getattr(block.security, "isin", "") or "",
-                            "folio": normalize_folio_number(getattr(block.folio, "number", "")),
+                            "folio": normalize_folio_number(
+                                getattr(block.folio, "number", "")
+                            ),
                             "reason": str(exc),
                         }
                         summary["quarantined"].append(q_entry)
@@ -582,12 +631,16 @@ class CASImportService:
                             folio_number=q_entry["folio"],
                             reason=q_entry["reason"],
                             raw_json={
-                                "opening_units": str(block.opening_units)
-                                if block.opening_units is not None
-                                else None,
-                                "closing_units": str(block.closing_units)
-                                if block.closing_units is not None
-                                else None,
+                                "opening_units": (
+                                    str(block.opening_units)
+                                    if block.opening_units is not None
+                                    else None
+                                ),
+                                "closing_units": (
+                                    str(block.closing_units)
+                                    if block.closing_units is not None
+                                    else None
+                                ),
                                 "transactions": len(block.transactions),
                             },
                         )
@@ -600,11 +653,15 @@ class CASImportService:
             # 5. Process eCAS Statement (NSDL / CDSL)
             elif parsed.ecas:
                 for account in parsed.ecas.accounts:
-                    folio = await self._upsert_folio(session, investor.id, account.folio)
+                    folio = await self._upsert_folio(
+                        session, investor.id, account.folio
+                    )
                     for line in account.holdings:
                         try:
                             async with session.begin_nested():
-                                security = await self._upsert_security(session, line.security)
+                                security = await self._upsert_security(
+                                    session, line.security
+                                )
                                 affected_security_ids.add(security.id)
                                 stmt_h = select(Holding).where(
                                     Holding.investor_id == investor.id,
@@ -662,9 +719,13 @@ class CASImportService:
             # 5b. Auto-reconcile affected securities
             for sec_id in affected_security_ids:
                 try:
-                    await self._reconcile_service.reconcile_security(session, investor.id, sec_id)
+                    await self._reconcile_service.reconcile_security(
+                        session, investor.id, sec_id
+                    )
                 except Exception as exc:
-                    logger.warning("Auto-reconcile for security %s failed: %s", sec_id, exc)
+                    logger.warning(
+                        "Auto-reconcile for security %s failed: %s", sec_id, exc
+                    )
 
             # 6. Finalize ImportJob
             final_status = (

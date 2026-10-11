@@ -11,7 +11,10 @@ from pydantic import Field, model_validator
 
 from folioman_client.core.models.base import DomainModel
 from folioman_client.core.models.currency_fields import CurrencyField
-from folioman_client.core.models.decimal_fields import DecimalField, OptionalDecimalField
+from folioman_client.core.models.decimal_fields import (
+    DecimalField,
+    OptionalDecimalField,
+)
 from folioman_client.core.models.security import Security
 
 
@@ -95,7 +98,11 @@ class Transaction(DomainModel):
         if self.type in (TransactionType.BUY, TransactionType.SELL) and self.units <= 0:
             msg = "buy and sell transactions require positive units"
             raise ValueError(msg)
-        if self.type is TransactionType.DIVIDEND and self.units <= 0 and self.amount is None:
+        if (
+            self.type is TransactionType.DIVIDEND
+            and self.units <= 0
+            and self.amount is None
+        ):
             msg = "dividend requires amount when units are zero"
             raise ValueError(msg)
         if self.fees < 0:

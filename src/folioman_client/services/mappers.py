@@ -9,7 +9,11 @@ from folioman_client.core.models.transaction import (
     TransactionSource,
     TransactionType,
 )
-from folioman_client.db.models import Holding as DBHolding, Security as DBSecurity, Transaction as DBTransaction
+from folioman_client.db.models import (
+    Holding as DBHolding,
+    Security as DBSecurity,
+    Transaction as DBTransaction,
+)
 
 
 def to_core_security(security: DBSecurity) -> CoreSecurity:
@@ -25,6 +29,7 @@ def to_core_security(security: DBSecurity) -> CoreSecurity:
         amfi_code=security.amfi_code or "",
         metadata=dict(security.metadata_json or {}),
     )
+
 
 def to_core_transaction(txn: DBTransaction) -> CoreTransaction:
     """SQLAlchemy ``Transaction`` row -> core ``Transaction`` domain model."""

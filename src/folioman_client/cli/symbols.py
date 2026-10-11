@@ -57,7 +57,9 @@ def resolve_cmd(
     if summary["matched"]:
         click.echo("\nMatched Securities:")
         for m in summary["matched"]:
-            click.echo(f"  • {m['isin']} -> {m['symbol']} ({m['exchange']}) - {m['name']}")
+            click.echo(
+                f"  • {m['isin']} -> {m['symbol']} ({m['exchange']}) - {m['name']}"
+            )
 
     if summary["unmatched"]:
         click.echo("\nUnmatched Securities:")

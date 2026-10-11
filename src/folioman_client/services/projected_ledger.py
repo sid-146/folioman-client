@@ -180,7 +180,9 @@ async def compute_ledger(
         ):
             stmt_merged = (
                 select(Transaction)
-                .options(selectinload(Transaction.security), selectinload(Transaction.folio))
+                .options(
+                    selectinload(Transaction.security), selectinload(Transaction.folio)
+                )
                 .where(
                     Transaction.investor_id == investor_id,
                     Transaction.security_id == aca.security_id,
@@ -189,7 +191,9 @@ async def compute_ledger(
             if folio_id is not None:
                 stmt_merged = stmt_merged.where(Transaction.folio_id == folio_id)
             if not include_incomplete:
-                stmt_merged = stmt_merged.where(Transaction.cost_basis_complete.is_(True))
+                stmt_merged = stmt_merged.where(
+                    Transaction.cost_basis_complete.is_(True)
+                )
 
             merged_raw = (await session.execute(stmt_merged)).scalars().all()
             core_txns = net_intraday_offsets(
@@ -246,4 +250,3 @@ __all__ = [
     "security_key",
     "demerger_reductions",
 ]
-

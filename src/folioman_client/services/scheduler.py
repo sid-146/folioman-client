@@ -52,7 +52,9 @@ class FoliomanScheduler:
     @property
     def is_running(self) -> bool:
         """Return True if the scheduler is active."""
-        return self._is_running and self._scheduler is not None and self._scheduler.running
+        return (
+            self._is_running and self._scheduler is not None and self._scheduler.running
+        )
 
     def _job_daily_extend(self) -> dict[str, Any]:
         """6-hourly NAV refresh and historical tail extension."""
@@ -129,10 +131,14 @@ class FoliomanScheduler:
         if run_catchup and not blocking:
             # Trigger an immediate run in a worker thread
             import threading
+
             threading.Thread(target=self._job_daily_extend, daemon=True).start()
 
         self._is_running = True
-        logger.info("Starting Folioman %s scheduler...", "blocking" if blocking else "background")
+        logger.info(
+            "Starting Folioman %s scheduler...",
+            "blocking" if blocking else "background",
+        )
         try:
             self._scheduler.start()
         except (KeyboardInterrupt, SystemExit):

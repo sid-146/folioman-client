@@ -76,7 +76,9 @@ class EquitySymbolService:
                 return summary
 
             summary["unresolved_count"] = len(securities)
-            isin_map: dict[str, Security] = {s.isin.strip().upper(): s for s in securities}
+            isin_map: dict[str, Security] = {
+                s.isin.strip().upper(): s for s in securities
+            }
             matched_symbols: dict[str, dict[str, str]] = {}
 
             # 2. Try looking up in the database ref_isins table first
@@ -96,6 +98,7 @@ class EquitySymbolService:
             if unmatched_isins:
                 try:
                     from casparser.parsers._isin import batch_equity_symbols
+
                     cp_matches = batch_equity_symbols(unmatched_isins) or {}
                     for isin, sym in cp_matches.items():
                         if sym:
@@ -140,7 +143,10 @@ class EquitySymbolService:
 
         # 5. Optionally backfill price history for resolved securities
         if backfill and resolved_security_ids and not dry_run:
-            logger.info("Triggering historical price backfill for %d resolved securities...", len(resolved_security_ids))
+            logger.info(
+                "Triggering historical price backfill for %d resolved securities...",
+                len(resolved_security_ids),
+            )
             nav_svc = NAVService(engine=self.engine)
             summary["backfill"] = await nav_svc.backfill_navs(
                 security_ids=resolved_security_ids,

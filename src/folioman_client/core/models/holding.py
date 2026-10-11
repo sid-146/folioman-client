@@ -9,7 +9,10 @@ from typing import Self
 from pydantic import Field, model_validator
 
 from folioman_client.core.models.base import DomainModel
-from folioman_client.core.models.decimal_fields import DecimalField, OptionalDecimalField
+from folioman_client.core.models.decimal_fields import (
+    DecimalField,
+    OptionalDecimalField,
+)
 from folioman_client.core.models.security import Security
 
 

@@ -11,7 +11,14 @@ from folioman_client.core.models.security import SecurityType
 from folioman_client.core.trading_calendar import completed_trading_day
 from folioman_client.db.engine import create_folioman_engine, create_sessionmaker
 from folioman_client.db.migrations import init_schema
-from folioman_client.db.models import Folio, Holding, Investor, NAVHistory, Security, Transaction
+from folioman_client.db.models import (
+    Folio,
+    Holding,
+    Investor,
+    NAVHistory,
+    Security,
+    Transaction,
+)
 from folioman_client.services.nav_service import NAVService
 
 
@@ -145,7 +152,9 @@ async def test_refresh_navs_with_bulk_and_fallback(test_engine, setup_portfolio)
             200,
             json={
                 "chart": {
-                    "result": [{"meta": {"regularMarketPrice": 3900.0, "currency": "INR"}}],
+                    "result": [
+                        {"meta": {"regularMarketPrice": 3900.0, "currency": "INR"}}
+                    ],
                     "error": None,
                 }
             },
@@ -170,7 +179,9 @@ async def test_refresh_navs_with_bulk_and_fallback(test_engine, setup_portfolio)
             # Check MF NAV
             mf_nav = (
                 await session.execute(
-                    select(NAVHistory).where(NAVHistory.security_id == data["sec_mf"].id)
+                    select(NAVHistory).where(
+                        NAVHistory.security_id == data["sec_mf"].id
+                    )
                 )
             ).scalar_one_or_none()
             assert mf_nav is not None
@@ -180,7 +191,9 @@ async def test_refresh_navs_with_bulk_and_fallback(test_engine, setup_portfolio)
             # Check Equity price
             eq_nav = (
                 await session.execute(
-                    select(NAVHistory).where(NAVHistory.security_id == data["sec_eq"].id)
+                    select(NAVHistory).where(
+                        NAVHistory.security_id == data["sec_eq"].id
+                    )
                 )
             ).scalar_one_or_none()
             assert eq_nav is not None
@@ -226,12 +239,16 @@ async def test_backfill_navs_and_closed_feed_marking(test_engine, setup_portfoli
         assert summary2["points"] == 0
 
         # Backfill dead scheme -> marks nav_feed_closed
-        dead_summary = await svc.backfill_navs(security_id=data["sec_dead"].id, force=True)
+        dead_summary = await svc.backfill_navs(
+            security_id=data["sec_dead"].id, force=True
+        )
         assert dead_summary["closed"] == 1
 
         async with svc.session_factory() as session:
             refreshed_dead = (
-                await session.execute(select(Security).where(Security.id == data["sec_dead"].id))
+                await session.execute(
+                    select(Security).where(Security.id == data["sec_dead"].id)
+                )
             ).scalar_one()
             assert refreshed_dead.nav_feed_closed is True
 

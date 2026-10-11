@@ -65,7 +65,9 @@ def _is_transient(exc: Exception) -> bool:
     return False
 
 
-def fetch_latest_nav(amfi_code: str, *, client: httpx.Client | None = None) -> NAVPoint | None:
+def fetch_latest_nav(
+    amfi_code: str, *, client: httpx.Client | None = None
+) -> NAVPoint | None:
     """Latest NAV for an AMFI scheme. Returns ``None`` when the scheme has no data."""
     payload = _fetch_json(f"/mf/{amfi_code}/latest", client=client)
     points = list(_parse_points(payload.get("data") or []))

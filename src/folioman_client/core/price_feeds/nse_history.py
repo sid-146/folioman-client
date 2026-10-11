@@ -35,7 +35,11 @@ from decimal import Decimal, InvalidOperation
 import httpx
 
 from folioman_client.core.models.nav import NAVHistory, NAVPoint
-from folioman_client.core.price_feeds.nse_bse_client import NSE_BASE_URL, ExchangeClient, nse_client
+from folioman_client.core.price_feeds.nse_bse_client import (
+    NSE_BASE_URL,
+    ExchangeClient,
+    nse_client,
+)
 from folioman_client.core.price_feeds.yfinance_feed import PriceFetchError
 
 _HISTORY_PATH = "/api/historicalOR/generateSecurityWiseHistoricalData"
@@ -127,7 +131,9 @@ def fetch_history(
                 "csv": "true",
             }
             try:
-                response = client.get(_HISTORY_PATH, params=params, headers={"Referer": _REFERER})
+                response = client.get(
+                    _HISTORY_PATH, params=params, headers={"Referer": _REFERER}
+                )
                 response.raise_for_status()
             except httpx.HTTPError as exc:
                 last_error = exc

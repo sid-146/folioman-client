@@ -30,7 +30,11 @@ from folioman_client.core.models.cas import (
 )
 from folioman_client.core.models.investor import Folio, FolioType
 from folioman_client.core.models.security import Security, SecurityType
-from folioman_client.core.models.transaction import Transaction, TransactionSource, TransactionType
+from folioman_client.core.models.transaction import (
+    Transaction,
+    TransactionSource,
+    TransactionType,
+)
 
 
 class CASParseError(ValueError):
@@ -65,7 +69,9 @@ _SELL_TXNS = frozenset({CTxn.REDEMPTION, CTxn.SWITCH_OUT, CTxn.SWITCH_OUT_MERGER
 _DIVIDEND_TXNS = frozenset({CTxn.DIVIDEND_PAYOUT})
 # Charges / no unit impact — dropped from the ledger view (casparser surfaces
 # STT and stamp duty separately in its 112A).
-_SKIP_TXNS = frozenset({CTxn.STT_TAX, CTxn.STAMP_DUTY_TAX, CTxn.TDS_TAX, CTxn.MISC, CTxn.UNKNOWN})
+_SKIP_TXNS = frozenset(
+    {CTxn.STT_TAX, CTxn.STAMP_DUTY_TAX, CTxn.TDS_TAX, CTxn.MISC, CTxn.UNKNOWN}
+)
 # Unit-affecting but not a plain buy/sell. A REVERSAL voids an earlier row and
 # is netted out against it before mapping (see ``_cancel_reversals``); only an
 # *unpaired* reversal — one whose original isn't in this statement's window —
@@ -76,7 +82,9 @@ _SKIP_TXNS = frozenset({CTxn.STT_TAX, CTxn.STAMP_DUTY_TAX, CTxn.TDS_TAX, CTxn.MI
 # a gift out is not a transfer for capital gains (s.47(iii)). Mapping them to a
 # buy/sell would mint a wrong lot or book a phantom gain — they need manual
 # basis entry. Failing loud beats silently corrupting the unit balance / cost basis.
-_UNSUPPORTED_TXNS = frozenset({CTxn.REVERSAL, CTxn.SEGREGATION, CTxn.GIFT_IN, CTxn.GIFT_OUT})
+_UNSUPPORTED_TXNS = frozenset(
+    {CTxn.REVERSAL, CTxn.SEGREGATION, CTxn.GIFT_IN, CTxn.GIFT_OUT}
+)
 # Buy/sell rows a reversal can void (the only rows that move units 1:1).
 _REVERSIBLE_TXNS = _BUY_TXNS | _SELL_TXNS
 _PAIR_TOLERANCE = Decimal("0.0001")
@@ -123,9 +131,19 @@ def _map_line(
     else:
         # Recover a missing unit/NAV from the amount when the other is known
         # (e.g. a row that carries amount + NAV but no units).
-        if units is None and nav is not None and amount_val is not None and nav != _ZERO:
+        if (
+            units is None
+            and nav is not None
+            and amount_val is not None
+            and nav != _ZERO
+        ):
             units = amount_val / nav
-        elif nav is None and units is not None and amount_val is not None and units != _ZERO:
+        elif (
+            nav is None
+            and units is not None
+            and amount_val is not None
+            and units != _ZERO
+        ):
             nav = amount_val / units
 
         # A unit-bearing buy can still arrive with no NAV — e.g. an "Additional
@@ -158,7 +176,9 @@ def _map_line(
     # Pairing is positional (not by date) so multiple same-date sells each get
     # their own STT row instead of every same-date sell double-counting it.
     fees = stt_for_idx.get(idx, _ZERO) if mapped is TransactionType.SELL else _ZERO
-    stamp_duty = stamp_for_idx.get(idx, _ZERO) if mapped is TransactionType.BUY else _ZERO
+    stamp_duty = (
+        stamp_for_idx.get(idx, _ZERO) if mapped is TransactionType.BUY else _ZERO
+    )
     return MfCasLineItem(
         date=txn.date,
         transaction_type=mapped,
@@ -253,14 +273,18 @@ def _collect_per_index_charges(scheme_txns) -> tuple[dict, dict, dict]:
             and last_sell_idx is not None
             and scheme_txns[last_sell_idx].date == t.date
         ):
-            stt_for_idx[last_sell_idx] = stt_for_idx.get(last_sell_idx, _ZERO) + abs(t.amount)
+            stt_for_idx[last_sell_idx] = stt_for_idx.get(last_sell_idx, _ZERO) + abs(
+                t.amount
+            )
         elif (
             t.type is CTxn.STAMP_DUTY_TAX
             and t.amount is not None
             and last_buy_idx is not None
             and scheme_txns[last_buy_idx].date == t.date
         ):
-            stamp_for_idx[last_buy_idx] = stamp_for_idx.get(last_buy_idx, _ZERO) + abs(t.amount)
+            stamp_for_idx[last_buy_idx] = stamp_for_idx.get(last_buy_idx, _ZERO) + abs(
+                t.amount
+            )
     return stt_for_idx, stamp_for_idx, nav_for_date
 
 
@@ -330,7 +354,9 @@ def _cancel_reversals(scheme_txns: Sequence) -> list:
     as a snapshot instead of a (would-be-wrong) tax ledger.
     """
     reversal_idxs = [
-        i for i, t in enumerate(scheme_txns) if getattr(t, "type", None) is CTxn.REVERSAL
+        i
+        for i, t in enumerate(scheme_txns)
+        if getattr(t, "type", None) is CTxn.REVERSAL
     ]
     if not reversal_idxs:
         return list(scheme_txns)
@@ -388,7 +414,9 @@ def map_cas_data(cas: CASData) -> MfCasStatement:
                 # Net out REVERSAL rows against the transactions they void before
                 # building the ledger (a reversal isn't a real buy or sell).
                 scheme_txns = _cancel_reversals(scheme.transactions)
-                stt_for_idx, stamp_for_idx, nav_for_date = _collect_per_index_charges(scheme_txns)
+                stt_for_idx, stamp_for_idx, nav_for_date = _collect_per_index_charges(
+                    scheme_txns
+                )
                 lines = [
                     li
                     for li in (
@@ -485,12 +513,17 @@ def net_units_from_lines(lines: Iterable[MfCasLineItem]) -> Decimal:
             TransactionType.TRANSFER_IN,
         ):
             total += line.units
-        elif line.transaction_type in (TransactionType.SELL, TransactionType.TRANSFER_OUT):
+        elif line.transaction_type in (
+            TransactionType.SELL,
+            TransactionType.TRANSFER_OUT,
+        ):
             total -= line.units
     return total
 
 
-def scheme_history_gap(block: MfCasSchemeBlock, *, prior_balance: Decimal = _ZERO) -> str | None:
+def scheme_history_gap(
+    block: MfCasSchemeBlock, *, prior_balance: Decimal = _ZERO
+) -> str | None:
     """Why a block can't extend a gap-free ledger, or ``None`` if it can.
 
     ``prior_balance`` is the units already on the ledger for this (security, folio)
@@ -514,7 +547,11 @@ def scheme_history_gap(block: MfCasSchemeBlock, *, prior_balance: Decimal = _ZER
     """
     open_units = block.opening_units if block.opening_units is not None else _ZERO
     if abs(open_units - prior_balance) > _HISTORY_TOLERANCE:
-        return "opening_nonzero" if abs(prior_balance) <= _HISTORY_TOLERANCE else "history_gap"
+        return (
+            "opening_nonzero"
+            if abs(prior_balance) <= _HISTORY_TOLERANCE
+            else "history_gap"
+        )
     if block.closing_units is not None:
         net = net_units_from_lines(block.transactions)
         if abs((open_units + net) - block.closing_units) > _HISTORY_TOLERANCE:
@@ -522,7 +559,9 @@ def scheme_history_gap(block: MfCasSchemeBlock, *, prior_balance: Decimal = _ZER
     return None
 
 
-def scheme_has_full_history(block: MfCasSchemeBlock, *, prior_balance: Decimal = _ZERO) -> bool:
+def scheme_has_full_history(
+    block: MfCasSchemeBlock, *, prior_balance: Decimal = _ZERO
+) -> bool:
     """True iff the block cleanly extends the existing ledger (gap-free)
     (see ``scheme_history_gap``)."""
     return scheme_history_gap(block, prior_balance=prior_balance) is None

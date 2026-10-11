@@ -29,7 +29,12 @@ _REFERER = "https://www.nseindia.com/all-reports"
 # Series that carry an ordinary equity close (rolling-settlement + when-issued).
 _EQUITY_SERIES = frozenset({"EQ", "BE", "BZ", "SM", "ST"})
 
-__all__ = ["fetch_close_by_symbol", "parse_bhavcopy_csv", "parse_legacy_csv", "warmed_client"]
+__all__ = [
+    "fetch_close_by_symbol",
+    "parse_bhavcopy_csv",
+    "parse_legacy_csv",
+    "warmed_client",
+]
 
 
 def warmed_client() -> ExchangeClient:
@@ -45,7 +50,9 @@ def _legacy_url(on: date) -> str:
     return f"{_ARCHIVES}/products/content/sec_bhavdata_full_{on:%d%m%Y}.csv"
 
 
-def fetch_close_by_symbol(on: date, *, client: ExchangeClient | None = None) -> dict[str, NAVPoint]:
+def fetch_close_by_symbol(
+    on: date, *, client: ExchangeClient | None = None
+) -> dict[str, NAVPoint]:
     """Every equity's close for ``on``, keyed by NSE symbol. ``{}`` when unavailable.
 
     Best-effort by design: any download/parse failure returns ``{}`` so the daily
@@ -103,7 +110,9 @@ def _to_point(raw_close: str, on: date) -> NAVPoint | None:
         return None
 
 
-def _by_symbol(text: str, on: date, *, symbol_col: str, series_col: str, close_col: str) -> dict:
+def _by_symbol(
+    text: str, on: date, *, symbol_col: str, series_col: str, close_col: str
+) -> dict:
     out: dict[str, NAVPoint] = {}
     for raw in csv.DictReader(io.StringIO(text.lstrip("﻿"))):
         row = {(k or "").strip(): (v or "").strip() for k, v in raw.items()}
@@ -118,9 +127,13 @@ def _by_symbol(text: str, on: date, *, symbol_col: str, series_col: str, close_c
 
 def parse_bhavcopy_csv(text: str, on: date) -> dict[str, NAVPoint]:
     """Parse the UDiFF bhavcopy (``TckrSymb`` / ``SctySrs`` / ``ClsPric``)."""
-    return _by_symbol(text, on, symbol_col="TckrSymb", series_col="SctySrs", close_col="ClsPric")
+    return _by_symbol(
+        text, on, symbol_col="TckrSymb", series_col="SctySrs", close_col="ClsPric"
+    )
 
 
 def parse_legacy_csv(text: str, on: date) -> dict[str, NAVPoint]:
     """Parse the legacy full bhavdata (``SYMBOL`` / ``SERIES`` / ``CLOSE_PRICE``)."""
-    return _by_symbol(text, on, symbol_col="SYMBOL", series_col="SERIES", close_col="CLOSE_PRICE")
+    return _by_symbol(
+        text, on, symbol_col="SYMBOL", series_col="SERIES", close_col="CLOSE_PRICE"
+    )

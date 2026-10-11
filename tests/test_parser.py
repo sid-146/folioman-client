@@ -43,7 +43,10 @@ def _cas(
     close_units: str = "40",
 ) -> CASData:
     val = SchemeValuation(
-        date=date(2025, 3, 31), nav=Decimal("25"), cost=Decimal("400"), value=Decimal("1000")
+        date=date(2025, 3, 31),
+        nav=Decimal("25"),
+        cost=Decimal("400"),
+        value=Decimal("1000"),
     )
     scheme = Scheme(
         scheme="Test Equity Fund",
@@ -61,12 +64,19 @@ def _cas(
         transactions=transactions,
     )
     folio = Folio(
-        folio="12345/67", amc="Test MF", PAN="ABCDE1234F", KYC="OK", PANKYC="OK", schemes=[scheme]
+        folio="12345/67",
+        amc="Test MF",
+        PAN="ABCDE1234F",
+        KYC="OK",
+        PANKYC="OK",
+        schemes=[scheme],
     )
     return CASData(
         statement_period=StatementPeriod(from_="2022-01-01", to="2025-03-31"),
         folios=[folio],
-        investor_info=InvestorInfo(name="Sample", email="s@example.com", address="a", mobile="9"),
+        investor_info=InvestorInfo(
+            name="Sample", email="s@example.com", address="a", mobile="9"
+        ),
         cas_type=CASFileType.DETAILED,
         file_type=FileType.CAMS,
     )
@@ -75,7 +85,10 @@ def _cas(
 def _cas_named(scheme_name: str, *, isin: str | None, amfi: str | None) -> CASData:
     """A single-scheme CAS with a custom name/isin/amfi, for mapping-failure tests."""
     val = SchemeValuation(
-        date=date(2025, 3, 31), nav=Decimal("25"), cost=Decimal("400"), value=Decimal("1000")
+        date=date(2025, 3, 31),
+        nav=Decimal("25"),
+        cost=Decimal("400"),
+        value=Decimal("1000"),
     )
     scheme = Scheme(
         scheme=scheme_name,
@@ -93,12 +106,19 @@ def _cas_named(scheme_name: str, *, isin: str | None, amfi: str | None) -> CASDa
         transactions=[_txn(date(2022, 1, 1), CTxn.PURCHASE, "100", "10", "1000")],
     )
     folio = Folio(
-        folio="12345/67", amc="Test MF", PAN="ABCDE1234F", KYC="OK", PANKYC="OK", schemes=[scheme]
+        folio="12345/67",
+        amc="Test MF",
+        PAN="ABCDE1234F",
+        KYC="OK",
+        PANKYC="OK",
+        schemes=[scheme],
     )
     return CASData(
         statement_period=StatementPeriod(from_="2022-01-01", to="2025-03-31"),
         folios=[folio],
-        investor_info=InvestorInfo(name="Sample", email="s@example.com", address="a", mobile="9"),
+        investor_info=InvestorInfo(
+            name="Sample", email="s@example.com", address="a", mobile="9"
+        ),
         cas_type=CASFileType.DETAILED,
         file_type=FileType.CAMS,
     )
@@ -129,7 +149,10 @@ def test_identified_schemes_import_alongside_a_skipped_one():
     # One valid scheme + one identifier-less scheme in the same folio: the valid
     # one imports, the other is skipped, and the statement still succeeds.
     val = SchemeValuation(
-        date=date(2025, 3, 31), nav=Decimal("25"), cost=Decimal("400"), value=Decimal("1000")
+        date=date(2025, 3, 31),
+        nav=Decimal("25"),
+        cost=Decimal("400"),
+        value=Decimal("1000"),
     )
 
     def _scheme(name, isin, amfi):
@@ -163,7 +186,9 @@ def test_identified_schemes_import_alongside_a_skipped_one():
     cas = CASData(
         statement_period=StatementPeriod(from_="2022-01-01", to="2025-03-31"),
         folios=[folio],
-        investor_info=InvestorInfo(name="Sample", email="s@example.com", address="a", mobile="9"),
+        investor_info=InvestorInfo(
+            name="Sample", email="s@example.com", address="a", mobile="9"
+        ),
         cas_type=CASFileType.DETAILED,
         file_type=FileType.CAMS,
     )
@@ -192,7 +217,8 @@ def test_map_cas_data_structure_and_equity_flag():
 
 def test_debt_fund_not_flagged_equity_oriented():
     cas = _cas(
-        [_txn(date(2022, 1, 1), CTxn.PURCHASE, "100", "10", "1000")], fund_type=FundType.DEBT
+        [_txn(date(2022, 1, 1), CTxn.PURCHASE, "100", "10", "1000")],
+        fund_type=FundType.DEBT,
     )
     block = parser.map_cas_data(cas).schemes[0]
     assert block.security.metadata["equity_oriented"] is False
@@ -445,7 +471,9 @@ def test_sub_unit_allotment_without_same_day_nav_books_zero_cost():
 def test_every_casparser_txn_type_is_categorised():
     covered = parser._BUY_TXNS | parser._SELL_TXNS | parser._DIVIDEND_TXNS
     covered |= parser._SKIP_TXNS | parser._UNSUPPORTED_TXNS
-    assert covered == set(CTxn), f"uncategorised casparser txn types: {set(CTxn) - covered}"
+    assert covered == set(
+        CTxn
+    ), f"uncategorised casparser txn types: {set(CTxn) - covered}"
 
 
 def test_transactions_from_statement_are_valid_ledger_rows():
@@ -509,7 +537,10 @@ def test_scheme_chains_onto_matching_prior_ledger_balance():
     block = parser.map_cas_data(cas).schemes[0]
     # Chains cleanly when the prior ledger holds 50; a partial-period gap otherwise.
     assert parser.scheme_history_gap(block, prior_balance=Decimal("50")) is None
-    assert parser.scheme_history_gap(block, prior_balance=Decimal("0")) == "opening_nonzero"
+    assert (
+        parser.scheme_history_gap(block, prior_balance=Decimal("0"))
+        == "opening_nonzero"
+    )
 
 
 def test_scheme_history_gap_when_opening_does_not_match_prior_ledger():
@@ -521,7 +552,9 @@ def test_scheme_history_gap_when_opening_does_not_match_prior_ledger():
         close_units="30",
     )
     block = parser.map_cas_data(cas).schemes[0]
-    assert parser.scheme_history_gap(block, prior_balance=Decimal("50")) == "history_gap"
+    assert (
+        parser.scheme_history_gap(block, prior_balance=Decimal("50")) == "history_gap"
+    )
 
 
 def test_read_mf_cas_wraps_wrong_password(monkeypatch):

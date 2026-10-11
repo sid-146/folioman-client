@@ -40,16 +40,16 @@ def _parsed_to_dict(parsed: ParsedCorporateAction) -> dict[str, Any]:
         "type": parsed.type.value,
         "raw": parsed.raw,
         "ratio": list(parsed.ratio) if parsed.ratio else None,
-        "unit_multiplier": str(parsed.unit_multiplier)
-        if parsed.unit_multiplier is not None
-        else None,
+        "unit_multiplier": (
+            str(parsed.unit_multiplier) if parsed.unit_multiplier is not None else None
+        ),
         "amount": str(parsed.amount) if parsed.amount is not None else None,
-        "face_value_from": str(parsed.face_value_from)
-        if parsed.face_value_from is not None
-        else None,
-        "face_value_to": str(parsed.face_value_to)
-        if parsed.face_value_to is not None
-        else None,
+        "face_value_from": (
+            str(parsed.face_value_from) if parsed.face_value_from is not None else None
+        ),
+        "face_value_to": (
+            str(parsed.face_value_to) if parsed.face_value_to is not None else None
+        ),
         "needs_review": parsed.needs_review,
     }
 
@@ -186,11 +186,18 @@ class CorporateActionService:
 
                     sec.corporate_actions_synced_at = datetime.now(timezone.utc)
                 except CorporateActionThrottled:
-                    logger.warning("Exchange throttled corporate action fetch; stopping batch pass.")
+                    logger.warning(
+                        "Exchange throttled corporate action fetch; stopping batch pass."
+                    )
                     summary["errors"] += 1
                     break
                 except Exception as exc:
-                    logger.warning("Failed to fetch corporate actions for %s (%s): %s", sec.symbol, sec.isin, exc)
+                    logger.warning(
+                        "Failed to fetch corporate actions for %s (%s): %s",
+                        sec.symbol,
+                        sec.isin,
+                        exc,
+                    )
                     summary["errors"] += 1
 
             await session.commit()
@@ -217,10 +224,17 @@ class CorporateActionService:
                 raise ValueError(f"CorporateActionReference {reference_id} not found.")
 
             if ref.needs_review:
-                raise ValueError(f"Action {reference_id} is marked as needs_review and cannot be auto-applied.")
+                raise ValueError(
+                    f"Action {reference_id} is marked as needs_review and cannot be auto-applied."
+                )
 
-            if ref.parsed_type not in (CorpActionType.BONUS.value, CorpActionType.SPLIT.value):
-                raise ValueError(f"Action type '{ref.parsed_type}' is not auto-applicable. Only bonus and split are supported.")
+            if ref.parsed_type not in (
+                CorpActionType.BONUS.value,
+                CorpActionType.SPLIT.value,
+            ):
+                raise ValueError(
+                    f"Action type '{ref.parsed_type}' is not auto-applicable. Only bonus and split are supported."
+                )
 
             # 2. Resolve security
             security_id = ref.security_id
@@ -231,7 +245,9 @@ class CorporateActionService:
                 )
                 sec = (await session.execute(stmt)).scalars().first()
                 if not sec:
-                    raise ValueError(f"No security found in database matching action {ref.isin or ref.symbol}.")
+                    raise ValueError(
+                        f"No security found in database matching action {ref.isin or ref.symbol}."
+                    )
                 security_id = sec.id
 
             # 3. Check if already applied
@@ -291,13 +307,17 @@ class CorporateActionService:
     ) -> list[dict[str, Any]]:
         """List cached corporate action announcements matching search criteria."""
         async with self.session_factory() as session:
-            stmt = select(CorporateActionReference).order_by(CorporateActionReference.ex_date.desc())
+            stmt = select(CorporateActionReference).order_by(
+                CorporateActionReference.ex_date.desc()
+            )
             if security_id is not None:
                 stmt = stmt.where(CorporateActionReference.security_id == security_id)
             if isin:
                 stmt = stmt.where(CorporateActionReference.isin == isin.strip().upper())
             if symbol:
-                stmt = stmt.where(CorporateActionReference.symbol == symbol.strip().upper())
+                stmt = stmt.where(
+                    CorporateActionReference.symbol == symbol.strip().upper()
+                )
             if kind:
                 stmt = stmt.where(CorporateActionReference.parsed_type == kind.lower())
 
@@ -311,7 +331,11 @@ class CorporateActionService:
                     "record_date": r.record_date.isoformat() if r.record_date else None,
                     "subject": r.subject,
                     "type": r.parsed_type,
-                    "unit_multiplier": str(r.unit_multiplier) if r.unit_multiplier is not None else None,
+                    "unit_multiplier": (
+                        str(r.unit_multiplier)
+                        if r.unit_multiplier is not None
+                        else None
+                    ),
                     "amount": str(r.amount) if r.amount is not None else None,
                     "needs_review": r.needs_review,
                 }

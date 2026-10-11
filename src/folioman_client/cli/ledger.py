@@ -19,7 +19,9 @@ def investors_group() -> None:
 @click.option("--family-id", type=int, help="Filter by family group ID.")
 @click.option("--unaffiliated", is_flag=True, help="List only unaffiliated investors.")
 @click.pass_context
-def list_investors_cmd(ctx: click.Context, family_id: int | None, unaffiliated: bool) -> None:
+def list_investors_cmd(
+    ctx: click.Context, family_id: int | None, unaffiliated: bool
+) -> None:
     """List all registered investors."""
     service = LedgerService()
     investors = asyncio.run(
@@ -57,7 +59,9 @@ def create_investor_cmd(
     inv = asyncio.run(
         service.create_investor(name=name, pan=pan, email=email, is_huf=is_huf)
     )
-    click.echo(f"Created investor {inv['name']} (ID: {inv['id']}, PAN: {inv['pan_masked'] or 'None'}).")
+    click.echo(
+        f"Created investor {inv['name']} (ID: {inv['id']}, PAN: {inv['pan_masked'] or 'None'})."
+    )
 
 
 @click.group(name="folios")
@@ -93,13 +97,21 @@ def list_folios_cmd(ctx: click.Context, investor_id: int) -> None:
 
 @folios_group.command(name="merge")
 @click.option("--investor-id", "-i", type=int, required=True, help="Investor ID.")
-@click.option("--source-id", "-s", type=int, required=True, help="Source Folio ID to merge from.")
-@click.option("--target-id", "-t", type=int, required=True, help="Target Folio ID to merge into.")
+@click.option(
+    "--source-id", "-s", type=int, required=True, help="Source Folio ID to merge from."
+)
+@click.option(
+    "--target-id", "-t", type=int, required=True, help="Target Folio ID to merge into."
+)
 @click.pass_context
-def merge_folios_cmd(ctx: click.Context, investor_id: int, source_id: int, target_id: int) -> None:
+def merge_folios_cmd(
+    ctx: click.Context, investor_id: int, source_id: int, target_id: int
+) -> None:
     """Merge source folio into target folio, moving all transactions and holdings."""
     service = LedgerService()
-    click.echo(f"Merging folio {source_id} -> {target_id} for investor {investor_id}...")
+    click.echo(
+        f"Merging folio {source_id} -> {target_id} for investor {investor_id}..."
+    )
     res = asyncio.run(service.merge_folios(investor_id, source_id, target_id))
     click.echo(
         f"Merge complete: {res['transactions_moved']} transactions and {res['holdings_moved']} holdings moved."
@@ -146,7 +158,9 @@ def list_transactions_cmd(
         nav = t["nav"]
         amt = t["amount"] or "-"
         sec = t["security_name"][:24]
-        click.echo(f"{tid:<6} {dt:<11} {ttype:<8} {units:<12} {nav:<12} {amt:<14} {sec:<25}")
+        click.echo(
+            f"{tid:<6} {dt:<11} {ttype:<8} {units:<12} {nav:<12} {amt:<14} {sec:<25}"
+        )
     click.echo("=" * 90)
 
 

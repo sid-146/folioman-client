@@ -12,7 +12,9 @@ def test_cli_reconcile_help():
     runner = CliRunner()
     result = runner.invoke(cli, ["reconcile", "--help"])
     assert result.exit_code == 0
-    assert "Reconcile trade ledgers against reported statement holdings." in result.output
+    assert (
+        "Reconcile trade ledgers against reported statement holdings." in result.output
+    )
     assert "all" in result.output
     assert "acknowledge" in result.output
     assert "clear" in result.output
@@ -131,7 +133,9 @@ def test_cli_corporate_actions_commands():
         new_callable=AsyncMock,
         return_value={"securities_checked": 5, "actions_fetched": 12, "errors": 0},
     ) as mock_refresh:
-        res = runner.invoke(cli, ["corporate-actions", "refresh", "--since-year", "2020"])
+        res = runner.invoke(
+            cli, ["corporate-actions", "refresh", "--since-year", "2020"]
+        )
         assert res.exit_code == 0
         assert "Securities Checked: 5" in res.output
         assert "Actions Fetched:    12" in res.output
@@ -152,7 +156,9 @@ def test_cli_corporate_actions_commands():
             }
         ],
     ) as mock_list:
-        res_list = runner.invoke(cli, ["corporate-actions", "list", "--symbol", "RELIANCE"])
+        res_list = runner.invoke(
+            cli, ["corporate-actions", "list", "--symbol", "RELIANCE"]
+        )
         assert res_list.exit_code == 0
         assert "RELIANCE" in res_list.output
         assert "Bonus 1:1" in res_list.output
@@ -235,7 +241,9 @@ def test_cli_folios_commands():
             cli, ["folios", "merge", "-i", "1", "-s", "5", "-t", "6"]
         )
         assert res_merge.exit_code == 0
-        assert "Merge complete: 4 transactions and 1 holdings moved." in res_merge.output
+        assert (
+            "Merge complete: 4 transactions and 1 holdings moved." in res_merge.output
+        )
 
 
 def test_cli_transactions_and_holdings_commands():

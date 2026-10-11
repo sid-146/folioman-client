@@ -24,7 +24,6 @@ from folioman_client.cli.valuations import valuations_group
 from folioman_client.config import settings
 
 
-
 @click.group()
 @click.version_option(version=__version__, prog_name="folioman")
 @click.option(
@@ -58,4 +57,3 @@ cli.add_command(capital_gains_group)
 
 if __name__ == "__main__":
     cli()
-

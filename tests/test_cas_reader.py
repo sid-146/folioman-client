@@ -9,7 +9,11 @@ import pytest
 from casparser.exceptions import IncorrectPasswordError, ParserException
 from casparser.types import CASData, NSDLCASData
 from folioman_client.core.cas_reader import ParsedCas, read_cas
-from folioman_client.core.models.cas import CasInvestorIdentity, EcasStatement, MfCasStatement
+from folioman_client.core.models.cas import (
+    CasInvestorIdentity,
+    EcasStatement,
+    MfCasStatement,
+)
 from folioman_client.core.parser import CASParseError, CASPasswordError
 
 
@@ -36,7 +40,8 @@ def test_read_cas_mf_success():
             "folioman_client.core.cas_reader.map_cas_data", return_value=mock_mf
         ) as mock_map,
         patch(
-            "folioman_client.core.cas_reader.mf_investor_identity", return_value=mock_identity
+            "folioman_client.core.cas_reader.mf_investor_identity",
+            return_value=mock_identity,
         ) as mock_id,
     ):
         file_obj = io.BytesIO(b"%PDF-test")

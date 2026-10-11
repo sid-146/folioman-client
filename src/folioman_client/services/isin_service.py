@@ -45,6 +45,7 @@ class ISINService:
 
         try:
             from casparser_isin.utils import get_isin_db_path
+
             path = get_isin_db_path()
             if path.is_file():
                 return path
@@ -165,8 +166,7 @@ class ISINService:
                 # 3. Grandfathering NAVs (31-Jan-2018)
                 cur.execute("SELECT isin, nav FROM nav20180131")
                 gf_navs = [
-                    {"isin": r[0], "nav": Decimal(str(r[1]))}
-                    for r in cur.fetchall()
+                    {"isin": r[0], "nav": Decimal(str(r[1]))} for r in cur.fetchall()
                 ]
 
                 # 4. Meta
@@ -243,10 +243,13 @@ class ISINService:
         """Check for and apply a newer casparser-isin database, updating the DB catalog."""
         try:
             from casparser_isin.cli import update_isin_db
+
             # Run the upstream sync which writes to the local writable ISIN file if newer
             await asyncio.to_thread(update_isin_db)
         except Exception as exc:
-            logger.warning("Could not check upstream casparser-isin repository: %s", exc)
+            logger.warning(
+                "Could not check upstream casparser-isin repository: %s", exc
+            )
 
         # Compare version from SQLite file with the version currently in DB
         db_path = self._get_source_db_path()
@@ -340,9 +343,7 @@ class ISINService:
             return None
 
         async with self.session_factory() as session:
-            stmt = select(SchemeReference).where(
-                SchemeReference.amfi_code == norm_code
-            )
+            stmt = select(SchemeReference).where(SchemeReference.amfi_code == norm_code)
             scheme = (await session.execute(stmt)).scalars().first()
             if not scheme:
                 return None
@@ -367,9 +368,7 @@ class ISINService:
                 "grandfathering_nav": gf_nav,
             }
 
-    async def search_schemes(
-        self, query: str, limit: int = 20
-    ) -> list[dict[str, Any]]:
+    async def search_schemes(self, query: str, limit: int = 20) -> list[dict[str, Any]]:
         """Search mutual fund schemes by text name, AMFI code, or ISIN."""
         norm = query.strip()
         if not norm:

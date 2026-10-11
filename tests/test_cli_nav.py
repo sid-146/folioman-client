@@ -45,7 +45,9 @@ def test_cli_navs_backfill():
             "errors": 0,
         },
     ) as mock_backfill:
-        result = runner.invoke(cli, ["navs", "backfill", "--force", "--security-id", "12"])
+        result = runner.invoke(
+            cli, ["navs", "backfill", "--force", "--security-id", "12"]
+        )
         assert result.exit_code == 0
         assert "Backfilling NAV history (forced full scan)..." in result.output
         assert "Securities Updated: 2" in result.output

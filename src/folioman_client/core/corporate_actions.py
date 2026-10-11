@@ -10,7 +10,11 @@ from decimal import ROUND_FLOOR, Decimal
 from folioman_client.core.corporate_action_subject import CorpActionType
 from folioman_client.core.fifo import net_units_from_transactions
 from folioman_client.core.models.security import Security, SecurityType
-from folioman_client.core.models.transaction import Transaction, TransactionSource, TransactionType
+from folioman_client.core.models.transaction import (
+    Transaction,
+    TransactionSource,
+    TransactionType,
+)
 
 _ZERO = Decimal("0")
 # Tradebook / corp-action feeds are reliable for cost basis from this date onward.
@@ -20,7 +24,9 @@ COST_BASIS_RELIABLE_SINCE = date(2016, 1, 1)
 # shares and any sub-share entitlement is dropped (settled in cash by the registrar),
 # never carried as a fractional holding. Mutual-fund units, by contrast, are genuinely
 # fractional, so their multiplier applies as-is.
-_WHOLE_SHARE_TYPES = frozenset({SecurityType.EQUITY, SecurityType.ETF, SecurityType.FOREIGN_EQUITY})
+_WHOLE_SHARE_TYPES = frozenset(
+    {SecurityType.EQUITY, SecurityType.ETF, SecurityType.FOREIGN_EQUITY}
+)
 
 
 def _issues_whole_shares(security: Security) -> bool:
@@ -100,7 +106,9 @@ _TYPE_ORDER: dict[TransactionType, int] = {
 
 
 def _sort_transactions(transactions: list[Transaction]) -> list[Transaction]:
-    return sorted(transactions, key=lambda row: (row.date, _TYPE_ORDER[row.type], row.source_ref))
+    return sorted(
+        transactions, key=lambda row: (row.date, _TYPE_ORDER[row.type], row.source_ref)
+    )
 
 
 def _event_sort_key(event: CorporateActionApplyEvent) -> tuple:
@@ -329,13 +337,17 @@ def apply_bonus_from_multiplier(
     folios = _named_folios(transactions, security) or [""]
     result = list(transactions)
     for folio_number in folios:
-        held = held_units_asof(result, security, effective_date, folio_number=folio_number)
+        held = held_units_asof(
+            result, security, effective_date, folio_number=folio_number
+        )
         if held <= _ZERO:
             continue
         if ratio is not None and _issues_whole_shares(security):
             a, b = ratio
             # Exact integer numerator (held * a), then floor the division by b.
-            bonus_units = (held * Decimal(a) / Decimal(b)).to_integral_value(rounding=ROUND_FLOOR)
+            bonus_units = (held * Decimal(a) / Decimal(b)).to_integral_value(
+                rounding=ROUND_FLOOR
+            )
         else:
             bonus_units = held * (unit_multiplier - 1)
         if bonus_units <= _ZERO:

@@ -77,7 +77,9 @@ def _is_transient(exc: Exception) -> bool:
     return False
 
 
-def fetch_latest_nav(isin: str, *, client: httpx.Client | None = None) -> NAVPoint | None:
+def fetch_latest_nav(
+    isin: str, *, client: httpx.Client | None = None
+) -> NAVPoint | None:
     """Latest NAV for an ISIN. Returns ``None`` when the scheme has no data.
 
     captnemo always returns the full series; the top-level ``date``/``nav`` is the
@@ -102,7 +104,9 @@ def fetch_nav_history(
     window they need.
     """
     payload = _fetch_json(f"/nav/{isin}", client=client)
-    points = sorted(_parse_points(payload.get("historical_nav") or []), key=lambda p: p.date)
+    points = sorted(
+        _parse_points(payload.get("historical_nav") or []), key=lambda p: p.date
+    )
     if since is not None:
         points = [p for p in points if p.date >= since]
     if until is not None:

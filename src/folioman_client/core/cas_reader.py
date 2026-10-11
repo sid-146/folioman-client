@@ -16,7 +16,11 @@ from casparser.exceptions import IncorrectPasswordError, ParserException
 from casparser.types import CASData, NSDLCASData
 
 from folioman_client.core.ecas_parser import ecas_investor_identity, map_ecas_data
-from folioman_client.core.models.cas import CasInvestorIdentity, EcasStatement, MfCasStatement
+from folioman_client.core.models.cas import (
+    CasInvestorIdentity,
+    EcasStatement,
+    MfCasStatement,
+)
 from folioman_client.core.parser import (
     CASParseError,
     CASPasswordError,
@@ -58,7 +62,9 @@ def read_cas(file: str | io.IOBase, password: str) -> ParsedCas:
     if isinstance(data, CASData):
         return ParsedCas(mf=map_cas_data(data), investor=mf_investor_identity(data))
     if isinstance(data, NSDLCASData):
-        return ParsedCas(ecas=map_ecas_data(data), investor=ecas_investor_identity(data))
+        return ParsedCas(
+            ecas=map_ecas_data(data), investor=ecas_investor_identity(data)
+        )
     ft = getattr(data, "file_type", "?")
     msg = f"unsupported CAS file_type {ft!r}"
     raise CASParseError(msg)

@@ -83,7 +83,9 @@ async def test_resolve_symbols_from_isin_reference(symbol_service: EquitySymbolS
         new_callable=AsyncMock,
         return_value={"securities": 2, "points": 50},
     ) as mock_backfill:
-        live_summary = await symbol_service.resolve_symbols(dry_run=False, backfill=True)
+        live_summary = await symbol_service.resolve_symbols(
+            dry_run=False, backfill=True
+        )
         assert live_summary["matched_count"] == 2
         assert live_summary["updated_count"] == 2
         assert live_summary["backfill"] == {"securities": 2, "points": 50}

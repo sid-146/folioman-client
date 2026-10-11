@@ -69,26 +69,39 @@ def import_cas_cmd(
 
     status_color = "green" if res["status"] == "completed" else "yellow"
     click.echo("=" * 55)
-    click.secho(f"CAS Import Status: {res['status'].upper()}", fg=status_color, bold=True)
+    click.secho(
+        f"CAS Import Status: {res['status'].upper()}", fg=status_color, bold=True
+    )
     click.echo("=" * 55)
     click.echo(f"Investor Name:          {res.get('investor_name', 'Unknown')}")
     click.echo(f"Masked PAN:             {res.get('pan_masked', 'Not provided')}")
-    click.echo(f"Statement Type:         {'NSDL/CDSL eCAS' if res.get('is_ecas') else 'Mutual Fund CAS (CAMS/KFin)'}")
+    click.echo(
+        f"Statement Type:         {'NSDL/CDSL eCAS' if res.get('is_ecas') else 'Mutual Fund CAS (CAMS/KFin)'}"
+    )
     click.echo(f"Schemes Processed:      {res['schemes']:,}")
     click.echo(f"Transactions Created:   {res['transactions_created']:,}")
-    click.echo(f"Transactions Skipped:   {res['transactions_skipped']:,} (deduplicated)")
+    click.echo(
+        f"Transactions Skipped:   {res['transactions_skipped']:,} (deduplicated)"
+    )
     if res["partial_transactions"]:
-        click.echo(f"Partial Transactions:   {res['partial_transactions']:,} (display-only, pending prior history)")
+        click.echo(
+            f"Partial Transactions:   {res['partial_transactions']:,} (display-only, pending prior history)"
+        )
     if res["holdings_snapshotted"]:
         click.echo(f"Holdings Snapshotted:   {res['holdings_snapshotted']:,}")
 
     if res["quarantined"]:
         click.secho(f"Quarantined Items:      {len(res['quarantined']):,}", fg="yellow")
         for q in res["quarantined"]:
-            click.echo(f"  - [{q.get('isin') or 'NO_ISIN'}] {q.get('security')}: {q.get('reason')}")
+            click.echo(
+                f"  - [{q.get('isin') or 'NO_ISIN'}] {q.get('security')}: {q.get('reason')}"
+            )
 
     if res["incomplete_history"]:
-        click.secho(f"Incomplete History:     {len(res['incomplete_history']):,} scheme(s) have non-zero opening balance", fg="yellow")
+        click.secho(
+            f"Incomplete History:     {len(res['incomplete_history']):,} scheme(s) have non-zero opening balance",
+            fg="yellow",
+        )
         for inc in res["incomplete_history"]:
             click.echo(f"  - Folio {inc['folio']}: {inc['security']} ({inc['reason']})")
 

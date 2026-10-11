@@ -110,7 +110,14 @@ class Security(DomainModel):
         return self
 
     def _identity(self) -> tuple:
-        return (self.type, self.isin, self.symbol, self.exchange, self.amfi_code, self.currency)
+        return (
+            self.type,
+            self.isin,
+            self.symbol,
+            self.exchange,
+            self.amfi_code,
+            self.currency,
+        )
 
     def __hash__(self) -> int:
         return hash(self._identity())

@@ -60,14 +60,18 @@ def _sample_mf_statement() -> MfCasStatement:
 @pytest.mark.asyncio
 async def test_client_embedded_imports_delegation():
     stmt = _sample_mf_statement()
-    identity = CasInvestorIdentity(name="Priya Patel", email="priya@example.com", pan="ABCDE9876P")
+    identity = CasInvestorIdentity(
+        name="Priya Patel", email="priya@example.com", pan="ABCDE9876P"
+    )
     mock_parsed = ParsedCas(mf=stmt, investor=identity)
 
     async with FoliomanClient(
         database_url="sqlite+aiosqlite:///:memory:",
         user_id="advisor_1",
     ) as client:
-        with patch("folioman_client.services.import_service.read_cas", return_value=mock_parsed):
+        with patch(
+            "folioman_client.services.import_service.read_cas", return_value=mock_parsed
+        ):
             result = await client.imports.cas_pdf(b"%PDF-1.4 dummy", "mypassword")
 
         assert result["status"] == "completed"
@@ -264,13 +268,19 @@ async def test_client_embedded_phase6_delegation():
                 client._valuation_service,
                 "get_valuation_status",
                 new_callable=AsyncMock,
-                return_value={"investor_id": 1, "status": "ready", "is_provisional": False},
+                return_value={
+                    "investor_id": 1,
+                    "status": "ready",
+                    "is_provisional": False,
+                },
             ) as mock_val_status,
             patch.object(
                 client._capital_gains_service,
                 "list_capital_gains_by_fy",
                 new_callable=AsyncMock,
-                return_value=[{"fy": "2024-25", "stcg": Decimal("0"), "ltcg": Decimal("1000")}],
+                return_value=[
+                    {"fy": "2024-25", "stcg": Decimal("0"), "ltcg": Decimal("1000")}
+                ],
             ) as mock_cg_list,
             patch.object(
                 client._capital_gains_service,
@@ -288,7 +298,12 @@ async def test_client_embedded_phase6_delegation():
                 client._capital_gains_service,
                 "get_schedule_112a",
                 new_callable=AsyncMock,
-                return_value={"fy": "2024-25", "columns": [], "rows": [], "row_count": 0},
+                return_value={
+                    "fy": "2024-25",
+                    "columns": [],
+                    "rows": [],
+                    "row_count": 0,
+                },
             ) as mock_s112a,
         ):
             p = await client.portfolio.get(investor_id=1)
@@ -297,7 +312,9 @@ async def test_client_embedded_phase6_delegation():
 
             vs = await client.valuations.list(investor_id=1, granularity="monthly")
             assert vs.points == []
-            mock_val_series.assert_called_once_with(1, from_date=None, to_date=None, granularity="monthly")
+            mock_val_series.assert_called_once_with(
+                1, from_date=None, to_date=None, granularity="monthly"
+            )
 
             vst = await client.valuations.status(investor_id=1)
             assert vst.status == "ready"
@@ -311,10 +328,12 @@ async def test_client_embedded_phase6_delegation():
             cgr = await client.capital_gains.get(investor_id=1, fy="2024-25")
             assert cgr.fy == "2024-25"
             assert cgr.ltcg_total == Decimal("1000")
-            mock_cg_get.assert_called_once_with(1, fy="2024-25", include_unreconciled=False)
+            mock_cg_get.assert_called_once_with(
+                1, fy="2024-25", include_unreconciled=False
+            )
 
             s = await client.capital_gains.schedule_112a(investor_id=1, fy="2024-25")
             assert s["fy"] == "2024-25"
-            mock_s112a.assert_called_once_with(1, fy="2024-25", include_unreconciled=False)
-
-
+            mock_s112a.assert_called_once_with(
+                1, fy="2024-25", include_unreconciled=False
+            )

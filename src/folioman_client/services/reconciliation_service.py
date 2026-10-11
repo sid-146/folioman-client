@@ -51,7 +51,11 @@ from folioman_client.db.models import (
     SecurityIntegrityStatus,
     Transaction,
 )
-from folioman_client.services.mappers import to_core_holding, to_core_security, to_core_transaction
+from folioman_client.services.mappers import (
+    to_core_holding,
+    to_core_security,
+    to_core_transaction,
+)
 from folioman_client.services.projected_ledger import compute_ledger
 
 logger = logging.getLogger(__name__)
@@ -71,12 +75,15 @@ def _parsed_ratio(row: CorporateActionReference) -> tuple[int, int] | None:
     return None
 
 
-def _dedupe_scaling(actions: list[CachedCorporateAction]) -> list[CachedCorporateAction]:
+def _dedupe_scaling(
+    actions: list[CachedCorporateAction],
+) -> list[CachedCorporateAction]:
     seen: set[tuple[date, Decimal]] = set()
     deduped: list[CachedCorporateAction] = []
     for a in actions:
         if (
-            a.parsed_type not in {CorpActionType.BONUS.value, CorpActionType.SPLIT.value}
+            a.parsed_type
+            not in {CorpActionType.BONUS.value, CorpActionType.SPLIT.value}
             or a.needs_review
             or a.unit_multiplier is None
             or a.reference_id is None
@@ -171,24 +178,30 @@ class ReconciliationService:
             return None
 
         # 1. Projected cost-basis transactions
-        txns = await compute_ledger(session, investor_id, security_id, folio_id=folio_id)
+        txns = await compute_ledger(
+            session, investor_id, security_id, folio_id=folio_id
+        )
 
         # 2. Observed holding snapshots
-        holdings_stmt = select(Holding).options(
-            selectinload(Holding.security), selectinload(Holding.folio)
-        ).where(
-            Holding.investor_id == investor_id,
-            Holding.security_id == security_id,
-            Holding.folio_id == folio_id,
+        holdings_stmt = (
+            select(Holding)
+            .options(selectinload(Holding.security), selectinload(Holding.folio))
+            .where(
+                Holding.investor_id == investor_id,
+                Holding.security_id == security_id,
+                Holding.folio_id == folio_id,
+            )
         )
         # Drop 0-unit eCAS holding if no transactions exist
         txns_exist = bool(
             await session.scalar(
-                select(Transaction.id).where(
+                select(Transaction.id)
+                .where(
                     Transaction.investor_id == investor_id,
                     Transaction.security_id == security_id,
                     Transaction.folio_id == folio_id,
-                ).limit(1)
+                )
+                .limit(1)
             )
         )
         if not txns_exist:
@@ -203,7 +216,9 @@ class ReconciliationService:
             holdings = [
                 h
                 for h in holdings
-                if not (h.source is HoldingSource.CAS_PDF and h.as_of_date <= latest_txn)
+                if not (
+                    h.source is HoldingSource.CAS_PDF and h.as_of_date <= latest_txn
+                )
             ]
 
         # 3. Existing integrity row & acknowledgement handling
@@ -216,7 +231,9 @@ class ReconciliationService:
         already_acknowledged = bool(
             existing and existing.status == IntegrityStatus.USER_ACKNOWLEDGED.value
         )
-        user_acknowledged = False if clear_acknowledgement else (already_acknowledged or acknowledge)
+        user_acknowledged = (
+            False if clear_acknowledgement else (already_acknowledged or acknowledge)
+        )
 
         # 4. Partial blocks & display transactions
         pb_stmt = select(PartialBlock).where(
@@ -231,18 +248,25 @@ class ReconciliationService:
             for t in (
                 await session.execute(
                     select(Transaction)
-                    .options(selectinload(Transaction.security), selectinload(Transaction.folio))
+                    .options(
+                        selectinload(Transaction.security),
+                        selectinload(Transaction.folio),
+                    )
                     .where(
                         Transaction.investor_id == investor_id,
                         Transaction.security_id == security_id,
                         Transaction.folio_id == folio_id,
                     )
                 )
-            ).scalars().all()
+            )
+            .scalars()
+            .all()
         ]
 
         # 5. Core reconciliation
-        result = reconcile(txns or None, holdings or None, user_acknowledged=user_acknowledged)
+        result = reconcile(
+            txns or None, holdings or None, user_acknowledged=user_acknowledged
+        )
 
         if partial is not None and not txns and display_txns:
             issue_incomplete = {
@@ -259,9 +283,13 @@ class ReconciliationService:
                     issues=[issue_incomplete],
                 )
             else:
-                clean_issues = [i for i in result.issues if i.get("type") != "incomplete_history"]
+                clean_issues = [
+                    i for i in result.issues if i.get("type") != "incomplete_history"
+                ]
                 clean_issues.insert(0, issue_incomplete)
-                result = result.model_copy(update={"tax_safe": False, "issues": clean_issues})
+                result = result.model_copy(
+                    update={"tax_safe": False, "issues": clean_issues}
+                )
 
         incomplete_history = partial is not None or (
             result is not None
@@ -270,17 +298,26 @@ class ReconciliationService:
         )
 
         # 6. Corporate Action & Opening Lot detection for Equities
-        if result is not None and security.security_type == SecurityType.EQUITY.value.upper():
+        if (
+            result is not None
+            and security.security_type == SecurityType.EQUITY.value.upper()
+        ):
             cached_actions = await self._cached_actions_for_security(session, security)
             applied_refs_stmt = select(AppliedCorporateAction.source_ref).where(
                 AppliedCorporateAction.investor_id == investor_id,
                 AppliedCorporateAction.security_id == security_id,
             )
-            applied_refs = set((await session.execute(applied_refs_stmt)).scalars().all())
+            applied_refs = set(
+                (await session.execute(applied_refs_stmt)).scalars().all()
+            )
 
             replay_base = (
                 await compute_ledger(
-                    session, investor_id, security_id, folio_id=folio_id, include_incomplete=True
+                    session,
+                    investor_id,
+                    security_id,
+                    folio_id=folio_id,
+                    include_incomplete=True,
                 )
                 or display_txns
             )
@@ -288,10 +325,18 @@ class ReconciliationService:
             replay = None
             net = result.units_from_transactions
             holding_units = result.units_from_holdings
-            has_gap = net is not None and holding_units is not None and holding_units - net > TOLERANCE
-            needs_replay = incomplete_history or (net is not None and net < _ZERO) or has_gap
+            has_gap = (
+                net is not None
+                and holding_units is not None
+                and holding_units - net > TOLERANCE
+            )
+            needs_replay = (
+                incomplete_history or (net is not None and net < _ZERO) or has_gap
+            )
             if replay_base and needs_replay and _dedupe_scaling(cached_actions):
-                replay = _replay_corporate_actions(replay_base, security, cached_actions, applied_refs)
+                replay = _replay_corporate_actions(
+                    replay_base, security, cached_actions, applied_refs
+                )
 
             ca_issues = detect_corporate_action_issues(
                 net_units=net,
@@ -303,7 +348,9 @@ class ReconciliationService:
             issues = strip_corporate_action_issues(result.issues)
             if ca_issues:
                 if ca_issues[0].get("type") == "corporate_action_suggestion":
-                    issues = [i for i in issues if i.get("type") != "incomplete_history"]
+                    issues = [
+                        i for i in issues if i.get("type") != "incomplete_history"
+                    ]
                 issues = [*issues, *ca_issues]
             result = result.model_copy(update={"issues": issues})
 
@@ -311,34 +358,48 @@ class ReconciliationService:
             base_ref = f"opening-lot:{folio_id}:{security_id}"
             has_opening_lot = bool(
                 await session.scalar(
-                    select(Transaction.id).where(
+                    select(Transaction.id)
+                    .where(
                         Transaction.investor_id == investor_id,
                         Transaction.security_id == security_id,
                         Transaction.folio_id == folio_id,
                         Transaction.source_ref.startswith(base_ref),
-                    ).limit(1)
+                    )
+                    .limit(1)
                 )
             )
             if has_opening_lot:
                 clean_issues = [
                     i
                     for i in result.issues
-                    if i.get("type") not in ("opening_lot_needed", "opening_lot_recorded")
+                    if i.get("type")
+                    not in ("opening_lot_needed", "opening_lot_recorded")
                 ]
                 clean_issues.append({"type": "opening_lot_recorded"})
                 result = result.model_copy(update={"issues": clean_issues})
-            elif result.status is IntegrityStatus.SNAPSHOT_ONLY and result.units_from_holdings and result.units_from_holdings > 0:
+            elif (
+                result.status is IntegrityStatus.SNAPSHOT_ONLY
+                and result.units_from_holdings
+                and result.units_from_holdings > 0
+            ):
                 clean_issues = strip_opening_lot_issues(result.issues)
                 clean_issues = [
                     i
                     for i in clean_issues
-                    if not (i.get("type") == "corporate_action_manual" and i.get("reason") == "snapshot_only")
+                    if not (
+                        i.get("type") == "corporate_action_manual"
+                        and i.get("reason") == "snapshot_only"
+                    )
                 ]
                 clean_issues.append(
                     {
                         "type": "opening_lot_needed",
                         "holding_units": str(result.units_from_holdings),
-                        "classifications": ["ipo_allotment", "transfer_in", "demerger_result"],
+                        "classifications": [
+                            "ipo_allotment",
+                            "transfer_in",
+                            "demerger_result",
+                        ],
                     }
                 )
                 result = result.model_copy(update={"issues": clean_issues})
@@ -388,24 +449,40 @@ class ReconciliationService:
     ) -> list[SecurityIntegrityStatus]:
         """Reconcile every folio holding this security, pruning stale statuses."""
         txn_folios = (
-            await session.execute(
-                select(Transaction.folio_id)
-                .where(Transaction.investor_id == investor_id, Transaction.security_id == security_id)
-                .distinct()
+            (
+                await session.execute(
+                    select(Transaction.folio_id)
+                    .where(
+                        Transaction.investor_id == investor_id,
+                        Transaction.security_id == security_id,
+                    )
+                    .distinct()
+                )
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
         holding_folios = (
-            await session.execute(
-                select(Holding.folio_id)
-                .where(Holding.investor_id == investor_id, Holding.security_id == security_id)
-                .distinct()
+            (
+                await session.execute(
+                    select(Holding.folio_id)
+                    .where(
+                        Holding.investor_id == investor_id,
+                        Holding.security_id == security_id,
+                    )
+                    .distinct()
+                )
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
 
         folio_ids = {f for f in set(txn_folios) | set(holding_folios) if f is not None}
         statuses: list[SecurityIntegrityStatus] = []
         for fid in folio_ids:
-            st = await self.reconcile_security_folio(session, investor_id, security_id, fid)
+            st = await self.reconcile_security_folio(
+                session, investor_id, security_id, fid
+            )
             if st is not None:
                 statuses.append(st)
 
@@ -414,7 +491,11 @@ class ReconciliationService:
             delete(SecurityIntegrityStatus).where(
                 SecurityIntegrityStatus.investor_id == investor_id,
                 SecurityIntegrityStatus.security_id == security_id,
-                SecurityIntegrityStatus.folio_id.not_in(list(folio_ids)) if folio_ids else True,
+                (
+                    SecurityIntegrityStatus.folio_id.not_in(list(folio_ids))
+                    if folio_ids
+                    else True
+                ),
             )
         )
         await session.flush()
@@ -434,15 +515,27 @@ class ReconciliationService:
 
         async with self.session_factory() as session:
             txn_sec = (
-                await session.execute(
-                    select(Transaction.security_id).where(Transaction.investor_id == investor_id).distinct()
+                (
+                    await session.execute(
+                        select(Transaction.security_id)
+                        .where(Transaction.investor_id == investor_id)
+                        .distinct()
+                    )
                 )
-            ).scalars().all()
+                .scalars()
+                .all()
+            )
             holding_sec = (
-                await session.execute(
-                    select(Holding.security_id).where(Holding.investor_id == investor_id).distinct()
+                (
+                    await session.execute(
+                        select(Holding.security_id)
+                        .where(Holding.investor_id == investor_id)
+                        .distinct()
+                    )
                 )
-            ).scalars().all()
+                .scalars()
+                .all()
+            )
 
             security_ids = set(txn_sec) | set(holding_sec)
             for sid in security_ids:

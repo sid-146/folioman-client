@@ -62,7 +62,9 @@ def reconcile_units(
     if units_from_transactions is None and units_from_holdings is not None:
         status = IntegrityStatus.SNAPSHOT_ONLY
         tax_safe = False
-        issues: list[dict[str, Any]] = [{"type": "snapshot_only_no_transaction_history"}]
+        issues: list[dict[str, Any]] = [
+            {"type": "snapshot_only_no_transaction_history"}
+        ]
     elif units_from_transactions is not None and units_from_holdings is None:
         status = IntegrityStatus.FULL_HISTORY
         tax_safe = True
@@ -104,7 +106,9 @@ def reconcile(
     user_acknowledged: bool = False,
 ) -> ReconciliationResult | None:
     """Reconcile ledger transactions against holding snapshots."""
-    tx_units = None if transactions is None else net_units_from_transactions(transactions)
+    tx_units = (
+        None if transactions is None else net_units_from_transactions(transactions)
+    )
     holding_units = None if holdings is None else latest_holding_units(holdings)
     return reconcile_units(
         tx_units,

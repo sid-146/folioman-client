@@ -25,7 +25,10 @@ def test_mfapi_fetch_latest():
         rmock.get("/mf/122639/latest").respond(
             200,
             json={
-                "meta": {"scheme_code": 122639, "scheme_name": "Parag Parikh Flexi Cap Fund"},
+                "meta": {
+                    "scheme_code": 122639,
+                    "scheme_name": "Parag Parikh Flexi Cap Fund",
+                },
                 "data": [{"date": "10-04-2026", "nav": "75.4123"}],
                 "status": "SUCCESS",
             },

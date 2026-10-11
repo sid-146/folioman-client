@@ -10,7 +10,10 @@ from typing import Literal
 from pydantic import Field
 
 from folioman_client.core.models.base import DomainModel
-from folioman_client.core.models.decimal_fields import DecimalField, OptionalDecimalField
+from folioman_client.core.models.decimal_fields import (
+    DecimalField,
+    OptionalDecimalField,
+)
 from folioman_client.core.models.investor import Folio
 from folioman_client.core.models.security import Security
 from folioman_client.core.models.transaction import TransactionType

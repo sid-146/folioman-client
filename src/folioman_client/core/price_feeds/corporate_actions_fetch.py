@@ -54,7 +54,9 @@ _BSE_SCRIP = re.compile(r"liclick\('(\d+)'", re.IGNORECASE)
 # us pick the scrip whose ISIN matches the security we're fetching for, instead of
 # blindly taking the first fuzzy match (a search for the delisted "HDFC" returns
 # HDFC BANK first, which would mis-file HDFC Bank's actions under HDFC).
-_BSE_ISIN_SCRIP = re.compile(r"([A-Z]{2}[A-Z0-9]{9}\d)(?:&nbsp;|\s)+(\d+)", re.IGNORECASE)
+_BSE_ISIN_SCRIP = re.compile(
+    r"([A-Z]{2}[A-Z0-9]{9}\d)(?:&nbsp;|\s)+(\d+)", re.IGNORECASE
+)
 _BSE_RS_AMOUNT = re.compile(r"(?:rs\.?|inr|₹)\s*(\d+(?:\.\d+)?)", re.IGNORECASE)
 
 
@@ -261,7 +263,9 @@ def fetch_nse_corporate_actions(
                 last_error = exc
                 continue
             if "application/json" not in response.headers.get("content-type", ""):
-                last_error = CorporateActionFetchError(f"nse corp-actions {symbol}: non-JSON")
+                last_error = CorporateActionFetchError(
+                    f"nse corp-actions {symbol}: non-JSON"
+                )
                 continue
             payload = _bounded_json(response)
             if not isinstance(payload, list):
@@ -354,7 +358,9 @@ def fetch_bse_corporate_actions(
     if owned:
         client = warmed_bse_client()
     try:
-        code = scripcode or lookup_bse_scripcode(symbol, client=client, expected_isin=isin)
+        code = scripcode or lookup_bse_scripcode(
+            symbol, client=client, expected_isin=isin
+        )
     except CorporateActionFetchError:
         if owned:
             client.close()
@@ -390,7 +396,9 @@ def fetch_bse_corporate_actions(
                 last_error = exc
                 continue
             if "application/json" not in response.headers.get("content-type", ""):
-                last_error = CorporateActionFetchError(f"bse corp-actions {symbol}: non-JSON")
+                last_error = CorporateActionFetchError(
+                    f"bse corp-actions {symbol}: non-JSON"
+                )
                 continue
             payload = _bounded_json(response)
             if not isinstance(payload, list):
@@ -442,7 +450,9 @@ def fetch_corporate_actions(
     """
     ex = (exchange or "").strip().upper()
     if ex == "BSE":
-        return fetch_bse_corporate_actions(symbol, start=start, end=end, isin=isin, client=bse)
+        return fetch_bse_corporate_actions(
+            symbol, start=start, end=end, isin=isin, client=bse
+        )
     events = fetch_nse_corporate_actions(symbol, start=start, end=end, client=nse)
     if ex == "NSE":
         return events

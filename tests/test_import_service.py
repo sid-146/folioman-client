@@ -90,10 +90,14 @@ def _build_mf_statement() -> MfCasStatement:
 @pytest.mark.asyncio
 async def test_import_complete_mf_statement(import_service: CASImportService) -> None:
     stmt = _build_mf_statement()
-    identity = CasInvestorIdentity(name="Rahul Sharma", email="rahul@example.com", pan="ABCDE1234F")
+    identity = CasInvestorIdentity(
+        name="Rahul Sharma", email="rahul@example.com", pan="ABCDE1234F"
+    )
     mock_parsed = ParsedCas(mf=stmt, investor=identity)
 
-    with patch("folioman_client.services.import_service.read_cas", return_value=mock_parsed):
+    with patch(
+        "folioman_client.services.import_service.read_cas", return_value=mock_parsed
+    ):
         res = await import_service.import_cas(b"%PDF-1.4 dummy", "password123")
 
     assert res["status"] == "completed"
@@ -117,12 +121,18 @@ async def test_import_complete_mf_statement(import_service: CASImportService) ->
 
 
 @pytest.mark.asyncio
-async def test_import_idempotent_deduplication(import_service: CASImportService) -> None:
+async def test_import_idempotent_deduplication(
+    import_service: CASImportService,
+) -> None:
     stmt = _build_mf_statement()
-    identity = CasInvestorIdentity(name="Rahul Sharma", email="rahul@example.com", pan="ABCDE1234F")
+    identity = CasInvestorIdentity(
+        name="Rahul Sharma", email="rahul@example.com", pan="ABCDE1234F"
+    )
     mock_parsed = ParsedCas(mf=stmt, investor=identity)
 
-    with patch("folioman_client.services.import_service.read_cas", return_value=mock_parsed):
+    with patch(
+        "folioman_client.services.import_service.read_cas", return_value=mock_parsed
+    ):
         # First import
         res1 = await import_service.import_cas(b"%PDF-1.4 dummy", "password123")
         assert res1["transactions_created"] == 1
@@ -140,8 +150,15 @@ async def test_import_idempotent_deduplication(import_service: CASImportService)
 
 
 @pytest.mark.asyncio
-async def test_import_partial_statement_with_opening_gap(import_service: CASImportService) -> None:
-    sec = CoreSecurity(type=SecurityType.MF, name="HDFC Flexi Cap", isin="INF179K01XQ0", amfi_code="118989")
+async def test_import_partial_statement_with_opening_gap(
+    import_service: CASImportService,
+) -> None:
+    sec = CoreSecurity(
+        type=SecurityType.MF,
+        name="HDFC Flexi Cap",
+        isin="INF179K01XQ0",
+        amfi_code="118989",
+    )
     fol = CoreFolio(folio_type="mf", number="999/11", amc_code="HDFC")
     # Opening balance 50, but prior ledger is empty -> partial period statement
     block = MfCasSchemeBlock(
@@ -168,7 +185,9 @@ async def test_import_partial_statement_with_opening_gap(import_service: CASImpo
     identity = CasInvestorIdentity(name="Pooja Patel", pan="PQRST5678Z")
     mock_parsed = ParsedCas(mf=stmt, investor=identity)
 
-    with patch("folioman_client.services.import_service.read_cas", return_value=mock_parsed):
+    with patch(
+        "folioman_client.services.import_service.read_cas", return_value=mock_parsed
+    ):
         res = await import_service.import_cas(b"%PDF-1.4 dummy", "secret")
 
     assert res["status"] == "partially_reconciled"
@@ -197,7 +216,12 @@ async def test_import_partial_statement_with_opening_gap(import_service: CASImpo
 
 @pytest.mark.asyncio
 async def test_upgrade_chained_partials(import_service: CASImportService) -> None:
-    sec = CoreSecurity(type=SecurityType.MF, name="HDFC Flexi Cap", isin="INF179K01XQ0", amfi_code="118989")
+    sec = CoreSecurity(
+        type=SecurityType.MF,
+        name="HDFC Flexi Cap",
+        isin="INF179K01XQ0",
+        amfi_code="118989",
+    )
     fol = CoreFolio(folio_type="mf", number="999/11", amc_code="HDFC")
     identity = CasInvestorIdentity(name="Pooja Patel", pan="PQRST5678Z")
 
@@ -222,7 +246,10 @@ async def test_upgrade_chained_partials(import_service: CASImportService) -> Non
         statement_to=date(2026, 12, 31),
         schemes=[later_block],
     )
-    with patch("folioman_client.services.import_service.read_cas", return_value=ParsedCas(mf=later_stmt, investor=identity)):
+    with patch(
+        "folioman_client.services.import_service.read_cas",
+        return_value=ParsedCas(mf=later_stmt, investor=identity),
+    ):
         await import_service.import_cas(b"%PDF-1.4 dummy", "secret")
 
     # Verify it is partial
@@ -252,7 +279,10 @@ async def test_upgrade_chained_partials(import_service: CASImportService) -> Non
         statement_to=date(2026, 6, 30),
         schemes=[earlier_block],
     )
-    with patch("folioman_client.services.import_service.read_cas", return_value=ParsedCas(mf=earlier_stmt, investor=identity)):
+    with patch(
+        "folioman_client.services.import_service.read_cas",
+        return_value=ParsedCas(mf=earlier_stmt, investor=identity),
+    ):
         res = await import_service.import_cas(b"%PDF-1.4 dummy2", "secret")
 
     # 3. Chained partial block should have been upgraded!
@@ -268,14 +298,22 @@ async def test_upgrade_chained_partials(import_service: CASImportService) -> Non
             assert t.cost_basis_complete is True
 
         # Redundant CAS holding snapshot should be cleaned up
-        holdings = (await session.execute(select(Holding).where(Holding.source == "cas_pdf"))).scalars().all()
+        holdings = (
+            (await session.execute(select(Holding).where(Holding.source == "cas_pdf")))
+            .scalars()
+            .all()
+        )
         assert len(holdings) == 0
 
 
 @pytest.mark.asyncio
-async def test_import_quarantine_on_block_error(import_service: CASImportService) -> None:
+async def test_import_quarantine_on_block_error(
+    import_service: CASImportService,
+) -> None:
     # Malformed block: units is not a valid number
-    bad_sec = CoreSecurity(type=SecurityType.MF, name="Corrupted Fund", isin="INF000000000")
+    bad_sec = CoreSecurity(
+        type=SecurityType.MF, name="Corrupted Fund", isin="INF000000000"
+    )
     bad_fol = CoreFolio(folio_type="mf", number="ERR-1")
     bad_block = MfCasSchemeBlock(security=bad_sec, folio=bad_fol)
 
@@ -292,8 +330,13 @@ async def test_import_quarantine_on_block_error(import_service: CASImportService
         return await real_upsert(session, core_sec, amc_id)
 
     # Force an exception only when upserting bad_sec
-    with patch.object(import_service, "_upsert_security", side_effect=fake_upsert), \
-         patch("folioman_client.services.import_service.read_cas", return_value=ParsedCas(mf=good_stmt, investor=identity)):
+    with (
+        patch.object(import_service, "_upsert_security", side_effect=fake_upsert),
+        patch(
+            "folioman_client.services.import_service.read_cas",
+            return_value=ParsedCas(mf=good_stmt, investor=identity),
+        ),
+    ):
         res = await import_service.import_cas(b"%PDF-1.4 dummy", "secret")
 
     # Should quarantine the bad block without failing the whole statement
@@ -310,7 +353,12 @@ async def test_import_quarantine_on_block_error(import_service: CASImportService
 
 @pytest.mark.asyncio
 async def test_import_ecas_statement(import_service: CASImportService) -> None:
-    sec = CoreSecurity(type=SecurityType.EQUITY, name="Reliance Industries Ltd", isin="INE002A01018", symbol="RELIANCE")
+    sec = CoreSecurity(
+        type=SecurityType.EQUITY,
+        name="Reliance Industries Ltd",
+        isin="INE002A01018",
+        symbol="RELIANCE",
+    )
     fol = CoreFolio(folio_type="demat", number="1208160012345678", broker="Zerodha")
     line = EcasHoldingLine(
         security=sec,
@@ -329,7 +377,9 @@ async def test_import_ecas_statement(import_service: CASImportService) -> None:
     identity = CasInvestorIdentity(name="Anita Roy", pan="XYZPK9876Z")
     mock_parsed = ParsedCas(ecas=stmt, investor=identity)
 
-    with patch("folioman_client.services.import_service.read_cas", return_value=mock_parsed):
+    with patch(
+        "folioman_client.services.import_service.read_cas", return_value=mock_parsed
+    ):
         res = await import_service.import_cas(b"%PDF-1.4 dummy", "secret")
 
     assert res["status"] == "completed"
@@ -345,13 +395,19 @@ async def test_import_ecas_statement(import_service: CASImportService) -> None:
 
 @pytest.mark.asyncio
 async def test_import_password_error_wrapping(import_service: CASImportService) -> None:
-    with patch("folioman_client.services.import_service.read_cas", side_effect=CASPasswordError("Bad password")):
+    with patch(
+        "folioman_client.services.import_service.read_cas",
+        side_effect=CASPasswordError("Bad password"),
+    ):
         with pytest.raises(FoliomanPasswordError):
             await import_service.import_cas(b"%PDF-1.4 dummy", "wrong")
 
 
 @pytest.mark.asyncio
 async def test_import_parse_error_wrapping(import_service: CASImportService) -> None:
-    with patch("folioman_client.services.import_service.read_cas", side_effect=CASParseError("Corrupted stream")):
+    with patch(
+        "folioman_client.services.import_service.read_cas",
+        side_effect=CASParseError("Corrupted stream"),
+    ):
         with pytest.raises(FoliomanParseError):
             await import_service.import_cas(b"%PDF-1.4 dummy", "secret")

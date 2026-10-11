@@ -11,7 +11,10 @@ from folioman_client.core.models.cas import (
     MfCasSchemeBlock,
     MfCasStatement,
 )
-from folioman_client.core.models.investor import Folio as CoreFolio, normalize_folio_number
+from folioman_client.core.models.investor import (
+    Folio as CoreFolio,
+    normalize_folio_number,
+)
 from folioman_client.core.models.security import Security as CoreSecurity, SecurityType
 from folioman_client.core.models.transaction import TransactionType
 from folioman_client.core.parser import _HISTORY_TOLERANCE, scheme_history_gap
@@ -31,7 +34,9 @@ def test_normalize_folio_number() -> None:
 
 
 def test_scheme_history_gap_complete_history() -> None:
-    security = CoreSecurity(type=SecurityType.MF, name="PPFAS Flexi Cap", isin="INF879O01019")
+    security = CoreSecurity(
+        type=SecurityType.MF, name="PPFAS Flexi Cap", isin="INF879O01019"
+    )
     folio = CoreFolio(folio_type="mf", number="1001/0")
     block = MfCasSchemeBlock(
         security=security,
@@ -53,7 +58,9 @@ def test_scheme_history_gap_complete_history() -> None:
 
 
 def test_scheme_history_gap_opening_nonzero() -> None:
-    security = CoreSecurity(type=SecurityType.MF, name="PPFAS Flexi Cap", isin="INF879O01019")
+    security = CoreSecurity(
+        type=SecurityType.MF, name="PPFAS Flexi Cap", isin="INF879O01019"
+    )
     folio = CoreFolio(folio_type="mf", number="1001")
     block = MfCasSchemeBlock(
         security=security,
@@ -75,7 +82,9 @@ def test_scheme_history_gap_opening_nonzero() -> None:
 
 
 def test_scheme_history_gap_mismatch() -> None:
-    security = CoreSecurity(type=SecurityType.MF, name="PPFAS Flexi Cap", isin="INF879O01019")
+    security = CoreSecurity(
+        type=SecurityType.MF, name="PPFAS Flexi Cap", isin="INF879O01019"
+    )
     folio = CoreFolio(folio_type="mf", number="1001")
     block = MfCasSchemeBlock(
         security=security,
@@ -97,7 +106,9 @@ def test_scheme_history_gap_mismatch() -> None:
 
 
 def test_scheme_history_gap_rows_unreconciled() -> None:
-    security = CoreSecurity(type=SecurityType.MF, name="PPFAS Flexi Cap", isin="INF879O01019")
+    security = CoreSecurity(
+        type=SecurityType.MF, name="PPFAS Flexi Cap", isin="INF879O01019"
+    )
     folio = CoreFolio(folio_type="mf", number="1001")
     block = MfCasSchemeBlock(
         security=security,

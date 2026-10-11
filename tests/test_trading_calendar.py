@@ -60,7 +60,7 @@ def test_trading_days_between():
 
 def test_trading_days_generator():
     start = date(2026, 4, 16)  # Thursday
-    end = date(2026, 4, 21)    # Tuesday
+    end = date(2026, 4, 21)  # Tuesday
     # Days should be Thu 16, Fri 17, Mon 20, Tue 21 (4 weekdays)
     days = list(trading_days(start, end))
     assert days == [

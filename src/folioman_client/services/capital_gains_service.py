@@ -17,8 +17,16 @@ from sqlalchemy.orm import selectinload
 
 from folioman_client.core.price_feeds.casparser_fmv import fmv_lookup as _mf_fmv
 from folioman_client.core.reconciliation import IntegrityStatus
-from folioman_client.core.tax import compute_gain_lines, compute_schedule_112a, get_policy
-from folioman_client.core.tax.india import GRANDFATHER_FMV_DATE, india_fy_label, india_fy_range
+from folioman_client.core.tax import (
+    compute_gain_lines,
+    compute_schedule_112a,
+    get_policy,
+)
+from folioman_client.core.tax.india import (
+    GRANDFATHER_FMV_DATE,
+    india_fy_label,
+    india_fy_range,
+)
 from folioman_client.core.tax.models import Term
 from folioman_client.core.tax.schedule_112a import SCHEDULE_112A_CSV_COLUMNS
 from folioman_client.db import create_folioman_engine, create_sessionmaker
@@ -38,7 +46,9 @@ from folioman_client.services.projected_ledger import (
 _Q2 = Decimal("0.01")
 
 
-def _folio_tax_ready(status: IntegrityStatus | None, *, include_unreconciled: bool) -> bool:
+def _folio_tax_ready(
+    status: IntegrityStatus | None, *, include_unreconciled: bool
+) -> bool:
     """Check if folio is tax ready."""
     if status is None:
         return include_unreconciled
@@ -74,7 +84,10 @@ class CapitalGainsService:
         )
         statuses = (await session.execute(stmt)).scalars().all()
         status_map = {
-            (security_key(st.security), st.folio.number if st.folio else ""): IntegrityStatus(st.status)
+            (
+                security_key(st.security),
+                st.folio.number if st.folio else "",
+            ): IntegrityStatus(st.status)
             for st in statuses
         }
 
@@ -107,7 +120,9 @@ class CapitalGainsService:
             # 2. Query NAVHistory on/before 2018-01-31 for listed securities missing in gf table
             missing = clean_isins - set(fmv_cache.keys())
             if missing:
-                stmt_sec = select(Security.id, Security.isin).where(Security.isin.in_(list(missing)))
+                stmt_sec = select(Security.id, Security.isin).where(
+                    Security.isin.in_(list(missing))
+                )
                 sec_map = dict((await session.execute(stmt_sec)).all())
                 if sec_map:
                     stmt_nav = (
@@ -155,7 +170,11 @@ class CapitalGainsService:
             reductions = await demerger_reductions(session, investor_id)
 
             if fmv_lookup is None:
-                all_isins = [t.security.isin for t in transactions if t.security and t.security.isin]
+                all_isins = [
+                    t.security.isin
+                    for t in transactions
+                    if t.security and t.security.isin
+                ]
                 fmv = await self._build_fmv_lookup(session, all_isins)
             else:
                 fmv = fmv_lookup
@@ -168,10 +187,16 @@ class CapitalGainsService:
             )
 
             in_fy = [g for g in gain_lines if fy_start <= g.disposal.sold_on <= fy_end]
-            target_isins = {g.disposal.security.isin for g in in_fy if g.disposal.security and g.disposal.security.isin}
+            target_isins = {
+                g.disposal.security.isin
+                for g in in_fy
+                if g.disposal.security and g.disposal.security.isin
+            }
             isin_to_id: dict[str, int] = {}
             if target_isins:
-                stmt_sec = select(Security.isin, Security.id).where(Security.isin.in_(list(target_isins)))
+                stmt_sec = select(Security.isin, Security.id).where(
+                    Security.isin.in_(list(target_isins))
+                )
                 isin_to_id = dict((await session.execute(stmt_sec)).all())
 
             rows: list[dict[str, Any]] = []
@@ -181,7 +206,9 @@ class CapitalGainsService:
 
             for line in in_fy:
                 d = line.disposal
-                sale_value = (d.units * d.sale_price_per_unit).quantize(_Q2, rounding=ROUND_HALF_EVEN)
+                sale_value = (d.units * d.sale_price_per_unit).quantize(
+                    _Q2, rounding=ROUND_HALF_EVEN
+                )
                 if line.term is Term.SHORT:
                     stcg += line.gain
                 elif line.term is Term.LONG:
@@ -201,7 +228,9 @@ class CapitalGainsService:
                         "term": line.term.value,
                         "acquired_on": d.acquired_on,
                         "sold_on": d.sold_on,
-                        "grandfathering_unavailable": bool(line.metadata.get("grandfathering_unavailable")),
+                        "grandfathering_unavailable": bool(
+                            line.metadata.get("grandfathering_unavailable")
+                        ),
                     }
                 )
 
@@ -235,7 +264,11 @@ class CapitalGainsService:
             reductions = await demerger_reductions(session, investor_id)
 
             if fmv_lookup is None:
-                all_isins = [t.security.isin for t in transactions if t.security and t.security.isin]
+                all_isins = [
+                    t.security.isin
+                    for t in transactions
+                    if t.security and t.security.isin
+                ]
                 fmv = await self._build_fmv_lookup(session, all_isins)
             else:
                 fmv = fmv_lookup
@@ -260,8 +293,12 @@ class CapitalGainsService:
             return [
                 {
                     "fy": fy,
-                    "stcg": stcg.get(fy, Decimal("0")).quantize(_Q2, rounding=ROUND_HALF_EVEN),
-                    "ltcg": ltcg.get(fy, Decimal("0")).quantize(_Q2, rounding=ROUND_HALF_EVEN),
+                    "stcg": stcg.get(fy, Decimal("0")).quantize(
+                        _Q2, rounding=ROUND_HALF_EVEN
+                    ),
+                    "ltcg": ltcg.get(fy, Decimal("0")).quantize(
+                        _Q2, rounding=ROUND_HALF_EVEN
+                    ),
                 }
                 for fy in all_fys
             ]
@@ -287,7 +324,11 @@ class CapitalGainsService:
             reductions = await demerger_reductions(session, investor_id)
 
             if fmv_lookup is None:
-                all_isins = [t.security.isin for t in transactions if t.security and t.security.isin]
+                all_isins = [
+                    t.security.isin
+                    for t in transactions
+                    if t.security and t.security.isin
+                ]
                 fmv = await self._build_fmv_lookup(session, all_isins)
             else:
                 fmv = fmv_lookup
@@ -299,7 +340,9 @@ class CapitalGainsService:
                 demerger_reductions=reductions,
             )
 
-            integrity_by_sec = {t.security: IntegrityStatus.RECONCILED for t in transactions}
+            integrity_by_sec = {
+                t.security: IntegrityStatus.RECONCILED for t in transactions
+            }
             rows = compute_schedule_112a(
                 gain_lines,
                 fy,

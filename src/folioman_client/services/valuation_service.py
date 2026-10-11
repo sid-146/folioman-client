@@ -18,9 +18,18 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import selectinload
 
 from folioman_client.core.corporate_actions import held_units_asof
-from folioman_client.core.fifo import InsufficientUnitsError, apply_fifo, net_units_from_transactions
+from folioman_client.core.fifo import (
+    InsufficientUnitsError,
+    apply_fifo,
+    net_units_from_transactions,
+)
 from folioman_client.core.models import Holding as CoreHolding
-from folioman_client.core.models import HoldingSource, Quote, SecurityType, TransactionType
+from folioman_client.core.models import (
+    HoldingSource,
+    Quote,
+    SecurityType,
+    TransactionType,
+)
 from folioman_client.core.reconciliation import TOLERANCE, IntegrityStatus
 from folioman_client.core.trading_calendar import last_trading_day, trading_days_between
 from folioman_client.core.valuation import value_holdings
@@ -52,11 +61,19 @@ from folioman_client.services.projected_ledger import (
 _ZERO = Decimal("0")
 _ONE = Decimal("1")
 _BUY_TYPES = frozenset({TransactionType.BUY.value, TransactionType.TRANSFER_IN.value})
-_SELL_TYPES = frozenset({TransactionType.SELL.value, TransactionType.TRANSFER_OUT.value})
-_CA_INFLOW = frozenset(
-    {TransactionType.BUY.value, TransactionType.BONUS.value, TransactionType.TRANSFER_IN.value}
+_SELL_TYPES = frozenset(
+    {TransactionType.SELL.value, TransactionType.TRANSFER_OUT.value}
 )
-_CA_OUTFLOW = frozenset({TransactionType.SELL.value, TransactionType.TRANSFER_OUT.value})
+_CA_INFLOW = frozenset(
+    {
+        TransactionType.BUY.value,
+        TransactionType.BONUS.value,
+        TransactionType.TRANSFER_IN.value,
+    }
+)
+_CA_OUTFLOW = frozenset(
+    {TransactionType.SELL.value, TransactionType.TRANSFER_OUT.value}
+)
 _NAV_STALE_GRACE_TRADING_DAYS = 1
 _MAX_ATTEMPTS = 8
 _MARKER_ID_BASE = 2_000_000_000
@@ -185,8 +202,6 @@ class ValuationService:
         self.session_factory = session_factory or create_sessionmaker(self.engine)
         self._nav_service = NAVService(engine=self.engine)
 
-
-
     async def _current_positions(
         self, session: AsyncSession, investor_id: int
     ) -> list[tuple[Security, Decimal, date, str]]:
@@ -199,12 +214,17 @@ class ValuationService:
         proj_txns = await projected_transactions(session, investor_id)
         txns_by_key: dict[tuple[str, str], list[Any]] = defaultdict(list)
         for core in proj_txns:
-            txns_by_key[(security_key(core.security), core.folio_number or "")].append(core)
+            txns_by_key[(security_key(core.security), core.folio_number or "")].append(
+                core
+            )
 
         # 2. Holdings snapshots
         stmt_holdings = (
             select(Holding)
-            .options(selectinload(Holding.security).selectinload(Security.amc), selectinload(Holding.folio))
+            .options(
+                selectinload(Holding.security).selectinload(Security.amc),
+                selectinload(Holding.folio),
+            )
             .where(Holding.investor_id == investor_id)
         )
         holdings = (await session.execute(stmt_holdings)).scalars().all()
@@ -216,14 +236,13 @@ class ValuationService:
             sec_by_key.setdefault(skey, h.security)
 
         # 3. Securities from transactions or merger counterparties
-        stmt_cp = (
-            select(AppliedCorporateAction.counterparty_security_id)
-            .where(
-                AppliedCorporateAction.investor_id == investor_id,
-                AppliedCorporateAction.counterparty_security_id.is_not(None),
-            )
+        stmt_cp = select(AppliedCorporateAction.counterparty_security_id).where(
+            AppliedCorporateAction.investor_id == investor_id,
+            AppliedCorporateAction.counterparty_security_id.is_not(None),
         )
-        cp_ids = [cid for cid in (await session.execute(stmt_cp)).scalars().all() if cid]
+        cp_ids = [
+            cid for cid in (await session.execute(stmt_cp)).scalars().all() if cid
+        ]
 
         stmt_sec = (
             select(Security)
@@ -329,7 +348,12 @@ class ValuationService:
             price = nav_provider(security, _as_of)
             if price is None:
                 return None
-            return Quote(as_of=_as_of, price=price, currency=security.currency, source="navhistory")
+            return Quote(
+                as_of=_as_of,
+                price=price,
+                currency=security.currency,
+                source="navhistory",
+            )
 
         val = value_holdings(
             core_holdings,
@@ -342,16 +366,18 @@ class ValuationService:
 
     async def _ledger_index(
         self, session: AsyncSession, investor_ids: list[int]
-    ) -> tuple[dict[tuple[int, int | None], dict[str, Any]], dict[tuple[int, int | None], dict[str, Any]]]:
+    ) -> tuple[
+        dict[tuple[int, int | None], dict[str, Any]],
+        dict[tuple[int, int | None], dict[str, Any]],
+    ]:
         """Group ledger transactions and holdings by (security_id, folio_id)."""
-        stmt_cp = (
-            select(AppliedCorporateAction.counterparty_security_id)
-            .where(
-                AppliedCorporateAction.investor_id.in_(investor_ids),
-                AppliedCorporateAction.counterparty_security_id.is_not(None),
-            )
+        stmt_cp = select(AppliedCorporateAction.counterparty_security_id).where(
+            AppliedCorporateAction.investor_id.in_(investor_ids),
+            AppliedCorporateAction.counterparty_security_id.is_not(None),
         )
-        cp_ids = [cid for cid in (await session.execute(stmt_cp)).scalars().all() if cid]
+        cp_ids = [
+            cid for cid in (await session.execute(stmt_cp)).scalars().all() if cid
+        ]
 
         stmt_sec = (
             select(Security)
@@ -377,9 +403,15 @@ class ValuationService:
                 if sec is None:
                     continue
                 key = (sec.id, folio_by_num.get(core.folio_number or ""))
-                rec = txn_keys.setdefault(key, {"security": sec, "core": [], "cash": []})
+                rec = txn_keys.setdefault(
+                    key, {"security": sec, "core": [], "cash": []}
+                )
                 rec["core"].append((core.date, core))
-                amount = core.amount if core.amount is not None else (core.units * core.nav_or_price)
+                amount = (
+                    core.amount
+                    if core.amount is not None
+                    else (core.units * core.nav_or_price)
+                )
                 rec["cash"].append((core.date, core.type.value, amount))
 
         hold_keys: dict[tuple[int, int | None], dict[str, Any]] = {}
@@ -404,14 +436,18 @@ class ValuationService:
             return idx
         stmt = (
             select(NAVHistory.security_id, NAVHistory.date, NAVHistory.nav)
-            .where(NAVHistory.security_id.in_(list(security_ids)), NAVHistory.date <= upto)
+            .where(
+                NAVHistory.security_id.in_(list(security_ids)), NAVHistory.date <= upto
+            )
             .order_by(NAVHistory.security_id, NAVHistory.date)
         )
         for sid, d, nav in (await session.execute(stmt)).all():
             idx[sid].append((d, nav))
         return idx
 
-    def _price_at(self, nav_idx: dict[int, list[tuple[date, Decimal]]], sec_id: int, as_of: date) -> Decimal | None:
+    def _price_at(
+        self, nav_idx: dict[int, list[tuple[date, Decimal]]], sec_id: int, as_of: date
+    ) -> Decimal | None:
         seq = nav_idx.get(sec_id)
         if not seq:
             return None
@@ -440,7 +476,9 @@ class ValuationService:
                 continue
             sec = rec["security"]
             ident = sec.isin or sec.symbol or sec.name
-            sec_reductions = [(ex, by) for (ex, by) in reductions.get(ident, []) if ex <= as_of]
+            sec_reductions = [
+                (ex, by) for (ex, by) in reductions.get(ident, []) if ex <= as_of
+            ]
             try:
                 fifo = apply_fifo(cores, demerger_reductions=sec_reductions)
                 units, invested = fifo.balance, fifo.invested
@@ -461,7 +499,11 @@ class ValuationService:
             current = [h for h in rows if h.as_of_date == latest]
             units = sum((h.units for h in current), _ZERO)
             invested = sum(
-                (h.avg_cost_observed * h.units for h in current if h.avg_cost_observed is not None),
+                (
+                    h.avg_cost_observed * h.units
+                    for h in current
+                    if h.avg_cost_observed is not None
+                ),
                 _ZERO,
             )
             slot = agg.setdefault(sec_id, [rec["security"], _ZERO, _ZERO])
@@ -510,14 +552,23 @@ class ValuationService:
             latest = seq[-1][1] if seq else None
             prev = seq[-2][1] if len(seq) >= 2 else None
             day_change_inr = day_change_pct = None
-            if units > _ZERO and latest is not None and prev is not None and prev != _ZERO:
+            if (
+                units > _ZERO
+                and latest is not None
+                and prev is not None
+                and prev != _ZERO
+            ):
                 day_change_inr = units * (latest - prev)
                 day_change_pct = float((latest - prev) / prev)
 
             flows = cash_by_sec.get(sec_id)
             xirr = None
             if flows:
-                terminal = (units * latest if latest is not None else None) if units > _ZERO else _ZERO
+                terminal = (
+                    (units * latest if latest is not None else None)
+                    if units > _ZERO
+                    else _ZERO
+                )
                 if terminal is not None:
                     cashflows = cashflows_from_transactions(
                         flows, present_date=as_of, present_value=terminal
@@ -534,7 +585,11 @@ class ValuationService:
         return extras
 
     def _day_change_total(self, extras: dict[int, dict[str, Any]]) -> Decimal | None:
-        contribs = [e["day_change_inr"] for e in extras.values() if e["day_change_inr"] is not None]
+        contribs = [
+            e["day_change_inr"]
+            for e in extras.values()
+            if e["day_change_inr"] is not None
+        ]
         return sum(contribs, _ZERO) if contribs else None
 
     def _rollup(
@@ -585,13 +640,16 @@ class ValuationService:
         def _buckets(mix: dict[str, Decimal]) -> list[dict[str, Any]]:
             return [
                 {"label": label, "value_inr": val}
-                for label, val in sorted(mix.items(), key=lambda kv: kv[1], reverse=True)
+                for label, val in sorted(
+                    mix.items(), key=lambda kv: kv[1], reverse=True
+                )
             ]
 
         return {
             "total_inr": valuation.total_inr,
             "asset_mix": [
-                {"security_type": stype, "value_inr": val} for stype, val in asset_mix.items()
+                {"security_type": stype, "value_inr": val}
+                for stype, val in asset_mix.items()
             ],
             "amc_mix": _buckets(amc_mix),
             "category_mix": _buckets(category_mix),
@@ -601,13 +659,19 @@ class ValuationService:
             "holdings_count": len(valuation.rows),
         }
 
-    async def _book_navs_as_of(self, session: AsyncSession, investor_ids: Sequence[int], as_of: date) -> date | None:
+    async def _book_navs_as_of(
+        self, session: AsyncSession, investor_ids: Sequence[int], as_of: date
+    ) -> date | None:
         stmt_sec = (
             select(Transaction.security_id)
             .where(Transaction.investor_id.in_(investor_ids))
-            .union(select(Holding.security_id).where(Holding.investor_id.in_(investor_ids)))
+            .union(
+                select(Holding.security_id).where(Holding.investor_id.in_(investor_ids))
+            )
         )
-        sec_ids = [sid for sid in (await session.execute(stmt_sec)).scalars().all() if sid]
+        sec_ids = [
+            sid for sid in (await session.execute(stmt_sec)).scalars().all() if sid
+        ]
         if not sec_ids:
             return None
         stmt_nav = select(func.max(NAVHistory.date)).where(
@@ -640,14 +704,18 @@ class ValuationService:
             return None
 
         terminal = _ZERO
-        for sec_id, (_sec, units, _inv) in self._positions_asof(txn_keys, {}, as_of).items():
+        for sec_id, (_sec, units, _inv) in self._positions_asof(
+            txn_keys, {}, as_of
+        ).items():
             if units <= _ZERO:
                 continue
             price = self._price_at(nav_idx, sec_id, as_of)
             if price is not None:
                 terminal += units * price
 
-        cashflows = cashflows_from_transactions(flows, present_date=as_of, present_value=terminal)
+        cashflows = cashflows_from_transactions(
+            flows, present_date=as_of, present_value=terminal
+        )
         return compute_xirr(cashflows)
 
     def _value_at(
@@ -657,7 +725,9 @@ class ValuationService:
         when: date,
     ) -> Decimal:
         total = _ZERO
-        for sec_id, (_sec, units, _inv) in self._positions_asof(txn_keys, {}, when).items():
+        for sec_id, (_sec, units, _inv) in self._positions_asof(
+            txn_keys, {}, when
+        ).items():
             if units <= _ZERO:
                 continue
             price = self._price_at(nav_idx, sec_id, when)
@@ -689,10 +759,14 @@ class ValuationService:
                     flows.append((txn_date, -cash))
         if not flows:
             return None
-        cashflows = cashflows_from_transactions(flows, present_date=as_of, present_value=terminal)
+        cashflows = cashflows_from_transactions(
+            flows, present_date=as_of, present_value=terminal
+        )
         return compute_xirr(cashflows)
 
-    def _period_return(self, label: str, start: date, as_of: date, rate: float) -> dict[str, Any]:
+    def _period_return(
+        self, label: str, start: date, as_of: date, rate: float
+    ) -> dict[str, Any]:
         days = (as_of - start).days
         base = 1.0 + rate
         absolute = base ** (days / 365.0) - 1.0 if base > 0.0 else None
@@ -706,7 +780,9 @@ class ValuationService:
     ) -> list[dict[str, Any]]:
         if not txn_keys:
             return []
-        dates = [txn_date for rec in txn_keys.values() for (txn_date, _t, _c) in rec["cash"]]
+        dates = [
+            txn_date for rec in txn_keys.values() for (txn_date, _t, _c) in rec["cash"]
+        ]
         if not dates:
             return []
         inception = min(dates)
@@ -721,7 +797,9 @@ class ValuationService:
             if rate is not None:
                 out.append(self._period_return(label, start, as_of, rate))
 
-        all_rate = self._windowed_xirr(txn_keys, nav_idx, inception - timedelta(days=1), as_of, terminal)
+        all_rate = self._windowed_xirr(
+            txn_keys, nav_idx, inception - timedelta(days=1), as_of, terminal
+        )
         if all_rate is not None:
             out.append(self._period_return("All", inception, as_of, all_rate))
         return out
@@ -737,9 +815,13 @@ class ValuationService:
             if investor is None:
                 raise ValueError(f"Investor {investor_id} not found")
 
-            valuation, meta_by_sec = await self._value_investors(session, [investor_id], as_of_date)
+            valuation, meta_by_sec = await self._value_investors(
+                session, [investor_id], as_of_date
+            )
             txn_keys, hold_keys = await self._ledger_index(session, [investor_id])
-            extras = await self._holding_extras(session, [investor_id], as_of_date, txn_keys, hold_keys)
+            extras = await self._holding_extras(
+                session, [investor_id], as_of_date, txn_keys, hold_keys
+            )
             rollup = self._rollup(valuation, meta_by_sec, extras)
 
             sec_ids = {k[0] for k in txn_keys}
@@ -750,7 +832,8 @@ class ValuationService:
             unpriced_fund_count = sum(
                 1
                 for row in valuation.stale_rows
-                if meta_by_sec.get(row.security, (None,) * 5)[2] == SecurityType.MF.value
+                if meta_by_sec.get(row.security, (None,) * 5)[2]
+                == SecurityType.MF.value
             )
 
             stmt_statuses = select(SecurityIntegrityStatus).where(
@@ -759,8 +842,12 @@ class ValuationService:
             statuses = (await session.execute(stmt_statuses)).scalars().all()
             integrity_unit_count = len(statuses)
             tax_ready_count = sum(1 for s in statuses if s.tax_safe)
-            needs_attention_count = sum(1 for s in statuses if s.status == IntegrityStatus.MISMATCH.value)
-            snapshot_count = sum(1 for s in statuses if s.status == IntegrityStatus.SNAPSHOT_ONLY.value)
+            needs_attention_count = sum(
+                1 for s in statuses if s.status == IntegrityStatus.MISMATCH.value
+            )
+            snapshot_count = sum(
+                1 for s in statuses if s.status == IntegrityStatus.SNAPSHOT_ONLY.value
+            )
 
             total_inr = rollup["total_inr"]
             summary_as_of = as_of_date
@@ -768,7 +855,10 @@ class ValuationService:
             if total_inr == _ZERO and rollup["holdings_count"] > 0:
                 stmt_last_val = (
                     select(InvestorValue)
-                    .where(InvestorValue.investor_id == investor_id, InvestorValue.date <= as_of_date)
+                    .where(
+                        InvestorValue.investor_id == investor_id,
+                        InvestorValue.date <= as_of_date,
+                    )
                     .order_by(InvestorValue.date.desc())
                 )
                 last_known = (await session.execute(stmt_last_val)).scalars().first()
@@ -838,9 +928,13 @@ class ValuationService:
                     "period_returns": [],
                 }
 
-            valuation, meta_by_sec = await self._value_investors(session, investor_ids, as_of_date)
+            valuation, meta_by_sec = await self._value_investors(
+                session, investor_ids, as_of_date
+            )
             txn_keys, hold_keys = await self._ledger_index(session, investor_ids)
-            extras = await self._holding_extras(session, investor_ids, as_of_date, txn_keys, hold_keys)
+            extras = await self._holding_extras(
+                session, investor_ids, as_of_date, txn_keys, hold_keys
+            )
             rollup = self._rollup(valuation, meta_by_sec, extras)
 
             sec_ids = {k[0] for k in txn_keys}
@@ -853,7 +947,9 @@ class ValuationService:
             )
             statuses = (await session.execute(stmt_statuses)).scalars().all()
             navs_as_of = await self._book_navs_as_of(session, investor_ids, as_of_date)
-            stmt_folios = select(func.count(Folio.id)).where(Folio.investor_id.in_(investor_ids))
+            stmt_folios = select(func.count(Folio.id)).where(
+                Folio.investor_id.in_(investor_ids)
+            )
             folio_count = (await session.scalar(stmt_folios)) or 0
 
             return {
@@ -867,7 +963,9 @@ class ValuationService:
                 "stale_count": rollup["stale_count"],
                 "integrity_unit_count": len(statuses),
                 "tax_ready_count": sum(1 for s in statuses if s.tax_safe),
-                "needs_attention_count": sum(1 for s in statuses if s.status == IntegrityStatus.MISMATCH.value),
+                "needs_attention_count": sum(
+                    1 for s in statuses if s.status == IntegrityStatus.MISMATCH.value
+                ),
                 "navs_as_of": navs_as_of,
                 "navs_stale": self._navs_stale(navs_as_of, as_of_date),
                 "day_change_inr": self._day_change_total(extras),
@@ -883,7 +981,9 @@ class ValuationService:
         real_ids = [c.ledger_id for c in projected if c.ledger_id is not None]
         origin_sec: dict[int, int] = {}
         if real_ids:
-            stmt_origin = select(Transaction.id, Transaction.security_id).where(Transaction.id.in_(real_ids))
+            stmt_origin = select(Transaction.id, Transaction.security_id).where(
+                Transaction.id.in_(real_ids)
+            )
             origin_sec = dict((await session.execute(stmt_origin)).all())
 
         receipts: dict[int, Decimal] = defaultdict(lambda: _ZERO)
@@ -901,7 +1001,10 @@ class ValuationService:
         stmt_raw_txns = (
             select(Transaction)
             .options(selectinload(Transaction.folio))
-            .where(Transaction.investor_id == investor_id, Transaction.security_id == security.id)
+            .where(
+                Transaction.investor_id == investor_id,
+                Transaction.security_id == security.id,
+            )
             .order_by(Transaction.date, Transaction.id)
         )
         raw_txns = (await session.execute(stmt_raw_txns)).scalars().all()
@@ -917,13 +1020,10 @@ class ValuationService:
         )
         ca_mergers = (await session.execute(stmt_ca_merger)).scalars().all()
 
-        stmt_ca_scale = (
-            select(AppliedCorporateAction)
-            .where(
-                AppliedCorporateAction.investor_id == investor_id,
-                AppliedCorporateAction.security_id == security.id,
-                AppliedCorporateAction.kind.in_(["split", "bonus"]),
-            )
+        stmt_ca_scale = select(AppliedCorporateAction).where(
+            AppliedCorporateAction.investor_id == investor_id,
+            AppliedCorporateAction.security_id == security.id,
+            AppliedCorporateAction.kind.in_(["split", "bonus"]),
         )
         ca_scales = (await session.execute(stmt_ca_scale)).scalars().all()
 
@@ -951,9 +1051,7 @@ class ValuationService:
                 signed = (
                     obj.units
                     if obj.transaction_type in _CA_INFLOW
-                    else -obj.units
-                    if obj.transaction_type in _CA_OUTFLOW
-                    else _ZERO
+                    else -obj.units if obj.transaction_type in _CA_OUTFLOW else _ZERO
                 )
                 if complete:
                     balance += signed
@@ -1022,7 +1120,13 @@ class ValuationService:
         return rows, projected, partial_from
 
     async def _folio_balances(
-        self, session: AsyncSession, investor_id: int, security: Security, txns: Sequence[Transaction], price: Decimal | None, as_of: date
+        self,
+        session: AsyncSession,
+        investor_id: int,
+        security: Security,
+        txns: Sequence[Transaction],
+        price: Decimal | None,
+        as_of: date,
     ) -> list[dict[str, Any]]:
         units_by_folio: dict[int, Decimal] = {}
         meta: dict[int, Folio] = {}
@@ -1035,7 +1139,9 @@ class ValuationService:
             if t.folio:
                 meta[t.folio_id] = t.folio
         for fid, group in grouped.items():
-            units_by_folio[fid] = net_units_from_transactions([to_core_transaction(t) for t in group])
+            units_by_folio[fid] = net_units_from_transactions(
+                [to_core_transaction(t) for t in group]
+            )
 
         stmt_h = (
             select(Holding)
@@ -1106,7 +1212,11 @@ class ValuationService:
     ) -> dict[str, Any]:
         """Dividend detail for equity scheme view."""
         if security.security_type != SecurityType.EQUITY.value:
-            return {"dividends": [], "dividends_received_inr": None, "dividend_yield_on_cost": None}
+            return {
+                "dividends": [],
+                "dividends_received_inr": None,
+                "dividend_yield_on_cost": None,
+            }
 
         stmt_refs = select(CorporateActionReference).where(
             CorporateActionReference.parsed_type == "dividend",
@@ -1116,14 +1226,29 @@ class ValuationService:
         if security.isin:
             stmt_refs = stmt_refs.where(CorporateActionReference.isin == security.isin)
         elif security.symbol:
-            stmt_refs = stmt_refs.where(CorporateActionReference.symbol == security.symbol.upper())
+            stmt_refs = stmt_refs.where(
+                CorporateActionReference.symbol == security.symbol.upper()
+            )
         else:
-            return {"dividends": [], "dividends_received_inr": None, "dividend_yield_on_cost": None}
+            return {
+                "dividends": [],
+                "dividends_received_inr": None,
+                "dividend_yield_on_cost": None,
+            }
 
-        schedule_refs = (await session.execute(stmt_refs.order_by(CorporateActionReference.ex_date.desc()))).scalars().all()
+        schedule_refs = (
+            (
+                await session.execute(
+                    stmt_refs.order_by(CorporateActionReference.ex_date.desc())
+                )
+            )
+            .scalars()
+            .all()
+        )
 
         stmt_txns = select(Transaction).where(
-            Transaction.investor_id == investor_id, Transaction.security_id == security.id
+            Transaction.investor_id == investor_id,
+            Transaction.security_id == security.id,
         )
         ledger_orm_txns = (await session.execute(stmt_txns)).scalars().all()
         has_ledger = bool(ledger_orm_txns)
@@ -1137,15 +1262,23 @@ class ValuationService:
                 continue
             try:
                 ref_id = int(ref.removeprefix("dividend:ca-ref:"))
-                attributed_amounts[ref_id] = attributed_amounts.get(ref_id, _ZERO) + (txn.amount or _ZERO)
+                attributed_amounts[ref_id] = attributed_amounts.get(ref_id, _ZERO) + (
+                    txn.amount or _ZERO
+                )
             except ValueError:
                 continue
 
         core_sec = to_core_security(security)
         ledger_cores = await compute_ledger(session, investor_id, security.id)
         folio_ids = {t.folio_id for t in ledger_orm_txns if t.folio_id}
-        stmt_folios = select(Folio).where(Folio.id.in_(list(folio_ids))) if folio_ids else None
-        folios_by_id = {f.id: f for f in (await session.execute(stmt_folios)).scalars().all()} if stmt_folios is not None else {}
+        stmt_folios = (
+            select(Folio).where(Folio.id.in_(list(folio_ids))) if folio_ids else None
+        )
+        folios_by_id = (
+            {f.id: f for f in (await session.execute(stmt_folios)).scalars().all()}
+            if stmt_folios is not None
+            else {}
+        )
 
         rows: list[dict[str, Any]] = []
         for ref in schedule_refs:
@@ -1187,7 +1320,11 @@ class ValuationService:
             rows.append(row)
 
         received = sum(
-            (row["amount_inr"] or _ZERO for row in rows if row["kind"] in ("attributed", "computed")),
+            (
+                row["amount_inr"] or _ZERO
+                for row in rows
+                if row["kind"] in ("attributed", "computed")
+            ),
             _ZERO,
         )
         received_out = received if has_ledger and received > _ZERO else None
@@ -1218,7 +1355,9 @@ class ValuationService:
 
             txn_keys, hold_keys = await self._ledger_index(session, [investor_id])
             positions = self._positions_asof(txn_keys, hold_keys, as_of_date)
-            extras = await self._holding_extras(session, [investor_id], as_of_date, txn_keys, hold_keys)
+            extras = await self._holding_extras(
+                session, [investor_id], as_of_date, txn_keys, hold_keys
+            )
 
             pos = positions.get(security.id)
             units = pos[1] if pos else _ZERO
@@ -1227,7 +1366,9 @@ class ValuationService:
 
             stmt_latest = (
                 select(NAVHistory.date, NAVHistory.nav)
-                .where(NAVHistory.security_id == security.id, NAVHistory.date <= as_of_date)
+                .where(
+                    NAVHistory.security_id == security.id, NAVHistory.date <= as_of_date
+                )
                 .order_by(NAVHistory.date.desc())
             )
             latest_row = (await session.execute(stmt_latest)).first()
@@ -1245,7 +1386,9 @@ class ValuationService:
             if value is not None and invested not in (None, _ZERO):
                 return_pct = float((value - invested) / invested)
 
-            txns, complete_core, partial_from = await self._scheme_ledger(session, investor_id, security, as_of_date)
+            txns, complete_core, partial_from = await self._scheme_ledger(
+                session, investor_id, security, as_of_date
+            )
 
             stmt_cb_txns = (
                 select(Transaction)
@@ -1257,13 +1400,19 @@ class ValuationService:
                 )
             )
             cb_txns = (await session.execute(stmt_cb_txns)).scalars().all()
-            folios = await self._folio_balances(session, investor_id, security, cb_txns, price, as_of_date)
+            folios = await self._folio_balances(
+                session, investor_id, security, cb_txns, price, as_of_date
+            )
 
-            anchor = await self._holdings_anchor(session, investor_id, security.id, as_of_date)
+            anchor = await self._holdings_anchor(
+                session, investor_id, security.id, as_of_date
+            )
             has_incomplete = partial_from is not None
             complete_net = net_units_from_transactions(complete_core)
             if anchor is not None:
-                partial_history = has_incomplete and abs(complete_net - anchor) > TOLERANCE
+                partial_history = (
+                    has_incomplete and abs(complete_net - anchor) > TOLERANCE
+                )
             else:
                 partial_history = has_incomplete
 
@@ -1279,7 +1428,10 @@ class ValuationService:
 
             stmt_statuses = (
                 select(SecurityIntegrityStatus)
-                .options(selectinload(SecurityIntegrityStatus.security), selectinload(SecurityIntegrityStatus.folio))
+                .options(
+                    selectinload(SecurityIntegrityStatus.security),
+                    selectinload(SecurityIntegrityStatus.folio),
+                )
                 .where(
                     SecurityIntegrityStatus.investor_id == investor_id,
                     SecurityIntegrityStatus.security_id == security.id,
@@ -1289,10 +1441,15 @@ class ValuationService:
 
             stmt_navs = (
                 select(NAVHistory.date, NAVHistory.nav)
-                .where(NAVHistory.security_id == security.id, NAVHistory.date <= as_of_date)
+                .where(
+                    NAVHistory.security_id == security.id, NAVHistory.date <= as_of_date
+                )
                 .order_by(NAVHistory.date)
             )
-            nav_history = [{"date": d, "nav": n} for d, n in (await session.execute(stmt_navs)).all()]
+            nav_history = [
+                {"date": d, "nav": n}
+                for d, n in (await session.execute(stmt_navs)).all()
+            ]
 
             dividend_detail = await self._build_equity_dividend_detail(
                 session, investor_id, security, as_of_date, units, invested
@@ -1322,7 +1479,6 @@ class ValuationService:
                     "amc": security.amc.name if security.amc else None,
                     "category": (security.metadata_json or {}).get("category"),
                 },
-
                 "as_of": as_of_date,
                 "units": units,
                 "value_inr": value,
@@ -1346,7 +1502,12 @@ class ValuationService:
             }
 
     async def _value_series(
-        self, session: AsyncSession, investor_ids: list[int], from_: date, to: date, granularity: str
+        self,
+        session: AsyncSession,
+        investor_ids: list[int],
+        from_: date,
+        to: date,
+        granularity: str,
     ) -> list[dict[str, Any]]:
         txn_keys, _hold_keys = await self._ledger_index(session, investor_ids)
         sec_ids = {k[0] for k in txn_keys}
@@ -1368,15 +1529,27 @@ class ValuationService:
                     continue
                 value += units * price
             points.append(
-                {"date": sample, "value_inr": value, "invested_inr": invested, "stale": stale}
+                {
+                    "date": sample,
+                    "value_inr": value,
+                    "invested_inr": invested,
+                    "stale": stale,
+                }
             )
         return points
 
     async def _series_from_stored(
-        self, session: AsyncSession, investor_ids: list[int], from_: date, to: date, granularity: str
+        self,
+        session: AsyncSession,
+        investor_ids: list[int],
+        from_: date,
+        to: date,
+        granularity: str,
     ) -> list[dict[str, Any]]:
         stmt = (
-            select(InvestorValue.date, InvestorValue.value_inr, InvestorValue.invested_inr)
+            select(
+                InvestorValue.date, InvestorValue.value_inr, InvestorValue.invested_inr
+            )
             .where(
                 InvestorValue.investor_id.in_(investor_ids),
                 InvestorValue.date >= from_,
@@ -1387,7 +1560,9 @@ class ValuationService:
         rows = (await session.execute(stmt)).all()
         if not rows:
             # Fall back to live calculation if not pre-computed
-            return await self._value_series(session, investor_ids, from_, to, granularity)
+            return await self._value_series(
+                session, investor_ids, from_, to, granularity
+            )
 
         by_date: dict[date, list[Decimal]] = {}
         for d, val, inv in rows:
@@ -1402,13 +1577,20 @@ class ValuationService:
         return _downsample(points, granularity)
 
     async def value_series(
-        self, investor_id: int, *, from_date: date | None = None, to_date: date | None = None, granularity: str = "monthly"
+        self,
+        investor_id: int,
+        *,
+        from_date: date | None = None,
+        to_date: date | None = None,
+        granularity: str = "monthly",
     ) -> dict[str, Any]:
         """Per-investor net-worth time series."""
         to = to_date or date.today()
         from_ = from_date or _add_months(to, -12)
         async with self.session_factory() as session:
-            points = await self._series_from_stored(session, [investor_id], from_, to, granularity)
+            points = await self._series_from_stored(
+                session, [investor_id], from_, to, granularity
+            )
             return {
                 "investor_id": investor_id,
                 "start": from_,
@@ -1418,7 +1600,12 @@ class ValuationService:
             }
 
     async def family_value_series(
-        self, family_id: int, *, from_date: date | None = None, to_date: date | None = None, granularity: str = "monthly"
+        self,
+        family_id: int,
+        *,
+        from_date: date | None = None,
+        to_date: date | None = None,
+        granularity: str = "monthly",
     ) -> dict[str, Any]:
         """Family aggregate net-worth time series."""
         to = to_date or date.today()
@@ -1426,7 +1613,9 @@ class ValuationService:
         async with self.session_factory() as session:
             stmt = select(Investor.id).where(Investor.family_id == family_id)
             member_ids = list((await session.execute(stmt)).scalars().all())
-            points = await self._series_from_stored(session, member_ids, from_, to, granularity)
+            points = await self._series_from_stored(
+                session, member_ids, from_, to, granularity
+            )
             return {
                 "family_id": family_id,
                 "start": from_,
@@ -1436,7 +1625,12 @@ class ValuationService:
             }
 
     async def security_value_series(
-        self, investor_id: int, security_id: int, *, to_date: date | None = None, granularity: str = "monthly"
+        self,
+        investor_id: int,
+        security_id: int,
+        *,
+        to_date: date | None = None,
+        granularity: str = "monthly",
     ) -> tuple[date, list[dict[str, Any]]]:
         """One holding's worth over time."""
         to = to_date or date.today()
@@ -1445,7 +1639,9 @@ class ValuationService:
             filtered_keys = {k: v for k, v in txn_keys.items() if k[0] == security_id}
             if not filtered_keys:
                 return to, []
-            start = min(d for rec in filtered_keys.values() for (d, _core) in rec["core"])
+            start = min(
+                d for rec in filtered_keys.values() for (d, _core) in rec["core"]
+            )
             nav_idx = await self._nav_index(session, [security_id], to)
             points: list[dict[str, Any]] = []
             for sample in _sample_dates(start, to, granularity):
@@ -1462,7 +1658,12 @@ class ValuationService:
                         continue
                     value += units * price
                 points.append(
-                    {"date": sample, "value_inr": value, "invested_inr": invested, "stale": stale}
+                    {
+                        "date": sample,
+                        "value_inr": value,
+                        "invested_inr": invested,
+                        "stale": stale,
+                    }
                 )
             return start, points
 
@@ -1474,9 +1675,14 @@ class ValuationService:
             if inv is None:
                 raise ValueError(f"Investor {investor_id} not found")
 
-            stmt_prov = select(InvestorValue.id).where(
-                InvestorValue.investor_id == investor_id, InvestorValue.is_provisional.is_(True)
-            ).limit(1)
+            stmt_prov = (
+                select(InvestorValue.id)
+                .where(
+                    InvestorValue.investor_id == investor_id,
+                    InvestorValue.is_provisional.is_(True),
+                )
+                .limit(1)
+            )
             is_provisional = (await session.execute(stmt_prov)).first() is not None
 
             return {
@@ -1490,9 +1696,9 @@ class ValuationService:
     async def get_family_valuation_status(self, family_id: int) -> dict[str, Any]:
         """Readiness status for a family."""
         async with self.session_factory() as session:
-            stmt = select(Investor.valuation_status, Investor.valuation_computed_through).where(
-                Investor.family_id == family_id
-            )
+            stmt = select(
+                Investor.valuation_status, Investor.valuation_computed_through
+            ).where(Investor.family_id == family_id)
             statuses = (await session.execute(stmt)).all()
             states = {s[0] for s in statuses}
             if not states:
@@ -1505,9 +1711,15 @@ class ValuationService:
                 status = "ready"
             throughs = [s[1] for s in statuses if s[1] is not None]
 
-            stmt_prov = select(InvestorValue.id).join(Investor).where(
-                Investor.family_id == family_id, InvestorValue.is_provisional.is_(True)
-            ).limit(1)
+            stmt_prov = (
+                select(InvestorValue.id)
+                .join(Investor)
+                .where(
+                    Investor.family_id == family_id,
+                    InvestorValue.is_provisional.is_(True),
+                )
+                .limit(1)
+            )
             is_provisional = (await session.execute(stmt_prov)).first() is not None
 
             return {
@@ -1535,12 +1747,19 @@ class ValuationService:
                 return
 
             existing = inv.valuation_recompute_from
-            inv.valuation_recompute_from = min(existing, recompute_from) if existing else recompute_from
+            inv.valuation_recompute_from = (
+                min(existing, recompute_from) if existing else recompute_from
+            )
             inv.valuation_status = "computing"
 
-            if as_of is not None and provisional_value is not None and provisional_value > _ZERO:
+            if (
+                as_of is not None
+                and provisional_value is not None
+                and provisional_value > _ZERO
+            ):
                 stmt_v = select(InvestorValue).where(
-                    InvestorValue.investor_id == investor_id, InvestorValue.date == as_of
+                    InvestorValue.investor_id == investor_id,
+                    InvestorValue.date == as_of,
                 )
                 iv = (await session.execute(stmt_v)).scalar_one_or_none()
                 if iv:
@@ -1559,17 +1778,24 @@ class ValuationService:
                     )
             await session.commit()
 
-    async def _earliest_activity(self, session: AsyncSession, investor_id: int) -> date | None:
+    async def _earliest_activity(
+        self, session: AsyncSession, investor_id: int
+    ) -> date | None:
         stmt_t = select(func.min(Transaction.date)).where(
-            Transaction.investor_id == investor_id, Transaction.cost_basis_complete.is_(True)
+            Transaction.investor_id == investor_id,
+            Transaction.cost_basis_complete.is_(True),
         )
         t_min = await session.scalar(stmt_t)
-        stmt_h = select(func.min(Holding.as_of_date)).where(Holding.investor_id == investor_id)
+        stmt_h = select(func.min(Holding.as_of_date)).where(
+            Holding.investor_id == investor_id
+        )
         h_min = await session.scalar(stmt_h)
         dates = [d for d in (t_min, h_min) if d is not None]
         return min(dates) if dates else None
 
-    async def _upsert_series(self, session: AsyncSession, investor_id: int, points: list[dict[str, Any]]) -> None:
+    async def _upsert_series(
+        self, session: AsyncSession, investor_id: int, points: list[dict[str, Any]]
+    ) -> None:
         """Upsert daily points into InvestorValue."""
         if not points:
             return
@@ -1577,7 +1803,9 @@ class ValuationService:
         stmt = select(InvestorValue).where(
             InvestorValue.investor_id == investor_id, InvestorValue.date.in_(dates)
         )
-        existing_rows = {iv.date: iv for iv in (await session.execute(stmt)).scalars().all()}
+        existing_rows = {
+            iv.date: iv for iv in (await session.execute(stmt)).scalars().all()
+        }
 
         for p in points:
             d = p["date"]
@@ -1598,7 +1826,11 @@ class ValuationService:
                 )
 
     async def recompute_investor_valuation(
-        self, investor_id: int, from_date: date | None = None, *, prime_navs: bool = True
+        self,
+        investor_id: int,
+        from_date: date | None = None,
+        *,
+        prime_navs: bool = True,
     ) -> str:
         """Recompute daily InvestorValue series from from_date (or start) to today."""
         async with self.session_factory() as session:
@@ -1608,7 +1840,12 @@ class ValuationService:
                 return "missing"
 
             today = date.today()
-            start = from_date or inv.valuation_recompute_from or inv.valuation_computed_through or await self._earliest_activity(session, investor_id)
+            start = (
+                from_date
+                or inv.valuation_recompute_from
+                or inv.valuation_computed_through
+                or await self._earliest_activity(session, investor_id)
+            )
             if start is None:
                 inv.valuation_status = "ready"
                 inv.valuation_computed_through = today
@@ -1624,7 +1861,9 @@ class ValuationService:
                 await self._nav_service.refresh_navs()
 
             async with self.session_factory() as session:
-                points = await self._value_series(session, [investor_id], start, today, "daily")
+                points = await self._value_series(
+                    session, [investor_id], start, today, "daily"
+                )
                 await self._upsert_series(session, investor_id, points)
 
                 stmt = select(Investor).where(Investor.id == investor_id)
@@ -1646,7 +1885,9 @@ class ValuationService:
                     inv.valuation_attempts = (inv.valuation_attempts or 0) + 1
                     inv.valuation_error = str(exc)[:500]
                     if inv.valuation_attempts < _MAX_ATTEMPTS:
-                        inv.valuation_next_attempt_at = datetime.now(timezone.utc) + _backoff(inv.valuation_attempts)
+                        inv.valuation_next_attempt_at = datetime.now(
+                            timezone.utc
+                        ) + _backoff(inv.valuation_attempts)
                     else:
                         inv.valuation_next_attempt_at = None
                     await session.commit()
@@ -1709,11 +1950,15 @@ class ValuationService:
         """Launch-time catch-up if valuation or NAVs are stale."""
         today = date.today()
         async with self.session_factory() as session:
-            stmt = select(Investor.id).where(
-                Investor.valuation_status == "ready",
-                (Investor.valuation_computed_through.is_(None))
-                | (Investor.valuation_computed_through < today),
-            ).limit(1)
+            stmt = (
+                select(Investor.id)
+                .where(
+                    Investor.valuation_status == "ready",
+                    (Investor.valuation_computed_through.is_(None))
+                    | (Investor.valuation_computed_through < today),
+                )
+                .limit(1)
+            )
             behind = (await session.execute(stmt)).first() is not None
 
             stmt_all_inv = select(Investor.id)

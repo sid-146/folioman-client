@@ -103,7 +103,9 @@ def _event_descriptor(step: ReplayStep) -> dict:
         "subject": action.subject,
         "ex_date": action.ex_date.isoformat(),
         "unit_multiplier": (
-            _fmt_units(action.unit_multiplier) if action.unit_multiplier is not None else ""
+            _fmt_units(action.unit_multiplier)
+            if action.unit_multiplier is not None
+            else ""
         ),
         "reference_id": action.reference_id,
         "units_before": _fmt_units(step.units_before),
@@ -142,7 +144,9 @@ def _effective_steps(steps: list[ReplayStep]) -> list[ReplayStep]:
     return [s for s in steps if s.units_after != s.units_before]
 
 
-def _applicable_scaling(actions: list[CachedCorporateAction]) -> list[CachedCorporateAction]:
+def _applicable_scaling(
+    actions: list[CachedCorporateAction],
+) -> list[CachedCorporateAction]:
     """Cached scaling events that can be auto-applied (parsed, not flagged)."""
     return [
         a
@@ -220,7 +224,11 @@ def detect_corporate_action_issues(
                 return [issue]
         if replay is not None and replay.replayed_units < _ZERO:
             return [_manual_issue("incomplete_history")]
-        if replay is not None and holding_units is not None and _applicable_scaling(cached_actions):
+        if (
+            replay is not None
+            and holding_units is not None
+            and _applicable_scaling(cached_actions)
+        ):
             return [_manual_issue("replay_mismatch")]
         return [_manual_issue("incomplete_history")]
 
@@ -266,7 +274,9 @@ def detect_corporate_action_issues(
         matches.sort(key=lambda a: a.ex_date, reverse=True)
         # No real timeline here; the fallback assumes the whole position scaled, so
         # before/after are the net and holding totals.
-        step = ReplayStep(action=matches[0], units_before=net_units, units_after=holding_units)
+        step = ReplayStep(
+            action=matches[0], units_before=net_units, units_after=holding_units
+        )
         return [_suggestion_issue([step])]
 
     return [_manual_issue("ratio_without_matching_event", unit_ratio=str(ratio))]
@@ -274,7 +284,9 @@ def detect_corporate_action_issues(
 
 def strip_corporate_action_issues(issues: list[dict]) -> list[dict]:
     """Remove prior corporate-action issues before re-detection."""
-    return [i for i in issues if not str(i.get("type", "")).startswith("corporate_action_")]
+    return [
+        i for i in issues if not str(i.get("type", "")).startswith("corporate_action_")
+    ]
 
 
 def strip_opening_lot_issues(issues: list[dict]) -> list[dict]:

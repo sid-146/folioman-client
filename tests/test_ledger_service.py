@@ -58,9 +58,7 @@ async def test_list_investors_filtering(ledger_service: LedgerService):
     inv3 = await ledger_service.create_investor(
         user_id="advisor_1", name="Charlie", family_id=None
     )
-    inv_other = await ledger_service.create_investor(
-        user_id="advisor_2", name="Dave"
-    )
+    inv_other = await ledger_service.create_investor(user_id="advisor_2", name="Dave")
 
     all_adv1 = await ledger_service.list_investors(user_id="advisor_1")
     assert len(all_adv1) == 3
@@ -89,9 +87,7 @@ async def test_create_and_list_folios(ledger_service: LedgerService):
     assert f1["amc_code"] == "HDFC"
 
     # Creating identical folio should return existing
-    f1_dup = await ledger_service.create_folio(
-        inv["id"], "12345/6", amc_code="HDFC"
-    )
+    f1_dup = await ledger_service.create_folio(inv["id"], "12345/6", amc_code="HDFC")
     assert f1_dup["id"] == f1["id"]
 
     f2 = await ledger_service.create_folio(
@@ -200,7 +196,9 @@ async def test_merge_folios(ledger_service: LedgerService):
     f_target = await ledger_service.create_folio(inv["id"], "999/1", amc_code="UTI")
 
     async with ledger_service.session_factory() as session:
-        sec = Security(name="UTI Nifty 50 Index Fund", isin="INF789F01010", security_type="MF")
+        sec = Security(
+            name="UTI Nifty 50 Index Fund", isin="INF789F01010", security_type="MF"
+        )
         session.add(sec)
         await session.commit()
         sec_id = sec.id

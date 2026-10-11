@@ -27,15 +27,21 @@ def list_cmd(ctx: click.Context, investor_id: int, include_unreconciled: bool) -
     """List realized STCG and LTCG across every financial year."""
     service = CapitalGainsService()
     fys = asyncio.run(
-        service.list_capital_gains_by_fy(investor_id, include_unreconciled=include_unreconciled)
+        service.list_capital_gains_by_fy(
+            investor_id, include_unreconciled=include_unreconciled
+        )
     )
 
     if not fys:
         click.echo(f"No realized capital gains recorded for investor {investor_id}.")
         return
 
-    click.echo(f"\nRealized Capital Gains by Financial Year for Investor {investor_id}:")
-    click.echo(f"{'FY':<10} {'STCG (INR)':>16} {'LTCG (INR)':>16} {'Net Total (INR)':>18}")
+    click.echo(
+        f"\nRealized Capital Gains by Financial Year for Investor {investor_id}:"
+    )
+    click.echo(
+        f"{'FY':<10} {'STCG (INR)':>16} {'LTCG (INR)':>16} {'Net Total (INR)':>18}"
+    )
     click.echo("-" * 64)
     for pt in fys:
         net = pt["stcg"] + pt["ltcg"]

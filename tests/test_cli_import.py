@@ -32,7 +32,12 @@ def test_cli_import_cas_success(tmp_path: Path, monkeypatch) -> None:
     pdf_file = tmp_path / "sample_cas.pdf"
     pdf_file.write_bytes(b"%PDF-1.4 dummy CAS stream")
 
-    sec = CoreSecurity(type=SecurityType.MF, name="Nippon India Small Cap", isin="INF204K01914", amfi_code="119598")
+    sec = CoreSecurity(
+        type=SecurityType.MF,
+        name="Nippon India Small Cap",
+        isin="INF204K01914",
+        amfi_code="119598",
+    )
     fol = CoreFolio(folio_type="mf", number="555/0", amc_code="NIPPON")
     block = MfCasSchemeBlock(
         security=sec,
@@ -58,13 +63,25 @@ def test_cli_import_cas_success(tmp_path: Path, monkeypatch) -> None:
         statement_to=date(2026, 2, 28),
         schemes=[block],
     )
-    identity = CasInvestorIdentity(name="Vikram Seth", email="vikram@example.com", pan="ABCDE9999K")
+    identity = CasInvestorIdentity(
+        name="Vikram Seth", email="vikram@example.com", pan="ABCDE9999K"
+    )
     mock_parsed = ParsedCas(mf=stmt, investor=identity)
 
-    with patch("folioman_client.services.import_service.read_cas", return_value=mock_parsed):
+    with patch(
+        "folioman_client.services.import_service.read_cas", return_value=mock_parsed
+    ):
         res = runner.invoke(
             cli,
-            ["--database-url", db_url, "import", "cas", str(pdf_file), "--password", "testpass"],
+            [
+                "--database-url",
+                db_url,
+                "import",
+                "cas",
+                str(pdf_file),
+                "--password",
+                "testpass",
+            ],
         )
 
     assert res.exit_code == 0
@@ -83,10 +100,21 @@ def test_cli_import_cas_wrong_password(tmp_path: Path, monkeypatch) -> None:
     pdf_file = tmp_path / "locked.pdf"
     pdf_file.write_bytes(b"%PDF-1.4 locked stream")
 
-    with patch("folioman_client.services.import_service.read_cas", side_effect=CASPasswordError("Incorrect PDF password")):
+    with patch(
+        "folioman_client.services.import_service.read_cas",
+        side_effect=CASPasswordError("Incorrect PDF password"),
+    ):
         res = runner.invoke(
             cli,
-            ["--database-url", db_url, "import", "cas", str(pdf_file), "--password", "wrongpass"],
+            [
+                "--database-url",
+                db_url,
+                "import",
+                "cas",
+                str(pdf_file),
+                "--password",
+                "wrongpass",
+            ],
         )
 
     assert res.exit_code != 0

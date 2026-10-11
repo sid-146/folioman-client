@@ -99,21 +99,28 @@ class IndiaTaxPolicy:
 
     def classify_term(self, disposal: Disposal, *, asset_type: SecurityType) -> Term:
         if disposal.is_buyback and disposal.sold_on <= BUYBACK_CG_EXEMPT_UNTIL:
-            return Term.EXEMPT  # s.10(34A): buyback gain not chargeable to capital gains
+            return (
+                Term.EXEMPT
+            )  # s.10(34A): buyback gain not chargeable to capital gains
         if not is_112a_eligible(disposal.security):
             return Term.SHORT
         if is_long_term_equity(disposal.acquired_on, disposal.sold_on):
             return Term.LONG
         return Term.SHORT
 
-    def adjusted_cost(self, disposal: Disposal, *, fmv_lookup: FmvLookup | None = None) -> Decimal:
+    def adjusted_cost(
+        self, disposal: Disposal, *, fmv_lookup: FmvLookup | None = None
+    ) -> Decimal:
         """Cost of acquisition (grandfathered for pre-2018 LTCG). Excludes transfer fees.
 
         Quantized to 2dp with banker's rounding to byte-match casparser's
         ``round(gain_units * purchase_nav, 2)`` semantics per Section 48.
         """
         original = _money(disposal.units * disposal.cost_per_unit)
-        if self.classify_term(disposal, asset_type=disposal.security.type) is not Term.LONG:
+        if (
+            self.classify_term(disposal, asset_type=disposal.security.type)
+            is not Term.LONG
+        ):
             return original
         if disposal.acquired_on > GRANDFATHER_ACQUIRE_CUTOFF:
             return original
@@ -139,7 +146,9 @@ class IndiaTaxPolicy:
         user may overpay rather than silently dropping the benefit.
         """
         notes: dict[str, Any] = {}
-        is_long = self.classify_term(disposal, asset_type=disposal.security.type) is Term.LONG
+        is_long = (
+            self.classify_term(disposal, asset_type=disposal.security.type) is Term.LONG
+        )
         if is_long and disposal.acquired_on <= GRANDFATHER_ACQUIRE_CUTOFF:
             fmv = (
                 fmv_lookup(disposal.security.isin, GRANDFATHER_FMV_DATE)

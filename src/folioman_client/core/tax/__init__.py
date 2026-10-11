@@ -4,7 +4,10 @@ from folioman_client.core.tax.india import IndiaTaxPolicy
 from folioman_client.core.tax.ltcg_stcg import compute_gain_lines
 from folioman_client.core.tax.models import Disposal, GainLine, TaxYear, Term
 from folioman_client.core.tax.policy import TaxPolicy, get_policy
-from folioman_client.core.tax.schedule_112a import Schedule112ARow, compute_schedule_112a
+from folioman_client.core.tax.schedule_112a import (
+    Schedule112ARow,
+    compute_schedule_112a,
+)
 
 __all__ = [
     "Disposal",

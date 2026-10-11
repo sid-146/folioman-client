@@ -68,7 +68,9 @@ async def test_resolve_isin_mutual_fund(isin_service: ISINService) -> None:
 
 
 @pytest.mark.asyncio
-async def test_resolve_isin_case_and_whitespace_insensitivity(isin_service: ISINService) -> None:
+async def test_resolve_isin_case_and_whitespace_insensitivity(
+    isin_service: ISINService,
+) -> None:
     await isin_service.seed_reference_data()
 
     res_lower = await isin_service.resolve_isin("  inf179k01319  ")

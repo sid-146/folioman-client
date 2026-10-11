@@ -381,7 +381,9 @@ async def test_tax_readiness_integrity_gating(
         inv_id = inv.id
 
     # 1. By default, only reconciled is included (1 disposal)
-    report_default = await capital_gains_service.get_capital_gains_report(inv_id, "2024-25")
+    report_default = await capital_gains_service.get_capital_gains_report(
+        inv_id, "2024-25"
+    )
     assert len(report_default["rows"]) == 1
 
     # 2. With include_unreconciled=True, reconciled + unreconciled are included (2 disposals).

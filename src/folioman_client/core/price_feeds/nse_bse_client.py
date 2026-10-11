@@ -162,9 +162,15 @@ class ExchangeClient:
         real guard. The capped body is rebuilt into a normal ``httpx.Response`` so
         callers keep using ``.json()`` / ``.content`` / ``raise_for_status``.
         """
-        with self._client.stream("GET", path, params=params, headers=headers) as response:
+        with self._client.stream(
+            "GET", path, params=params, headers=headers
+        ) as response:
             declared = response.headers.get("content-length")
-            if declared is not None and declared.isdigit() and int(declared) > MAX_RESPONSE_BYTES:
+            if (
+                declared is not None
+                and declared.isdigit()
+                and int(declared) > MAX_RESPONSE_BYTES
+            ):
                 msg = f"exchange response too large (declared {declared} bytes)"
                 raise ResponseTooLargeError(msg)
             chunks: list[bytes] = []

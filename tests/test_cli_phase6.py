@@ -14,7 +14,10 @@ def test_cli_portfolio_help():
     runner = CliRunner()
     result = runner.invoke(cli, ["portfolio", "--help"])
     assert result.exit_code == 0
-    assert "Query portfolio summaries, valuations, and performance metrics." in result.output
+    assert (
+        "Query portfolio summaries, valuations, and performance metrics."
+        in result.output
+    )
     assert "summary" in result.output
 
 
@@ -40,9 +43,7 @@ def test_cli_portfolio_summary():
                 "return_pct": 0.25,
             }
         ],
-        "period_returns": [
-            {"period": "1Y", "annualized": 0.15, "absolute": 0.15}
-        ],
+        "period_returns": [{"period": "1Y", "annualized": 0.15, "absolute": 0.15}],
     }
     with patch(
         "folioman_client.cli.portfolio.ValuationService.build_investor_summary",
@@ -63,7 +64,10 @@ def test_cli_valuations_help():
     runner = CliRunner()
     result = runner.invoke(cli, ["valuations", "--help"])
     assert result.exit_code == 0
-    assert "Manage daily valuation series, status checks, and recompute ticks." in result.output
+    assert (
+        "Manage daily valuation series, status checks, and recompute ticks."
+        in result.output
+    )
     assert "status" in result.output
     assert "series" in result.output
     assert "tick" in result.output
@@ -135,26 +139,33 @@ def test_cli_valuations_series():
         new_callable=AsyncMock,
         return_value=mock_series,
     ) as mock_val_series:
-        result = runner.invoke(cli, ["valuations", "series", "-i", "7", "-g", "monthly"])
+        result = runner.invoke(
+            cli, ["valuations", "series", "-i", "7", "-g", "monthly"]
+        )
         assert result.exit_code == 0
         assert "Net-Worth Series for Investor 7 (Monthly):" in result.output
         assert "2024-01-01" in result.output
         assert "50,000.00" in result.output
         assert "YES" in result.output
-        mock_val_series.assert_awaited_once_with(7, from_date=None, to_date=None, granularity="monthly")
+        mock_val_series.assert_awaited_once_with(
+            7, from_date=None, to_date=None, granularity="monthly"
+        )
 
 
 def test_cli_valuations_tick():
     runner = CliRunner()
-    with patch(
-        "folioman_client.cli.valuations.ValuationService.process_pending_valuations",
-        new_callable=AsyncMock,
-        return_value=3,
-    ) as mock_proc, patch(
-        "folioman_client.cli.valuations.ValuationService.enqueue_daily_extend",
-        new_callable=AsyncMock,
-        return_value=5,
-    ) as mock_ext:
+    with (
+        patch(
+            "folioman_client.cli.valuations.ValuationService.process_pending_valuations",
+            new_callable=AsyncMock,
+            return_value=3,
+        ) as mock_proc,
+        patch(
+            "folioman_client.cli.valuations.ValuationService.enqueue_daily_extend",
+            new_callable=AsyncMock,
+            return_value=5,
+        ) as mock_ext,
+    ):
         # Tick pending
         res_p = runner.invoke(cli, ["valuations", "tick", "--pending"])
         assert res_p.exit_code == 0
@@ -172,7 +183,10 @@ def test_cli_capital_gains_help():
     runner = CliRunner()
     result = runner.invoke(cli, ["capital-gains", "--help"])
     assert result.exit_code == 0
-    assert "Compute and report realized capital gains (STCG/LTCG) and Schedule 112A." in result.output
+    assert (
+        "Compute and report realized capital gains (STCG/LTCG) and Schedule 112A."
+        in result.output
+    )
     assert "list" in result.output
     assert "report" in result.output
 
@@ -190,7 +204,9 @@ def test_cli_capital_gains_list():
     ) as mock_list:
         result = runner.invoke(cli, ["capital-gains", "list", "-i", "1"])
         assert result.exit_code == 0
-        assert "Realized Capital Gains by Financial Year for Investor 1:" in result.output
+        assert (
+            "Realized Capital Gains by Financial Year for Investor 1:" in result.output
+        )
         assert "2023-24" in result.output
         assert "15,000.00" in result.output
         assert "30,000.00" in result.output
@@ -222,7 +238,11 @@ def test_cli_capital_gains_report_with_csv(tmp_path):
     mock_s112a = {
         "fy": "2024-25",
         "row_count": 1,
-        "columns": ["ISIN Code(2)", "Name of the Share/Unit(3)", "Balance(14) = 6 - 13"],
+        "columns": [
+            "ISIN Code(2)",
+            "Name of the Share/Unit(3)",
+            "Balance(14) = 6 - 13",
+        ],
         "rows": [
             {
                 "ISIN Code(2)": "INE155A01022",
@@ -233,15 +253,18 @@ def test_cli_capital_gains_report_with_csv(tmp_path):
     }
     csv_file = tmp_path / "schedule112a.csv"
 
-    with patch(
-        "folioman_client.cli.capital_gains.CapitalGainsService.get_capital_gains_report",
-        new_callable=AsyncMock,
-        return_value=mock_rep,
-    ) as mock_report, patch(
-        "folioman_client.cli.capital_gains.CapitalGainsService.get_schedule_112a",
-        new_callable=AsyncMock,
-        return_value=mock_s112a,
-    ) as mock_csv:
+    with (
+        patch(
+            "folioman_client.cli.capital_gains.CapitalGainsService.get_capital_gains_report",
+            new_callable=AsyncMock,
+            return_value=mock_rep,
+        ) as mock_report,
+        patch(
+            "folioman_client.cli.capital_gains.CapitalGainsService.get_schedule_112a",
+            new_callable=AsyncMock,
+            return_value=mock_s112a,
+        ) as mock_csv,
+    ):
         result = runner.invoke(
             cli,
             [
@@ -259,7 +282,9 @@ def test_cli_capital_gains_report_with_csv(tmp_path):
         assert "Capital Gains Report: Investor 1 (FY 2024-25)" in result.output
         assert "Tata Motors" in result.output
         assert "10,000.00" in result.output
-        assert f"Exporting official Schedule 112A CSV to {str(csv_file)}" in result.output
+        assert (
+            f"Exporting official Schedule 112A CSV to {str(csv_file)}" in result.output
+        )
         assert f"Successfully exported 1 rows to {str(csv_file)}" in result.output
         mock_report.assert_awaited_once_with(1, "2024-25", include_unreconciled=False)
         mock_csv.assert_awaited_once_with(1, "2024-25", include_unreconciled=False)

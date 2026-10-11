@@ -46,4 +46,6 @@ def coerce_optional_decimal(value: object) -> Decimal | None:
 
 
 DecimalField = Annotated[Decimal, BeforeValidator(coerce_decimal)]
-OptionalDecimalField = Annotated[Decimal | None, BeforeValidator(coerce_optional_decimal)]
+OptionalDecimalField = Annotated[
+    Decimal | None, BeforeValidator(coerce_optional_decimal)
+]

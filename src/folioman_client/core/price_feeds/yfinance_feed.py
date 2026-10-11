@@ -54,12 +54,12 @@ _RETRYABLE_STATUS = frozenset({429, 500, 502, 503, 504})
 _SLEEP = time.sleep
 
 
-
-
 def shared_client() -> httpx.Client:
     """A client for a batch of calls — one pooled connection across tickers
     instead of a fresh TLS handshake per symbol. Caller closes."""
-    return httpx.Client(base_url=BASE_URL, timeout=DEFAULT_TIMEOUT, headers=_DEFAULT_HEADERS)
+    return httpx.Client(
+        base_url=BASE_URL, timeout=DEFAULT_TIMEOUT, headers=_DEFAULT_HEADERS
+    )
 
 
 def yahoo_symbol(symbol: str, exchange: str = "") -> str:
@@ -143,7 +143,9 @@ def fetch_history(
         params.append(f"period2={_epoch(upper) + 86400}")
     else:
         params.append("range=max")
-    payload = _fetch_json(f"/v8/finance/chart/{ticker}?{'&'.join(params)}", client=client)
+    payload = _fetch_json(
+        f"/v8/finance/chart/{ticker}?{'&'.join(params)}", client=client
+    )
 
     chart = payload.get("chart") or {}
     err = chart.get("error")
@@ -189,7 +191,9 @@ def _is_transient(exc: Exception) -> bool:
 def _fetch_json(path: str, *, client: httpx.Client | None) -> dict:
     owned = client is None
     if owned:
-        client = httpx.Client(base_url=BASE_URL, timeout=DEFAULT_TIMEOUT, headers=_DEFAULT_HEADERS)
+        client = httpx.Client(
+            base_url=BASE_URL, timeout=DEFAULT_TIMEOUT, headers=_DEFAULT_HEADERS
+        )
     try:
         for attempt in range(_MAX_RETRIES + 1):
             try:

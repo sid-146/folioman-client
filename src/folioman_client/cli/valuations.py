@@ -18,7 +18,9 @@ def valuations_group() -> None:
 @click.option("--investor-id", "-i", type=int, default=None, help="Investor ID.")
 @click.option("--family-id", "-f", type=int, default=None, help="Family ID.")
 @click.pass_context
-def status_cmd(ctx: click.Context, investor_id: int | None, family_id: int | None) -> None:
+def status_cmd(
+    ctx: click.Context, investor_id: int | None, family_id: int | None
+) -> None:
     """Check valuation calculation status and coverage."""
     if investor_id is None and family_id is None:
         raise click.UsageError("Must provide either --investor-id or --family-id")
@@ -43,10 +45,11 @@ def status_cmd(ctx: click.Context, investor_id: int | None, family_id: int | Non
         click.echo("-" * 40)
 
 
-
 @valuations_group.command(name="series")
 @click.option("--investor-id", "-i", type=int, required=True, help="Investor ID.")
-@click.option("--from", "from_date", type=str, default=None, help="Start date (YYYY-MM-DD).")
+@click.option(
+    "--from", "from_date", type=str, default=None, help="Start date (YYYY-MM-DD)."
+)
 @click.option("--to", "to_date", type=str, default=None, help="End date (YYYY-MM-DD).")
 @click.option(
     "--granularity",
@@ -69,11 +72,17 @@ def series_cmd(
 
     service = ValuationService()
     series = asyncio.run(
-        service.value_series(investor_id, from_date=f_date, to_date=t_date, granularity=granularity)
+        service.value_series(
+            investor_id, from_date=f_date, to_date=t_date, granularity=granularity
+        )
     )
 
-    click.echo(f"\nNet-Worth Series for Investor {investor_id} ({granularity.title()}):")
-    click.echo(f"{'Date':<12} {'Valuation (INR)':>18} {'Cost Basis (INR)':>18} {'Stale':>8}")
+    click.echo(
+        f"\nNet-Worth Series for Investor {investor_id} ({granularity.title()}):"
+    )
+    click.echo(
+        f"{'Date':<12} {'Valuation (INR)':>18} {'Cost Basis (INR)':>18} {'Stale':>8}"
+    )
     click.echo("-" * 60)
     for pt in series["points"]:
         stale_flag = "YES" if pt.get("stale") else "no"

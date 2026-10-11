@@ -640,7 +640,6 @@ class SecurityIntegrityStatus(Base, TimeStampedMixin):
     folio: Mapped[Folio] = relationship("Folio")
 
     __table_args__ = (
-
         UniqueConstraint(
             "investor_id",
             "security_id",

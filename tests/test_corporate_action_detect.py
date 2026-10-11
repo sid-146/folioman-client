@@ -63,7 +63,9 @@ def test_orphan_never_auto_suggests():
         incomplete_history=False,
         cached_actions=[_bonus_3_1()],
     )
-    assert issues == [{"type": "corporate_action_manual", "reason": "incomplete_history"}]
+    assert issues == [
+        {"type": "corporate_action_manual", "reason": "incomplete_history"}
+    ]
 
 
 def test_incomplete_history_flag_never_auto_suggests_without_replay():
@@ -94,7 +96,9 @@ def test_incomplete_history_replay_match_still_suggests():
         replay=ReplayMatch(
             replayed_units=Decimal("0"),
             steps=[
-                ReplayStep(action=split, units_before=Decimal("1"), units_after=Decimal("2")),
+                ReplayStep(
+                    action=split, units_before=Decimal("1"), units_after=Decimal("2")
+                ),
             ],
         ),
     )
@@ -122,11 +126,15 @@ def test_oversold_with_no_holding_flags_incomplete_not_a_suggestion():
         replay=ReplayMatch(
             replayed_units=Decimal("0"),  # the bonus lifts the orphan to net 0
             steps=[
-                ReplayStep(action=bonus, units_before=Decimal("17"), units_after=Decimal("20")),
+                ReplayStep(
+                    action=bonus, units_before=Decimal("17"), units_after=Decimal("20")
+                ),
             ],
         ),
     )
-    assert issues == [{"type": "corporate_action_manual", "reason": "incomplete_history"}]
+    assert issues == [
+        {"type": "corporate_action_manual", "reason": "incomplete_history"}
+    ]
 
 
 def test_reconciled_no_issues():
@@ -227,7 +235,9 @@ def test_replay_match_suggests_despite_post_event_buys():
             replayed_units=Decimal("70"),
             steps=[
                 ReplayStep(
-                    action=_bonus_1_1(), units_before=Decimal("15"), units_after=Decimal("30")
+                    action=_bonus_1_1(),
+                    units_before=Decimal("15"),
+                    units_after=Decimal("30"),
                 )
             ],
         ),
@@ -257,8 +267,12 @@ def test_replay_match_handles_several_events():
         replay=ReplayMatch(
             replayed_units=Decimal("220"),
             steps=[
-                ReplayStep(action=a, units_before=Decimal("50"), units_after=Decimal("100")),
-                ReplayStep(action=b, units_before=Decimal("110"), units_after=Decimal("220")),
+                ReplayStep(
+                    action=a, units_before=Decimal("50"), units_after=Decimal("100")
+                ),
+                ReplayStep(
+                    action=b, units_before=Decimal("110"), units_after=Decimal("220")
+                ),
             ],
         ),
     )
@@ -277,7 +291,9 @@ def test_replay_that_does_not_reconcile_flags_manual():
             replayed_units=Decimal("60"),
             steps=[
                 ReplayStep(
-                    action=_bonus_1_1(), units_before=Decimal("15"), units_after=Decimal("30")
+                    action=_bonus_1_1(),
+                    units_before=Decimal("15"),
+                    units_after=Decimal("30"),
                 )
             ],
         ),
@@ -324,8 +340,14 @@ def test_suggestion_drops_already_applied_no_op_steps():
         replay=ReplayMatch(
             replayed_units=Decimal("168"),
             steps=[
-                ReplayStep(action=split, units_before=Decimal("3.68"), units_after=Decimal("3.68")),
-                ReplayStep(action=bonus, units_before=Decimal("84"), units_after=Decimal("168")),
+                ReplayStep(
+                    action=split,
+                    units_before=Decimal("3.68"),
+                    units_after=Decimal("3.68"),
+                ),
+                ReplayStep(
+                    action=bonus, units_before=Decimal("84"), units_after=Decimal("168")
+                ),
             ],
         ),
     )
@@ -351,7 +373,11 @@ def test_orphan_cleared_by_split_suggests_partial_when_gap_remains():
         cached_actions=[split],
         replay=ReplayMatch(
             replayed_units=Decimal("0"),
-            steps=[ReplayStep(action=split, units_before=Decimal("1"), units_after=Decimal("2"))],
+            steps=[
+                ReplayStep(
+                    action=split, units_before=Decimal("1"), units_after=Decimal("2")
+                )
+            ],
         ),
     )
     assert issues[0]["type"] == "corporate_action_suggestion"
@@ -384,7 +410,11 @@ def test_orphan_not_cleared_stays_incomplete():
         replay=ReplayMatch(
             replayed_units=Decimal("-600"),
             steps=[
-                ReplayStep(action=_bonus_1_1(), units_before=Decimal("0"), units_after=Decimal("0"))
+                ReplayStep(
+                    action=_bonus_1_1(),
+                    units_before=Decimal("0"),
+                    units_after=Decimal("0"),
+                )
             ],
         ),
     )
