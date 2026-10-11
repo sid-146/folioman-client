@@ -72,6 +72,8 @@ class SchemeReference(Base, TimeStampedMixin):
     isin: Mapped[str] = mapped_column(String(12), index=True, default="")
     amfi_code: Mapped[str] = mapped_column(String(16), index=True, default="")
     type: Mapped[str] = mapped_column(String(32), default="")
+    amc_code: Mapped[str] = mapped_column(String(32), index=True, default="")
+    sebi_category: Mapped[str] = mapped_column(String(128), default="")
 
 
 class ISINReference(Base, TimeStampedMixin):
@@ -86,6 +88,7 @@ class ISINReference(Base, TimeStampedMixin):
     symbol: Mapped[str] = mapped_column(String(32), index=True, default="")
     name: Mapped[str] = mapped_column(String(255), default="")
     exchange: Mapped[str] = mapped_column(String(16), default="")
+    type: Mapped[str] = mapped_column(String(64), default="")
 
 
 class GrandfatheringNAV(Base, TimeStampedMixin):
