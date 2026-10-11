@@ -1,32 +1,67 @@
 # Folioman Client
 
-[![PyPI version](https://img.shields.io/badge/pypi-v0.1.0-blue.svg)](https://pypi.org/project/folioman-client/)
-[![Python versions](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://pypi.org/project/folioman-client/)
+[![PyPI version](https://img.shields.io/badge/pypi-v0.2.0-blue.svg)](https://pypi.org/project/folioman-client/)
+[![Python versions](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://pypi.org/project/folioman-client/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Typed asynchronous Python SDK for the **Folioman REST API**.
+An embedded, typed Python portfolio engine and CLI for Indian mutual funds and equities.
 
-The `folioman-client` library provides a high-performance, asynchronous, and strictly typed interface for financial advisors, wealth management platforms, and algorithmic systems to interact with Folioman services.
+The `folioman-client` library provides a high-performance, asynchronous financial engine that can be embedded directly into wealth management backends, financial analysis scripts, notebooks, or desktop applications. It also ships with a command-line interface (`folioman`) for statement ingestion and portfolio maintenance.
 
-!!! important "Service Dependency"
-    This client library depends on a running instance of the **[Folioman](https://github.com/codereverser/folioman)** backend service. Ensure your Folioman API server is running and accessible (by default at `http://localhost:8000`, or configured via `base_url` / `FOLIOMAN_BASE_URL`) before connecting.
+!!! note "Self-Contained & Embedded"
+Starting with **v0.2.0**, `folioman-client` is completely serverless. It does not require a running external Folioman web server, Docker daemon, or Django setup. It uses an embedded SQLite database by default, with pluggable support for PostgreSQL and MySQL.
+
+---
+
+## Architectural Overview
+
+```mermaid
+graph TD
+    UserApp[Python Application / CLI] --> Client[FoliomanClient API / CLI]
+    Client --> Ingestion[Statement Ingestion Engine]
+    Client --> Domain[Domain Calculations]
+    Client --> Feeds[Live Price Feeds]
+    Client --> DB[(SQLAlchemy 2.0 Database)]
+
+    subgraph Ingestion Pipeline
+        Ingestion --> CAS[CAMS / KFintech CAS PDF]
+        Ingestion --> eCAS[NSDL / CDSL eCAS PDF]
+        Ingestion --> CSV[Arbitrary Tradebook CSV]
+    end
+
+    subgraph Domain Engine
+        Domain --> FIFO[FIFO Lot Allocator]
+        Domain --> XIRR[Newton-Raphson XIRR Solver]
+        Domain --> Tax[Schedule 112A Tax Engine]
+        Domain --> CA[Corporate Actions Replayer]
+        Domain --> Reconcile[Balance Reconciliation]
+    end
+
+    subgraph Market Feeds
+        Feeds --> MF[mfapi.in & AMFI Bulk NAVs]
+        Feeds --> Stock[Yahoo Finance & NSE Bhavcopy]
+        Feeds --> Crypto[CoinGecko Quotes]
+    end
+
+    subgraph Selected Database
+        DB --> PortfolioTables[(User Ledgers & Valuations)]
+        DB --> NAVTables[(Daily NAV & Price History)]
+        DB --> ISINTables[(ISIN & Scheme Reference Master)]
+    end
+```
 
 ---
 
 ## Key Features
 
-- **Asynchronous Transport**: Built on `httpx.AsyncClient` with native HTTP/2 support, connection pooling, and configurable timeouts.
-- **Automated JWT Lifecycle**: Acquires tokens from `/api/auth/token/pair`, refreshes automatically via `/api/auth/token/refresh`, and transparently retries requests on HTTP 401.
-- **Concurrency-Safe Renewal**: Coordinates concurrent token refresh operations using an `asyncio.Lock` to guarantee single-flight renewal.
-- **Proactive Expiry Absorption**: Parses JWT expiry directly without third-party dependencies and refreshes tokens 30 seconds prior to expiration (`EXP_SKEW_SECONDS = 30`).
-- **Pydantic v2 Models**: Deserializes responses into strongly typed models with automatic `Decimal` and `date`/`datetime` serialization handling.
-- **Granular Error Handling**: Maps HTTP status codes into intuitive exception classes (`FoliomanAuthError`, `FoliomanNotFoundError`, `FoliomanAPIError`).
-
----
-
-## Supported Python Versions
-
-`folioman-client` requires **Python 3.11** or newer (tested on Python 3.11, 3.12, 3.13, and 3.14).
+- **Embedded Pluggable Storage**: Zero-configuration SQLite out of the box with automatic WAL mode and concurrency locks. Seamlessly connect to PostgreSQL or MySQL using standard connection URLs (`postgresql+psycopg://...`).
+- **Unified Single-Database Architecture**: User portfolios, transaction ledgers, historical NAV points, and the 100,000-row national ISIN reference dictionary are stored entirely within the configured database.
+- **Statement Ingestion**: Ingest CAMS/KFintech mutual fund statements and NSDL/CDSL eCAS demat statements directly, with idempotent SHA-256 deduplication and automatic partial-block convergence.
+- **Real-Time & Historical Feeds**: Multi-source quote fetching across `mfapi.in`, AMFI bulk text dumps, Yahoo Finance, and NSE Bhavcopy archives with automated historical gap filling.
+- **Accurate Financial Math**: First-In-First-Out (FIFO) lot accounting, Section 48 brokerage inclusions, and high-precision Newton-Raphson / bisection XIRR root-finding.
+- **Indian Capital Gains Tax (Schedule 112A)**: Full LTCG/STCG reporting, Section 112A grandfathering (31-Jan-2018 FMV lookup), and Budget 2024 regime cutoffs (23-Jul-2024).
+- **Non-Destructive Corporate Actions**: Dynamic event replay of stock splits, bonuses, mergers, and demergers on read without corrupting original tradebook contract notes.
+- **Full CLI Suite**: Terminal command suite (`folioman`) for statement imports, reference database updates, NAV refreshes, and valuations.
 
 ---
 
@@ -52,6 +87,14 @@ Install using standard Python package managers:
     poetry add folioman-client
     ```
 
+### Optional PostgreSQL Support
+
+To connect to a PostgreSQL database:
+
+```bash
+pip install "folioman-client[postgres]"
+```
+
 ---
 
 ## Minimal Example
@@ -62,21 +105,24 @@ from folioman_client import FoliomanClient
 
 
 async def main() -> None:
-    # Connect using environment variables or direct arguments
-    async with FoliomanClient(
-        base_url="http://localhost:8000",
-        username="advisor",
-        password="securepassword",
-    ) as client:
-        # Fetch list of accessible investors
-        investors = await client.investors.list()
-        for investor in investors:
-            print(f"Investor ID: {investor.id} | Name: {investor.name}")
+    # Zero-setup: defaults to local SQLite; or pass PostgreSQL URL
+    async with FoliomanClient() as client:
+        # Ingest statement
+        job = await client.imports.cas_pdf("cas_statement.pdf", password="MY_PAN_NUMBER")
+        print(f"Imported {job.result.get('transactions_created', 0)} transactions.")
 
-            # Fetch investor portfolio summary
-            portfolio = await client.portfolio.get(investor.id)
-            print(f"  Total Portfolio Value: INR {portfolio.total_inr:,.2f}")
-            print(f"  Holdings Count: {len(portfolio.holdings)}")
+        # Sync latest NAVs & prices
+        await client.navs.refresh()
+
+        # Query portfolio summary
+        summary = await client.portfolio.get(investor_id=1)
+        print(f"Total Value: INR {summary.total_inr:,.2f}")
+        print(f"XIRR: {summary.xirr * 100:.2f}%" if summary.xirr else "XIRR: N/A")
+
+        # Inspect priced holdings
+        holdings = await client.holdings.list(investor_id=1)
+        for h in holdings:
+            print(f"- {h.name}: {h.units} units | Value: INR {h.value_inr:,.2f}")
 
 
 if __name__ == "__main__":
@@ -85,41 +131,6 @@ if __name__ == "__main__":
 
 ---
 
-## Architecture Overview
+## Attribution & Acknowledgements
 
-```mermaid
-graph TD
-    App[User Application] --> Client[FoliomanClient]
-    Client --> Auth[JWTAuthManager]
-    Client --> ResInv[client.investors]
-    Client --> ResPort[client.portfolio]
-    Client --> ResHold[client.holdings]
-    Client --> ResTxn[client.transactions]
-    Client --> ResVal[client.valuations]
-    Client --> ResCG[client.capital_gains]
-
-    ResInv --> Transport[HTTP Transport / httpx]
-    ResPort --> Transport
-    ResHold --> Transport
-    ResTxn --> Transport
-    ResVal --> Transport
-    ResCG --> Transport
-
-    Transport --> FoliomanAPI[Folioman REST API]
-    Auth --> |Injects / Refreshes Bearer Token| Transport
-```
-
----
-
-## Navigation & Guides
-
-- [Getting Started](getting-started.md): Installation, client lifecycle, and first API requests.
-- [Configuration](configuration.md): Environment variables, `.env` files, and `FoliomanSettings`.
-- [Authentication](authentication.md): JWT flows, refresh locks, and proactive expiry absorption.
-- [Client API](client.md): Deep-dive into all client resources and methods.
-- [Models](models.md): Complete reference of Pydantic response models and custom types.
-- [Errors](errors.md): Exception hierarchy and robust error handling patterns.
-- [Examples](examples.md): Practical end-to-end recipes.
-- [API Reference](api-reference.md): Automatically generated API documentation from source code.
-- [Development](development.md): Contributing, testing, and building the package.
-- [GitHub Repository](https://github.com/sid-146/folioman-client): Issues, source code, and release notes.
+`folioman-client` is an independent Python library implementation under the **MIT License**. It is inspired by the architectural concepts, data schemas, and calculation rules of the open-source project **[Folioman](https://github.com/codereverser/folioman)** by `codereverser`. We gratefully acknowledge the Folioman project and its contributors.

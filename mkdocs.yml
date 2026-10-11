@@ -1,5 +1,5 @@
 site_name: Folioman Client
-site_description: Typed asynchronous Python SDK for the Folioman REST API.
+site_description: Embedded typed Python portfolio engine and CLI for Indian mutual funds and equities.
 site_url: https://sid-146.github.io/folioman-client/
 repo_name: sid-146/folioman-client
 repo_url: https://github.com/sid-146/folioman-client
@@ -63,9 +63,10 @@ markdown_extensions:
 nav:
     - Home: index.md
     - Getting Started: getting-started.md
-    - Configuration: configuration.md
-    - Authentication: authentication.md
-    - Client: client.md
+    - Storage & Database: configuration.md
+    - CLI Reference: cli.md
+    - Python Client SDK: client.md
+    - Security & Privacy: security.md
     - Models: models.md
     - Errors: errors.md
     - Examples: examples.md

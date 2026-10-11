@@ -1,12 +1,14 @@
-# Configuration
+# Storage & Configuration
 
-`folioman-client` uses Pydantic's `pydantic-settings` to manage configuration backed by environment variables and `.env` files.
+`folioman-client` is designed to be zero-setup by default, while supporting production databases (PostgreSQL, MySQL) via standard SQLAlchemy connection strings.
+
+Configuration is managed using Pydantic's `pydantic-settings`, reading from environment variables or a local `.env` file.
 
 ---
 
 ## The `FoliomanSettings` Class
 
-The configuration object is defined in `folioman_client.config.FoliomanSettings`. All settings use the `FOLIOMAN_` environment variable prefix.
+The settings object is defined in `folioman_client.config.FoliomanSettings`. All settings use the `FOLIOMAN_` environment variable prefix.
 
 ```python
 from folioman_client import FoliomanSettings
@@ -16,121 +18,105 @@ settings = FoliomanSettings()
 
 ### Settings Schema & Defaults
 
-| Setting Attribute | Environment Variable | Type    | Default Value             | Description                                                   |
-| :---------------- | :------------------- | :------ | :------------------------ | :------------------------------------------------------------ |
-| `base_url`        | `FOLIOMAN_BASE_URL`  | `str`   | `"http://localhost:8000"` | Root URL of the Folioman REST API service.                    |
-| `username`        | `FOLIOMAN_USERNAME`  | `str`   | `""`                      | Advisor username or client identifier for JWT authentication. |
-| `password`        | `FOLIOMAN_PASSWORD`  | `str`   | `""`                      | User password or secret credentials for JWT authentication.   |
-| `timeout`         | `FOLIOMAN_TIMEOUT`   | `float` | `30.0`                    | Default timeout in seconds applied to HTTP requests.          |
-
-### Helper Properties
-
-For backwards-compatibility and convenience, `FoliomanSettings` also exposes the following aliases:
-
-- `settings.folioman_url` -> returns `settings.base_url`
-- `settings.folioman_username` -> returns `settings.username`
-- `settings.folioman_password` -> returns `settings.password`
+| Setting Attribute | Environment Variable    | Type    | Default Value | Description                                                                        |
+| :---------------- | :---------------------- | :------ | :------------ | :--------------------------------------------------------------------------------- |
+| `database_url`    | `FOLIOMAN_DATABASE_URL` | `str`   | `""`          | SQLAlchemy connection URL. If empty, defaults to SQLite under `data_dir`.          |
+| `data_dir`        | `FOLIOMAN_DATA_DIR`     | `str`   | `""`          | Base directory for storage and logs. Defaults to OS user data dir (`~/.folioman`). |
+| `fernet_key`      | `FOLIOMAN_FERNET_KEY`   | `str`   | `""`          | 32-byte url-safe base64 key for PAN encryption. Auto-generated if omitted.         |
+| `timeout`         | `FOLIOMAN_TIMEOUT`      | `float` | `30.0`        | HTTP timeout (seconds) for external price feeds (mfapi, Yahoo, AMFI).              |
+| `user_id`         | `FOLIOMAN_USER_ID`      | `str`   | `"default"`   | Multi-tenancy tenant or advisor scope identifier.                                  |
 
 ---
 
-## Environment Variables and `.env` Files
+## Database Configuration
 
-`FoliomanSettings` automatically parses `.env` files in your working directory.
+Storage is fully pluggable via SQLAlchemy 2.0.
 
-### Example `.env` Configuration
+### 1. SQLite (Default)
 
-```dotenv
-# Folioman API Service Endpoint
-FOLIOMAN_BASE_URL=http://localhost:8000
+If no connection string is provided, `folioman-client` automatically resolves a file path under the user data directory:
 
-# Advisor Credentials
-FOLIOMAN_USERNAME=advisor@firm.com
-FOLIOMAN_PASSWORD=correct-horse-battery-staple
+- Linux: `~/.local/share/folioman/folioman.db`
+- macOS: `~/Library/Application Support/folioman/folioman.db`
+- Windows: `%LOCALAPPDATA%\folioman\folioman.db`
 
-# Request Timeout (seconds)
-FOLIOMAN_TIMEOUT=45.0
+#### SQLite Concurrency Guards
+
+To prevent `OperationalError: database is locked` errors during concurrent operations, `folioman-client` automatically configures every SQLite connection with:
+
+```sql
+PRAGMA journal_mode=WAL;
+PRAGMA synchronous=NORMAL;
+PRAGMA busy_timeout=5000;
 ```
 
-> [!WARNING]
-> **Never commit your `.env` files or hardcode passwords in version control.**
-> Add `.env` to your `.gitignore` file immediately. For containerized deployments (Docker, Kubernetes), supply configuration using environment secrets or secrets managers (e.g. AWS Secrets Manager, GCP Secret Manager, HashiCorp Vault).
+Transactions are executed in `IMMEDIATE` mode to prevent read-upgrade deadlocks.
 
----
+### 2. PostgreSQL (Production & Team Use)
 
-## Loading and Overriding Configuration
+For multi-user applications, web backends, or containerized deployments (Docker / Kubernetes), connect to PostgreSQL using `psycopg`:
 
-### 1. Default Global Settings (`settings`)
-
-A default pre-instantiated singleton is available via `folioman_client.settings`:
-
-```python
-from folioman_client import settings
-
-print(settings.base_url)
-print(settings.timeout)
+```bash
+export FOLIOMAN_DATABASE_URL="postgresql+psycopg://username:password@localhost:5432/portfolio"
 ```
 
-### 2. Loading via `from_env()`
-
-When initializing the client with `FoliomanClient.from_env()`, a fresh `FoliomanSettings()` instance is created reading current process environment variables:
+In Python:
 
 ```python
 from folioman_client import FoliomanClient
 
-async with FoliomanClient.from_env() as client:
-    # Uses environment variables
-    investors = await client.investors.list()
-```
-
-### 3. Programmatic Overrides with `from_settings()`
-
-You can instantiate `FoliomanSettings` programmatically with keyword arguments to override selected parameters:
-
-```python
-from folioman_client import FoliomanClient, FoliomanSettings
-
-custom_settings = FoliomanSettings(
-    base_url="https://folioman.staging.internal",
-    username="service_account_staging",
-    password="staging_password",
-    timeout=60.0,
+client = FoliomanClient(
+    database_url="postgresql+psycopg://username:password@localhost:5432/portfolio"
 )
-
-async with FoliomanClient.from_settings(custom_settings) as client:
-    investors = await client.investors.list()
 ```
 
-### 4. Direct Constructor Overrides
+Ensure `psycopg` is installed:
 
-Individual settings can also be overridden directly in `FoliomanClient.__init__`:
+```bash
+pip install "folioman-client[postgres]"
+```
 
-```python
-from folioman_client import FoliomanClient
+### 3. MySQL / MariaDB
 
-# Only override timeout while reading base_url and credentials from the environment
-async with FoliomanClient(timeout=10.0) as client:
-    investors = await client.investors.list()
+```bash
+export FOLIOMAN_DATABASE_URL="mysql+aiomysql://username:password@localhost:3306/portfolio"
 ```
 
 ---
 
-## Recommended Configurations
+## Unified Database Model
 
-### Local Development
+In `folioman-client` v0.2.0, **100% of data lives inside your configured database**:
 
-For local development against a dockerized or localhost Folioman instance:
+1. **User Portfolios & Ledgers**: Investors, folios, transactions, holdings, partial blocks, and daily net-worth points.
+2. **Market & Daily Prices**: Canonical securities, daily NAV history from AMFI / mfapi / Yahoo, and corporate action events.
+3. **Reference Master**: The 100,000-row national ISIN and mutual fund scheme reference dictionary (`ref_schemes`, `ref_isins`, `ref_grandfathering_navs`).
 
-```dotenv
-FOLIOMAN_BASE_URL=http://127.0.0.1:8000
-FOLIOMAN_USERNAME=dev_advisor
-FOLIOMAN_PASSWORD=dev_secret
-FOLIOMAN_TIMEOUT=15.0
-```
+This architecture ensures:
 
-### Production Workloads
+- **Stateless Applications**: You can spin up multiple containers or serverless workers pointing to a single RDS/PostgreSQL instance without needing shared persistent disk volumes.
+- **Single Backup**: A single `pg_dump` backup captures your entire portfolio and reference state.
 
-For production deployments:
+---
 
-1. **Use TLS/HTTPS**: Set `FOLIOMAN_BASE_URL` with an `https://` prefix to protect tokens in transit.
-2. **Dedicated Service Accounts**: Provision isolated advisor credentials for each background consumer or service.
-3. **Appropriate Timeouts**: Adjust `FOLIOMAN_TIMEOUT` based on report complexity. Large multi-year capital gains queries or valuation series can take several seconds to compute. A timeout of `30.0` to `60.0` seconds is typical.
+## Schema Initialization & Versioning
+
+`folioman-client` handles database creation and upgrades automatically.
+
+When `FoliomanClient()` initializes or when running `folioman isin seed`:
+
+1. It executes `Base.metadata.create_all()` to ensure all 18 tables exist.
+2. It inspects the `_schema_version` table.
+3. If an older version is detected, it automatically executes non-destructive schema migrations.
+
+---
+
+## Sensitive Data & PAN Encryption
+
+Under Indian data privacy guidelines, Permanent Account Numbers (PAN) must be protected.
+
+- **Encryption at Rest**: PANs are stored encrypted using symmetric Fernet encryption (`cryptography`).
+- **Deterministic Lookup**: An HMAC-SHA256 hash (`pan_hash`) is generated using the encryption key, allowing statements to match existing investors without decrypting all rows.
+- **Key Resolution**:
+    1. `FOLIOMAN_FERNET_KEY` environment variable.
+    2. Auto-generated file (`~/.folioman/fernet.key`) created with restricted owner permissions (`0600`).

@@ -1,222 +1,138 @@
-# Client API Reference
+# Python Client SDK
 
-The `FoliomanClient` is the primary entry point for interacting with all Folioman REST API resources.
+`FoliomanClient` is the primary entry point for embedding Folioman portfolio management into Python applications.
 
 ---
 
-## `FoliomanClient` Class
+## The `FoliomanClient` Class
 
 ```python
-class FoliomanClient:
-    def __init__(
-        self,
-        base_url: str | None = None,
-        username: str | None = None,
-        password: str | None = None,
-        timeout: float = 30.0,
-        http_client: httpx.AsyncClient | None = None,
-    ) -> None:
-        ...
+from folioman_client import FoliomanClient
+
+async with FoliomanClient(
+    database_url="sqlite+aiosqlite:///folioman.db",
+    user_id="default",
+    start_scheduler=False,
+) as client:
+    ...
 ```
 
 ### Constructor Parameters
 
-- `base_url` (_str | None_): The base URL of the Folioman REST API (e.g. `"http://localhost:8000"`). If omitted, falls back to `settings.base_url`.
-- `username` (_str | None_): The username or advisor account identifier. If omitted, falls back to `settings.username`.
-- `password` (_str | None_): The account password or secret token. If omitted, falls back to `settings.password`.
-- `timeout` (_float_): Network request timeout in seconds. Defaults to `30.0`.
-- `http_client` (_httpx.AsyncClient | None_): An optional pre-configured `httpx.AsyncClient`. When provided, `FoliomanClient` does not close this client on exit, allowing connection pooling across services.
-
----
-
-## Client Lifecycle & Context Management
-
-`FoliomanClient` manages HTTP connection pools and cached JWT authentication tokens.
-
-```python
-async with FoliomanClient.from_env() as client:
-    # Operations run within the active connection session
-    investors = await client.investors.list()
-# Connections are gracefully terminated upon block exit
-```
-
-### Methods
-
-#### `from_env()`
-
-```python
-@classmethod
-def from_env(cls) -> FoliomanClient
-```
-
-Factory method that initializes `FoliomanClient` using environment variables.
-
-#### `from_settings(settings)`
-
-```python
-@classmethod
-def from_settings(cls, settings: FoliomanSettings) -> FoliomanClient
-```
-
-Factory method that initializes `FoliomanClient` from a custom `FoliomanSettings` instance.
-
-#### `close()`
-
-```python
-async def close(self) -> None
-```
-
-Closes the underlying `httpx.AsyncClient` transport if created internally by the client.
-
-#### `request(...)`
-
-```python
-async def request(
-    self,
-    method: str,
-    path: str,
-    *,
-    params: dict[str, Any] | None = None,
-    json: Any | None = None,
-    headers: dict[str, str] | None = None,
-    **kwargs: Any,
-) -> Any
-```
-
-Low-level dispatcher that injects the authorization Bearer token, prefixes `/api/` automatically if missing, intercepts 401s for automatic renewal/retry, and translates HTTP status codes into structured exceptions.
+| Parameter         | Type          | Default     | Description                                                                                |
+| :---------------- | :------------ | :---------- | :----------------------------------------------------------------------------------------- |
+| `database_url`    | `str \| None` | `None`      | SQLAlchemy connection URL. If omitted, uses `settings.database_url` or defaults to SQLite. |
+| `user_id`         | `str`         | `"default"` | Multi-tenancy tenant or advisor scope identifier.                                          |
+| `timeout`         | `float`       | `30.0`      | Network timeout (seconds) for external price feeds.                                        |
+| `start_scheduler` | `bool`        | `False`     | If `True`, launches an in-process daemon thread scheduler for 6-hourly NAV refreshes.      |
 
 ---
 
 ## Resource Sub-Clients
 
-`FoliomanClient` organizes domain operations across six resource sub-clients:
+`FoliomanClient` exposes its capabilities through structured resource sub-clients:
 
 ```mermaid
 graph LR
-    Client[FoliomanClient]
-    Client --> Investors[client.investors]
-    Client --> Portfolio[client.portfolio]
-    Client --> Holdings[client.holdings]
-    Client --> Transactions[client.transactions]
-    Client --> Valuations[client.valuations]
-    Client --> CapitalGains[client.capital_gains]
+    Client[FoliomanClient] --> Inv[client.investors]
+    Client --> Port[client.portfolio]
+    Client --> Hold[client.holdings]
+    Client --> Txn[client.transactions]
+    Client --> Val[client.valuations]
+    Client --> CG[client.capital_gains]
+    Client --> Imp[client.imports]
+    Client --> Nav[client.navs]
+    Client --> ISIN[client.isin]
 ```
 
 ---
 
-### 1. `client.investors` (InvestorsResource)
+### 1. `client.investors`
 
-Endpoints for querying advisor-accessible investors and investor profile details.
+Manages investor profiles.
 
-#### `list(...)`
+#### `list()`
 
 ```python
 async def list(
-    self,
     *,
     family_id: int | None = None,
     unaffiliated: bool = False,
 ) -> list[Investor]
 ```
 
-Lists investors accessible to the authenticated advisor.
+Lists all investors belonging to the current `user_id`.
 
-- **Parameters**:
-    - `family_id` (_int | None_): Filter investors belonging to a specific family ID.
-    - `unaffiliated` (_bool_): If `True`, returns only investors not linked to a family group.
-- **Returns**: `list[Investor]`
-- **Example**:
-    ```python
-    investors = await client.investors.list(unaffiliated=True)
-    for inv in investors:
-        print(inv.id, inv.name)
-    ```
-
-#### `get(...)`
+#### `get()`
 
 ```python
-async def get(self, investor_id: int) -> InvestorDetail
+async def get(investor_id: int) -> InvestorDetail
 ```
 
-Fetches detailed profile information for an investor, including masked PAN.
+Retrieves detailed profile information for an investor, including masked PAN.
 
-- **Parameters**:
-    - `investor_id` (_int_): Investor ID.
-- **Returns**: `InvestorDetail`
-- **Example**:
-    ```python
-    investor = await client.investors.get(1)
-    print(investor.name, investor.pan_masked)
-    ```
+#### `create()`
+
+```python
+async def create(
+    name: str,
+    *,
+    pan: str | None = None,
+    email: str = "",
+    family_id: int | None = None,
+) -> InvestorDetail
+```
+
+Creates a new investor with an encrypted PAN.
 
 ---
 
-### 2. `client.portfolio` (PortfolioResource)
+### 2. `client.portfolio`
 
-Endpoints for querying aggregated portfolio summaries, metrics, and asset allocations.
+Retrieves consolidated portfolio valuation, asset allocation, and XIRR.
 
-#### `get(...)`
+#### `get()`
 
 ```python
 async def get(
-    self,
     investor_id: int,
     *,
     as_of: date | str | None = None,
 ) -> PortfolioSummary
 ```
 
-Fetches full portfolio metrics, total net worth, day change, XIRR, asset class mix, AMC mix, category breakdown, and holdings list.
+Calculates point-in-time portfolio metrics:
 
-- **Parameters**:
-    - `investor_id` (_int_): Investor ID.
-    - `as_of` (_date | str | None_): Optional point-in-time valuation date (`YYYY-MM-DD` string or `datetime.date`).
-- **Returns**: `PortfolioSummary`
-- **Example**:
-
-    ```python
-    from datetime import date
-
-    summary = await client.portfolio.get(1, as_of=date(2026, 3, 1))
-    print(f"Total Valuation: INR {summary.total_inr}")
-    print(f"Overall XIRR: {summary.xirr}")
-    ```
+- `total_inr`: Current market value.
+- `invested_inr`: Total invested amount (FIFO cost basis).
+- `unrealized_pnl_inr`: Absolute profit/loss.
+- `return_pct`: Total percentage gain.
+- `xirr`: Money-weighted annualized return.
+- `asset_mix`: Allocation across Equity, Debt, Hybrid, Other.
+- `holdings`: Full list of priced holdings.
 
 ---
 
-### 3. `client.holdings` (HoldingsResource)
+### 3. `client.holdings`
 
-Endpoints for querying priced holdings and individual scheme details.
+Queries individual positions and scheme details.
 
-#### `list(...)`
+#### `list()`
 
 ```python
 async def list(
-    self,
     investor_id: int,
     *,
     as_of: date | str | None = None,
 ) -> list[Holding]
 ```
 
-Returns all priced holdings under an investor (extracted from portfolio summary).
+Returns a list of all currently held securities with quantities, market value, invested cost, and scheme-level XIRR.
 
-- **Parameters**:
-    - `investor_id` (_int_): Investor ID.
-    - `as_of` (_date | str | None_): Optional point-in-time date.
-- **Returns**: `list[Holding]`
-- **Example**:
-    ```python
-    holdings = await client.holdings.list(1)
-    for h in holdings:
-        print(f"{h.name} - Units: {h.units} - Value: {h.value_inr}")
-    ```
-
-#### `get(...)`
+#### `get()`
 
 ```python
 async def get(
-    self,
     investor_id: int,
     security_id: int,
     *,
@@ -224,55 +140,32 @@ async def get(
 ) -> SchemeDetail
 ```
 
-Fetches detailed view of a single scheme holding, including folio balances, full historical NAV points, and transactions.
-
-- **Parameters**:
-    - `investor_id` (_int_): Investor ID.
-    - `security_id` (_int_): Security / Scheme ID.
-    - `as_of` (_date | str | None_): Optional point-in-time date.
-- **Returns**: `SchemeDetail`
-- **Example**:
-    ```python
-    scheme = await client.holdings.get(1, security_id=10)
-    print(f"Scheme: {scheme.security.name} ({scheme.security.isin})")
-    print(f"Historical NAV data points: {len(scheme.nav_history)}")
-    ```
+Returns detailed historical metrics for a single scheme, including transaction ledger, folio breakdowns, and NAV price points.
 
 ---
 
-### 4. `client.transactions` (TransactionsResource)
+### 4. `client.transactions`
 
-Endpoints for accessing raw transaction ledgers.
+Accesses the raw immutable ledger.
 
-#### `list(...)`
+#### `list()`
 
 ```python
-async def list(self, investor_id: int) -> list[Transaction]
+async def list(investor_id: int) -> list[Transaction]
 ```
 
-Returns all transaction ledger records (buys, sells, switches, dividends, STP, SIP) for an investor.
-
-- **Parameters**:
-    - `investor_id` (_int_): Investor ID.
-- **Returns**: `list[Transaction]`
-- **Example**:
-    ```python
-    txns = await client.transactions.list(1)
-    for t in txns:
-        print(f"Date: {t.date} | Type: {t.transaction_type} | Units: {t.units} | NAV: {t.nav_or_price}")
-    ```
+Returns all ledger entries (buys, sells, transfers, dividends) sorted chronologically.
 
 ---
 
-### 5. `client.valuations` (ValuationsResource)
+### 5. `client.valuations`
 
-Endpoints for historical net-worth series and valuation engine calculation status.
+Accesses net-worth time-series data.
 
-#### `list(...)`
+#### `list()`
 
 ```python
 async def list(
-    self,
     investor_id: int,
     *,
     from_date: date | str | None = None,
@@ -281,78 +174,38 @@ async def list(
 ) -> ValueSeries
 ```
 
-Reconstructs net-worth historical time series from transactions and NAV curves.
+Reconstructs net-worth progression over time from ledger transactions and historical NAVs.
 
-- **Parameters**:
-    - `investor_id` (_int_): Investor ID.
-    - `from_date` (_date | str | None_): Start date of the time series.
-    - `to_date` (_date | str | None_): End date of the time series.
-    - `granularity` (_Literal["daily", "weekly", "monthly"]_): Sampling frequency. Defaults to `"monthly"`.
-- **Returns**: `ValueSeries`
-- **Example**:
-    ```python
-    series = await client.valuations.list(
-        1,
-        from_date="2025-01-01",
-        to_date="2026-01-01",
-        granularity="monthly",
-    )
-    for pt in series.points:
-        print(f"Date: {pt.date} | Value: INR {pt.value_inr} | Invested: INR {pt.invested_inr}")
-    ```
-
-#### `status(...)`
+#### `status()`
 
 ```python
-async def status(self, investor_id: int) -> ValuationStatus
+async def status(investor_id: int) -> ValuationStatus
 ```
 
-Queries current calculation readiness and staleness status of the portfolio valuation engine.
-
-- **Parameters**:
-    - `investor_id` (_int_): Investor ID.
-- **Returns**: `ValuationStatus`
-- **Example**:
-    ```python
-    status = await client.valuations.status(1)
-    print(f"Valuation status: {status.status}, Computed through: {status.computed_through}")
-    ```
+Returns readiness status of the portfolio valuation series.
 
 ---
 
-### 6. `client.capital_gains` (CapitalGainsResource)
+### 6. `client.capital_gains`
 
-Endpoints for tax reporting and realised capital gains.
+Indian tax reporting and Schedule 112A calculations.
 
-#### `list(...)`
+#### `list()`
 
 ```python
 async def list(
-    self,
     investor_id: int,
     *,
     include_unreconciled: bool = False,
 ) -> list[CapitalGainsFyPoint]
 ```
 
-Lists realized STCG and LTCG totals broken down across financial years.
+Summarizes realized Short-Term Capital Gains (STCG) and Long-Term Capital Gains (LTCG) across all financial years with disposals.
 
-- **Parameters**:
-    - `investor_id` (_int_): Investor ID.
-    - `include_unreconciled` (_bool_): Whether to include unreconciled transactions.
-- **Returns**: `list[CapitalGainsFyPoint]`
-- **Example**:
-    ```python
-    fy_points = await client.capital_gains.list(1)
-    for pt in fy_points:
-        print(f"FY: {pt.fy} | STCG: INR {pt.stcg} | LTCG: INR {pt.ltcg}")
-    ```
-
-#### `get(...)`
+#### `get()`
 
 ```python
 async def get(
-    self,
     investor_id: int,
     *,
     fy: str,
@@ -360,18 +213,67 @@ async def get(
 ) -> CapitalGainsReport
 ```
 
-Fetches realized capital gains report for a specific financial year, including granular disposal lots.
+Generates a lot-level capital gains report for a specific financial year (e.g. `"2024-25"`), factoring in Section 112A 2018 grandfathering FMVs and the 23-Jul-2024 Budget regime cutoff.
 
-- **Parameters**:
-    - `investor_id` (_int_): Investor ID.
-    - `fy` (_str_): Financial year string (e.g. `"2024-25"`).
-    - `include_unreconciled` (_bool_): Whether to include unreconciled transactions.
-- **Returns**: `CapitalGainsReport`
-- **Example**:
-    ```python
-    report = await client.capital_gains.get(1, fy="2024-25")
-    print(f"Report for FY: {report.fy}")
-    print(f"Total STCG: INR {report.stcg_total} | Total LTCG: INR {report.ltcg_total}")
-    for row in report.rows:
-        print(f" - {row.name}: Gain: INR {row.gain} ({row.term})")
-    ```
+---
+
+### 7. `client.imports`
+
+Ingests statement files.
+
+#### `cas_pdf()`
+
+```python
+async def cas_pdf(
+    file_path: str | Path | BinaryIO,
+    password: str,
+    *,
+    investor_id: int | None = None,
+) -> ImportJob
+```
+
+Parses CAMS/KFintech or NSDL/CDSL eCAS PDF statements, normalizes folios, deduplicates transactions via SHA-256 content hashes, and queues NAV backfills.
+
+---
+
+### 8. `client.navs`
+
+Manages price feeds.
+
+#### `refresh()`
+
+```python
+async def refresh(*, types: list[str] | None = None) -> dict[str, Any]
+```
+
+Fetches the latest available NAVs and market closing prices for all held securities.
+
+#### `backfill()`
+
+```python
+async def backfill(*, force: bool = False) -> dict[str, Any]
+```
+
+Backfills missing historical NAV gaps between the earliest trade date and today.
+
+---
+
+### 9. `client.isin`
+
+Manages the reference directory.
+
+#### `update()`
+
+```python
+async def update() -> bool
+```
+
+Downloads and applies updates to `ref_schemes` and `ref_isins` from the remote repository.
+
+#### `status()`
+
+```python
+async def status() -> dict[str, Any]
+```
+
+Returns current reference dictionary version and statistics.
