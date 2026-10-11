@@ -25,6 +25,10 @@ async with FoliomanClient(
 | `user_id`         | `str`         | `"default"` | Multi-tenancy tenant or advisor scope identifier.                                          |
 | `timeout`         | `float`       | `30.0`      | Network timeout (seconds) for external price feeds.                                        |
 | `start_scheduler` | `bool`        | `False`     | If `True`, launches an in-process daemon thread scheduler for 6-hourly NAV refreshes.      |
+| `base_url`        | `str \| None` | `None`      | *(Deprecated)* Legacy REST API base URL. See [Backward Compatibility](compatibility.md).  |
+| `username`        | `str \| None` | `None`      | *(Deprecated)* Legacy API username for remote JWT authentication.                          |
+| `password`        | `str \| None` | `None`      | *(Deprecated)* Legacy API password for remote JWT authentication.                          |
+| `mode`            | `str \| None` | `None`      | Execution mode (`"embedded"` or `"remote"`). Inferred from `base_url` if omitted.          |
 
 ---
 

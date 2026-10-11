@@ -25,6 +25,9 @@ settings = FoliomanSettings()
 | `fernet_key`      | `FOLIOMAN_FERNET_KEY`   | `str`   | `""`          | 32-byte url-safe base64 key for PAN encryption. Auto-generated if omitted.         |
 | `timeout`         | `FOLIOMAN_TIMEOUT`      | `float` | `30.0`        | HTTP timeout (seconds) for external price feeds (mfapi, Yahoo, AMFI).              |
 | `user_id`         | `FOLIOMAN_USER_ID`      | `str`   | `"default"`   | Multi-tenancy tenant or advisor scope identifier.                                  |
+| `base_url`        | `FOLIOMAN_BASE_URL`     | `str`   | `""`          | *(Deprecated)* Legacy REST API URL. See [Backward Compatibility](compatibility.md).|
+| `username`        | `FOLIOMAN_USERNAME`     | `str`   | `""`          | *(Deprecated)* Legacy API username.                                                |
+| `password`        | `FOLIOMAN_PASSWORD`     | `str`   | `""`          | *(Deprecated)* Legacy API password.                                                |
 
 ---
 
