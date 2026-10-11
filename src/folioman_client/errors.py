@@ -17,7 +17,27 @@ class FoliomanAuthError(FoliomanError):
 
 
 class FoliomanNotFoundError(FoliomanError):
-    """Raised when the requested resource is not found (HTTP 404)."""
+    """Raised when the requested resource is not found."""
+
+
+class FoliomanParseError(FoliomanError):
+    """Raised when statement parsing fails or document shape is unsupported."""
+
+
+class FoliomanPasswordError(FoliomanParseError):
+    """Raised when the PDF password is wrong or missing."""
+
+
+class FoliomanFeedError(FoliomanError):
+    """Raised when an external market price feed fails."""
+
+
+class FoliomanDatabaseError(FoliomanError):
+    """Raised when a database connection or integrity constraint fails."""
+
+
+class FernetKeyUnavailable(FoliomanError):
+    """Raised when no valid Fernet key can be resolved for PAN encryption."""
 
 
 class FoliomanAPIError(FoliomanError):
@@ -56,5 +76,10 @@ __all__ = [
     "FoliomanError",
     "FoliomanAuthError",
     "FoliomanNotFoundError",
+    "FoliomanParseError",
+    "FoliomanPasswordError",
+    "FoliomanFeedError",
+    "FoliomanDatabaseError",
+    "FernetKeyUnavailable",
     "FoliomanAPIError",
 ]
