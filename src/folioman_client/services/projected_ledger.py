@@ -8,6 +8,7 @@ No database rows are mutated.
 from __future__ import annotations
 
 from datetime import date
+from decimal import Decimal
 from typing import Sequence
 
 from sqlalchemy import select
@@ -26,6 +27,45 @@ from folioman_client.db.models import (
     Transaction,
 )
 from folioman_client.services.mappers import to_core_security, to_core_transaction
+
+
+def security_key(sec) -> str:
+    """Stable identity for grouping projected core rows back to a DB security.
+
+    Works on both core and DB Security (ISIN for equity, AMFI for MF).
+    """
+    return sec.isin or getattr(sec, "amfi_code", "") or sec.symbol or sec.name
+
+
+async def demerger_reductions(
+    session: AsyncSession, investor_id: int, *, folio_id: int | None = None
+) -> dict[str, list]:
+    """Each parent security's demerger cost reductions, keyed by security identity."""
+    stmt = (
+        select(AppliedCorporateAction)
+        .options(selectinload(AppliedCorporateAction.security))
+        .where(
+            AppliedCorporateAction.investor_id == investor_id,
+            AppliedCorporateAction.kind == CorpActionType.DEMERGER.value,
+        )
+    )
+    if folio_id is not None:
+        stmt = stmt.where(
+            (AppliedCorporateAction.folio_id == folio_id)
+            | (AppliedCorporateAction.folio_id.is_(None))
+        )
+    events = (await session.execute(stmt)).scalars().all()
+    out: dict[str, list] = {}
+    for aca in events:
+        sec = aca.security
+        ident = sec.isin or sec.symbol or sec.name
+        by_date = {
+            date.fromisoformat(iso): Decimal(str(cost))
+            for iso, cost in (aca.params or {}).get("reductions", {}).items()
+        }
+        if by_date:
+            out.setdefault(ident, []).append((aca.ex_date, by_date))
+    return out
 
 
 def event_from_applied(aca: AppliedCorporateAction) -> CorporateActionApplyEvent:
@@ -203,4 +243,7 @@ __all__ = [
     "event_from_applied",
     "compute_ledger",
     "projected_transactions",
+    "security_key",
+    "demerger_reductions",
 ]
+

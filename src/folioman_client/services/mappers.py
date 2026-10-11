@@ -26,10 +26,14 @@ def to_core_security(security: DBSecurity) -> CoreSecurity:
         metadata=dict(security.metadata_json or {}),
     )
 
-
 def to_core_transaction(txn: DBTransaction) -> CoreTransaction:
     """SQLAlchemy ``Transaction`` row -> core ``Transaction`` domain model."""
     raw_type = (txn.transaction_type or "buy").lower().replace(" ", "_")
+    if raw_type in ("redemption", "switch_out"):
+        raw_type = "sell"
+    elif raw_type in ("purchase", "sip", "switch_in"):
+        raw_type = "buy"
+
     raw_source = (txn.source or "cas-pdf").lower().replace("_", "-")
     try:
         ts_enum = TransactionSource(raw_source)
