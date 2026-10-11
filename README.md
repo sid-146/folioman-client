@@ -88,8 +88,8 @@ async def main() -> None:
 
         # 5. Generate Realized Capital Gains (Schedule 112A)
         gains = await client.capital_gains.get(investor_id=1, fy="2024-25")
-        print(f"FY 2024-25 Realized LTCG: INR {gains.summary.ltcg_inr:,.2f}")
-        print(f"FY 2024-25 Realized STCG: INR {gains.summary.stcg_inr:,.2f}")
+        print(f"FY 2024-25 Realized LTCG: INR {gains.ltcg_total:,.2f}")
+        print(f"FY 2024-25 Realized STCG: INR {gains.stcg_total:,.2f}")
 
 
 if __name__ == "__main__":
@@ -100,7 +100,7 @@ if __name__ == "__main__":
 
 ## Command-Line Interface (CLI)
 
-`folioman-client` includes a comprehensive command-line tool `folioman`. All commands accept an optional `--db` flag (or `FOLIOMAN_DATABASE_URL` environment variable).
+`folioman-client` includes a comprehensive command-line tool `folioman`. All commands accept an optional `--database-url` flag (or `FOLIOMAN_DATABASE_URL` environment variable).
 
 ```bash
 # Seed or update the national ISIN reference dictionary in your database
@@ -119,7 +119,11 @@ folioman symbols resolve
 # Maintenance & reconciliations
 folioman reconcile all
 folioman corporate-actions refresh
-folioman valuations extend
+
+# Portfolio summaries, valuations & capital gains
+folioman portfolio summary --investor-id 1
+folioman valuations tick --extend
+folioman capital-gains report --investor-id 1 --fy "2024-25" --csv schedule112a.csv
 
 # Optional persistent background scheduler
 folioman scheduler run
