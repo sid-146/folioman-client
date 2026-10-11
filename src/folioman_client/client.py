@@ -37,6 +37,7 @@ from folioman_client.models import (
     ValuationStatus,
     ValueSeries,
 )
+from folioman_client.services.capital_gains_service import CapitalGainsService
 from folioman_client.services.corporate_action_service import CorporateActionService
 from folioman_client.services.equity_symbol_service import EquitySymbolService
 from folioman_client.services.import_service import CASImportService
@@ -45,6 +46,8 @@ from folioman_client.services.ledger_service import LedgerService
 from folioman_client.services.nav_service import NAVService
 from folioman_client.services.reconciliation_service import ReconciliationService
 from folioman_client.services.scheduler import FoliomanScheduler
+from folioman_client.services.valuation_service import ValuationService
+
 
 
 class _BaseResource:
@@ -163,6 +166,17 @@ class PortfolioResource(_BaseResource):
             FoliomanAuthError: If authentication fails.
             FoliomanAPIError: If the server returns an error response.
         """
+        as_of_date = (
+            date.fromisoformat(as_of)
+            if isinstance(as_of, str)
+            else as_of
+        )
+        if not self._client.is_remote:
+            data = await self._client._valuation_service.build_investor_summary(
+                investor_id, as_of=as_of_date
+            )
+            return PortfolioSummary.model_validate(data)
+
         params: dict[str, Any] = {}
         if as_of is not None:
             params["as_of"] = (
@@ -194,21 +208,8 @@ class HoldingsResource(_BaseResource):
             A list of Holding models.
 
         """
-        if self._client.is_remote:
-            summary = await self._client.portfolio.get(investor_id, as_of=as_of)
-            return summary.holdings
-
-        data = await self._client._ledger_service.list_holdings(investor_id)
-        return [
-            Holding(
-                security_id=item["security_id"],
-                name=item["name"],
-                security_type=item["type"],
-                symbol=item.get("symbol") or "",
-                units=Decimal(item["units"]),
-            )
-            for item in data
-        ]
+        summary = await self._client.portfolio.get(investor_id, as_of=as_of)
+        return summary.holdings
 
     async def get(
         self,
@@ -232,6 +233,17 @@ class HoldingsResource(_BaseResource):
             FoliomanAuthError: If authentication fails.
             FoliomanAPIError: If the server returns an error response.
         """
+        as_of_date = (
+            date.fromisoformat(as_of)
+            if isinstance(as_of, str)
+            else as_of
+        )
+        if not self._client.is_remote:
+            data = await self._client._valuation_service.build_scheme_detail(
+                investor_id, security_id, as_of=as_of_date
+            )
+            return SchemeDetail.model_validate(data)
+
         params: dict[str, Any] = {}
         if as_of is not None:
             params["as_of"] = (
@@ -244,6 +256,7 @@ class HoldingsResource(_BaseResource):
             params=params,
         )
         return SchemeDetail.model_validate(data)
+
 
 
 class TransactionsResource(_BaseResource):
@@ -369,6 +382,22 @@ class ValuationsResource(_BaseResource):
             FoliomanAuthError: If authentication fails.
             FoliomanAPIError: If the server returns an error response.
         """
+        from_d = (
+            date.fromisoformat(from_date)
+            if isinstance(from_date, str)
+            else from_date
+        )
+        to_d = (
+            date.fromisoformat(to_date)
+            if isinstance(to_date, str)
+            else to_date
+        )
+        if not self._client.is_remote:
+            data = await self._client._valuation_service.value_series(
+                investor_id, from_date=from_d, to_date=to_d, granularity=granularity
+            )
+            return ValueSeries.model_validate(data)
+
         params: dict[str, Any] = {"granularity": granularity}
         if from_date is not None:
             params["from"] = (
@@ -400,6 +429,10 @@ class ValuationsResource(_BaseResource):
             FoliomanAuthError: If authentication fails.
             FoliomanAPIError: If the server returns an error response.
         """
+        if not self._client.is_remote:
+            data = await self._client._valuation_service.get_valuation_status(investor_id)
+            return ValuationStatus.model_validate(data)
+
         data = await self._client.request(
             "GET", f"/investors/{investor_id}/valuation-status"
         )
@@ -429,6 +462,12 @@ class CapitalGainsResource(_BaseResource):
             FoliomanAuthError: If authentication fails.
             FoliomanAPIError: If the server returns an error response.
         """
+        if not self._client.is_remote:
+            data = await self._client._capital_gains_service.list_capital_gains_by_fy(
+                investor_id, include_unreconciled=include_unreconciled
+            )
+            return [CapitalGainsFyPoint.model_validate(item) for item in data]
+
         params = {"include_unreconciled": str(include_unreconciled).lower()}
         data = await self._client.request(
             "GET",
@@ -459,6 +498,12 @@ class CapitalGainsResource(_BaseResource):
             FoliomanAuthError: If authentication fails.
             FoliomanAPIError: If the server returns an error response.
         """
+        if not self._client.is_remote:
+            data = await self._client._capital_gains_service.get_capital_gains_report(
+                investor_id, fy=fy, include_unreconciled=include_unreconciled
+            )
+            return CapitalGainsReport.model_validate(data)
+
         params = {
             "fy": fy,
             "include_unreconciled": str(include_unreconciled).lower(),
@@ -469,6 +514,28 @@ class CapitalGainsResource(_BaseResource):
             params=params,
         )
         return CapitalGainsReport.model_validate(data)
+
+    async def schedule_112a(
+        self,
+        investor_id: int,
+        *,
+        fy: str,
+        include_unreconciled: bool = False,
+    ) -> dict[str, Any]:
+        """Export official Schedule 112A rows and columns for Indian tax return filing."""
+        if not self._client.is_remote:
+            return await self._client._capital_gains_service.get_schedule_112a(
+                investor_id, fy=fy, include_unreconciled=include_unreconciled
+            )
+        params = {
+            "fy": fy,
+            "include_unreconciled": str(include_unreconciled).lower(),
+        }
+        return await self._client.request(
+            "GET",
+            f"/investors/{investor_id}/exports/schedule-112a",
+            params=params,
+        )
 
 
 class ImportsResource(_BaseResource):
@@ -771,6 +838,8 @@ class FoliomanClient:
         self._reconcile_service = ReconciliationService(engine=self.engine)
         self._symbol_service = EquitySymbolService(engine=self.engine)
         self._ca_service = CorporateActionService(engine=self.engine)
+        self._valuation_service = ValuationService(engine=self.engine)
+        self._capital_gains_service = CapitalGainsService(engine=self.engine)
 
         self._auth = JWTAuthManager(
             base_url=self.base_url,
@@ -801,6 +870,9 @@ class FoliomanClient:
         self.symbols = SymbolsResource(self, self._symbol_service)
         self.corporate_actions = CorporateActionsResource(self, self._ca_service)
         self.ledger = self._ledger_service
+        self.valuation_service = self._valuation_service
+        self.capital_gains_service = self._capital_gains_service
+
 
     @classmethod
     def from_settings(cls, settings: FoliomanSettings) -> FoliomanClient:
