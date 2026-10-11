@@ -184,7 +184,7 @@ class Security(Base, TimeStampedMixin):
     )
 
 
-class NAVHistory(Base):
+class NAVHistory(Base, TimeStampedMixin):
     """Daily closing price / Net Asset Value time-series."""
 
     __tablename__ = "nav_history"
@@ -196,9 +196,6 @@ class NAVHistory(Base):
     date: Mapped[date] = mapped_column(Date, index=True, nullable=False)
     nav: Mapped[Decimal] = mapped_column(Numeric(20, 6, asdecimal=True), nullable=False)
     source: Mapped[str] = mapped_column(String(32), default="")
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), nullable=False
-    )
 
     security: Mapped[Security] = relationship("Security", back_populates="nav_history")
 
