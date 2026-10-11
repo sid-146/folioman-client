@@ -5,6 +5,7 @@ from __future__ import annotations
 import click
 
 from folioman_client import __version__
+from folioman_client.cli.capital_gains import capital_gains_group
 from folioman_client.cli.corporate_actions import corporate_actions_group
 from folioman_client.cli.import_cmd import import_group
 from folioman_client.cli.isin import isin_group
@@ -15,10 +16,13 @@ from folioman_client.cli.ledger import (
     transactions_group,
 )
 from folioman_client.cli.nav import nav_group
+from folioman_client.cli.portfolio import portfolio_group
 from folioman_client.cli.reconcile import reconcile_group
 from folioman_client.cli.scheduler import scheduler_group
 from folioman_client.cli.symbols import symbols_group
+from folioman_client.cli.valuations import valuations_group
 from folioman_client.config import settings
+
 
 
 @click.group()
@@ -48,6 +52,10 @@ cli.add_command(investors_group)
 cli.add_command(folios_group)
 cli.add_command(transactions_group)
 cli.add_command(holdings_group)
+cli.add_command(portfolio_group)
+cli.add_command(valuations_group)
+cli.add_command(capital_gains_group)
 
 if __name__ == "__main__":
     cli()
+
