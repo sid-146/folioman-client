@@ -217,3 +217,5 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+temp_demo.db-shm
+temp_demo.db-wal
