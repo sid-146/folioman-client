@@ -161,3 +161,71 @@ async def test_client_embedded_scheduler_lifecycle():
 
     # After exiting context manager, scheduler must be stopped
     assert client._scheduler.is_running is False
+
+
+@pytest.mark.asyncio
+async def test_client_embedded_investors_and_folios():
+    async with FoliomanClient(database_url="sqlite+aiosqlite:///:memory:") as client:
+        inv = await client.investors.create(
+            name="Rohit Sharma",
+            pan="ABCDE5555R",
+            email="rohit@example.com",
+        )
+        assert inv.id > 0
+        assert inv.name == "Rohit Sharma"
+        assert inv.pan_masked == "XXXXXX555R"
+
+        inv_list = await client.investors.list()
+        assert len(inv_list) == 1
+        assert inv_list[0].id == inv.id
+
+        inv_get = await client.investors.get(inv.id)
+        assert inv_get.name == "Rohit Sharma"
+        assert inv_get.pan_masked == "XXXXXX555R"
+
+        fol1 = await client.folios.create(inv.id, "FOL-101", amc_code="NIPPON")
+        fol2 = await client.folios.create(inv.id, "FOL-102", amc_code="NIPPON")
+        assert fol1["number"] == "FOL-101"
+        assert fol2["number"] == "FOL-102"
+
+        folios = await client.folios.list(inv.id)
+        assert len(folios) == 2
+
+
+@pytest.mark.asyncio
+async def test_client_embedded_reconcile_symbols_and_ca_delegation():
+    async with FoliomanClient(database_url="sqlite+aiosqlite:///:memory:") as client:
+        with (
+            patch.object(
+                client._reconcile_service,
+                "reconcile_all",
+                new_callable=AsyncMock,
+                return_value={"investors_count": 1, "statuses_count": 2},
+            ) as mock_rec_all,
+            patch.object(
+                client._symbol_service,
+                "resolve_symbols",
+                new_callable=AsyncMock,
+                return_value={"matched_count": 3, "updated_count": 3},
+            ) as mock_sym,
+            patch.object(
+                client._ca_service,
+                "refresh_corporate_actions",
+                new_callable=AsyncMock,
+                return_value={"actions_fetched": 4},
+            ) as mock_ca_refresh,
+        ):
+            rec_res = await client.reconcile.all()
+            assert rec_res["investors_count"] == 1
+            mock_rec_all.assert_called_once()
+
+            sym_res = await client.symbols.resolve(dry_run=True)
+            assert sym_res["matched_count"] == 3
+            mock_sym.assert_called_once_with(
+                dry_run=True, backfill=False, force_backfill=False
+            )
+
+            ca_res = await client.corporate_actions.refresh(since_year=2020)
+            assert ca_res["actions_fetched"] == 4
+            mock_ca_refresh.assert_called_once_with(security_ids=None, since_year=2020)
+

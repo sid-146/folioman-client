@@ -46,6 +46,7 @@ from folioman_client.errors import (
     FoliomanPasswordError,
 )
 from folioman_client.security.pan import encrypt_pan, pan_hash
+from folioman_client.services.reconciliation_service import ReconciliationService
 
 logger = logging.getLogger(__name__)
 
@@ -83,6 +84,7 @@ class CASImportService:
     def __init__(self, engine: AsyncEngine | None = None) -> None:
         self.engine = engine or create_folioman_engine()
         self.session_factory = create_sessionmaker(self.engine)
+        self._reconcile_service = ReconciliationService(engine=self.engine)
 
     async def _resolve_or_create_investor(
         self,
@@ -418,6 +420,8 @@ class CASImportService:
             session.add(job)
             await session.flush()
 
+            affected_security_ids: set[int] = set()
+
             # 4. Process Mutual Fund CAS Statement
             if parsed.mf:
                 for block in parsed.mf.schemes:
@@ -433,6 +437,7 @@ class CASImportService:
                             security = await self._upsert_security(
                                 session, block.security, amc.id if amc else None
                             )
+                            affected_security_ids.add(security.id)
                             folio = await self._upsert_folio(
                                 session, investor.id, block.folio
                             )
@@ -589,7 +594,8 @@ class CASImportService:
                         session.add(quarantine_row)
 
                 # Upgrade any older partial blocks chained by this statement
-                await self._upgrade_chained_partials(session, investor.id)
+                upgraded = await self._upgrade_chained_partials(session, investor.id)
+                affected_security_ids.update(upgraded)
 
             # 5. Process eCAS Statement (NSDL / CDSL)
             elif parsed.ecas:
@@ -599,6 +605,7 @@ class CASImportService:
                         try:
                             async with session.begin_nested():
                                 security = await self._upsert_security(session, line.security)
+                                affected_security_ids.add(security.id)
                                 stmt_h = select(Holding).where(
                                     Holding.investor_id == investor.id,
                                     Holding.security_id == security.id,
@@ -651,6 +658,13 @@ class CASImportService:
                                 },
                             )
                             session.add(quarantine_row)
+
+            # 5b. Auto-reconcile affected securities
+            for sec_id in affected_security_ids:
+                try:
+                    await self._reconcile_service.reconcile_security(session, investor.id, sec_id)
+                except Exception as exc:
+                    logger.warning("Auto-reconcile for security %s failed: %s", sec_id, exc)
 
             # 6. Finalize ImportJob
             final_status = (

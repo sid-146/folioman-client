@@ -595,6 +595,11 @@ class AppliedCorporateAction(Base, TimeStampedMixin):
     source_ref: Mapped[str] = mapped_column(String(128), default="")
     params_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
 
+    security: Mapped[Security] = relationship("Security", foreign_keys=[security_id])
+    counterparty_security: Mapped[Security | None] = relationship(
+        "Security", foreign_keys=[counterparty_security_id]
+    )
+
     __table_args__ = (
         Index("idx_applied_ca_inv_sec_date", "investor_id", "security_id", "ex_date"),
     )

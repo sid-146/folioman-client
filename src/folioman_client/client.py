@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import io
 from datetime import date
+from decimal import Decimal
 from pathlib import Path
 from typing import Any, BinaryIO, Literal
 
@@ -18,6 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from folioman_client.auth import JWTAuthManager
 from folioman_client.config import FoliomanSettings, settings as default_settings
 from folioman_client.db.engine import create_folioman_engine
+from folioman_client.db.models import SecurityIntegrityStatus
 from folioman_client.errors import (
     FoliomanAPIError,
     FoliomanAuthError,
@@ -35,9 +37,13 @@ from folioman_client.models import (
     ValuationStatus,
     ValueSeries,
 )
+from folioman_client.services.corporate_action_service import CorporateActionService
+from folioman_client.services.equity_symbol_service import EquitySymbolService
 from folioman_client.services.import_service import CASImportService
 from folioman_client.services.isin_service import ISINService
+from folioman_client.services.ledger_service import LedgerService
 from folioman_client.services.nav_service import NAVService
+from folioman_client.services.reconciliation_service import ReconciliationService
 from folioman_client.services.scheduler import FoliomanScheduler
 
 
@@ -65,18 +71,22 @@ class InvestorsResource(_BaseResource):
 
         Returns:
             A list of Investor summary models.
-
-        Raises:
-            FoliomanAuthError: If authentication fails.
-            FoliomanAPIError: If the server returns an error response.
         """
-        params: dict[str, Any] = {}
-        if family_id is not None:
-            params["family_id"] = family_id
-        if unaffiliated:
-            params["unaffiliated"] = "true"
+        if self._client.is_remote:
+            params: dict[str, Any] = {}
+            if family_id is not None:
+                params["family_id"] = family_id
+            if unaffiliated:
+                params["unaffiliated"] = "true"
 
-        data = await self._client.request("GET", "/investors/", params=params)
+            data = await self._client.request("GET", "/investors/", params=params)
+            return [Investor.model_validate(item) for item in data]
+
+        data = await self._client._ledger_service.list_investors(
+            user_id=self._client.user_id,
+            family_id=family_id,
+            unaffiliated=unaffiliated,
+        )
         return [Investor.model_validate(item) for item in data]
 
     async def get(self, investor_id: int) -> InvestorDetail:
@@ -87,13 +97,46 @@ class InvestorsResource(_BaseResource):
 
         Returns:
             InvestorDetail model containing extended profile information.
-
-        Raises:
-            FoliomanNotFoundError: If the investor ID does not exist.
-            FoliomanAuthError: If authentication fails.
-            FoliomanAPIError: If the server returns an error response.
         """
-        data = await self._client.request("GET", f"/investors/{investor_id}")
+        if self._client.is_remote:
+            data = await self._client.request("GET", f"/investors/{investor_id}")
+            return InvestorDetail.model_validate(data)
+
+        data = await self._client._ledger_service.get_investor(investor_id)
+        return InvestorDetail.model_validate(data)
+
+    async def create(
+        self,
+        name: str,
+        *,
+        pan: str | None = None,
+        email: str = "",
+        family_id: int | None = None,
+        is_huf: bool = False,
+        relation: str = "",
+    ) -> InvestorDetail:
+        """Create a new investor with encrypted PAN.
+
+        Args:
+            name: Full name.
+            pan: PAN string.
+            email: Email address.
+            family_id: Optional parent family group ID.
+            is_huf: Whether investor is HUF.
+            relation: Relationship label.
+
+        Returns:
+            InvestorDetail model.
+        """
+        data = await self._client._ledger_service.create_investor(
+            user_id=self._client.user_id,
+            name=name,
+            pan=pan,
+            email=email,
+            family_id=family_id,
+            is_huf=is_huf,
+            relation=relation,
+        )
         return InvestorDetail.model_validate(data)
 
 
@@ -150,13 +193,22 @@ class HoldingsResource(_BaseResource):
         Returns:
             A list of Holding models.
 
-        Raises:
-            FoliomanNotFoundError: If the investor does not exist.
-            FoliomanAuthError: If authentication fails.
-            FoliomanAPIError: If the server returns an error response.
         """
-        summary = await self._client.portfolio.get(investor_id, as_of=as_of)
-        return summary.holdings
+        if self._client.is_remote:
+            summary = await self._client.portfolio.get(investor_id, as_of=as_of)
+            return summary.holdings
+
+        data = await self._client._ledger_service.list_holdings(investor_id)
+        return [
+            Holding(
+                security_id=item["security_id"],
+                name=item["name"],
+                security_type=item["type"],
+                symbol=item.get("symbol") or "",
+                units=Decimal(item["units"]),
+            )
+            for item in data
+        ]
 
     async def get(
         self,
@@ -195,26 +247,99 @@ class HoldingsResource(_BaseResource):
 
 
 class TransactionsResource(_BaseResource):
-    """Endpoints for querying transaction ledger entries."""
+    """Endpoints for querying and recording transaction ledger entries."""
 
-    async def list(self, investor_id: int) -> list[Transaction]:
+    async def list(
+        self,
+        investor_id: int,
+        *,
+        security_id: int | None = None,
+        folio_id: int | None = None,
+        from_date: date | None = None,
+        to_date: date | None = None,
+    ) -> list[Transaction]:
         """List all transactions for an investor.
 
         Args:
             investor_id: The ID of the investor.
+            security_id: Optional security ID filter.
+            folio_id: Optional folio ID filter.
+            from_date: Optional start date filter.
+            to_date: Optional end date filter.
 
         Returns:
             List of Transaction ledger entries.
-
-        Raises:
-            FoliomanNotFoundError: If the investor does not exist.
-            FoliomanAuthError: If authentication fails.
-            FoliomanAPIError: If the server returns an error response.
         """
-        data = await self._client.request(
-            "GET", f"/investors/{investor_id}/transactions"
+        if self._client.is_remote:
+            data = await self._client.request(
+                "GET", f"/investors/{investor_id}/transactions"
+            )
+            return [Transaction.model_validate(item) for item in data]
+
+        data = await self._client._ledger_service.list_transactions(
+            investor_id,
+            security_id=security_id,
+            folio_id=folio_id,
+            from_date=from_date,
+            to_date=to_date,
         )
         return [Transaction.model_validate(item) for item in data]
+
+    async def create(
+        self,
+        *,
+        investor_id: int,
+        security_id: int,
+        date: date,
+        transaction_type: str,
+        units: Decimal | str,
+        nav_or_price: Decimal | str,
+        amount: Decimal | str | None = None,
+        folio_id: int | None = None,
+        fees: Decimal | str = "0",
+        stamp_duty: Decimal | str = "0",
+        narration: str = "",
+        source: str = "manual",
+        source_ref: str = "",
+    ) -> dict[str, Any]:
+        """Manually record a trade transaction into the ledger."""
+        return await self._client._ledger_service.create_transaction(
+            investor_id=investor_id,
+            security_id=security_id,
+            date=date,
+            transaction_type=transaction_type,
+            units=units,
+            nav_or_price=nav_or_price,
+            amount=amount,
+            folio_id=folio_id,
+            fees=fees,
+            stamp_duty=stamp_duty,
+            narration=narration,
+            source=source,
+            source_ref=source_ref,
+        )
+
+    async def create_opening_lot(
+        self,
+        *,
+        investor_id: int,
+        folio_id: int,
+        security_id: int,
+        units: Decimal | str,
+        cost_basis: Decimal | str,
+        as_of_date: date,
+        classification: str = "ipo_allotment",
+    ) -> dict[str, Any]:
+        """Record an opening lot for a snapshot-only position."""
+        return await self._client._ledger_service.create_opening_lot(
+            investor_id=investor_id,
+            folio_id=folio_id,
+            security_id=security_id,
+            units=units,
+            cost_basis=cost_basis,
+            as_of_date=as_of_date,
+            classification=classification,
+        )
 
 
 class ValuationsResource(_BaseResource):
@@ -423,6 +548,155 @@ class ISINResource(_BaseResource):
         return await self._service.get_reference_status()
 
 
+class FoliosResource(_BaseResource):
+    """Resource sub-client for investor folios and demat accounts."""
+
+    def __init__(self, client: FoliomanClient, service: LedgerService) -> None:
+        super().__init__(client)
+        self._service = service
+
+    async def list(self, investor_id: int) -> list[dict[str, Any]]:
+        """List all accounts and folios belonging to an investor."""
+        return await self._service.list_folios(investor_id)
+
+    async def create(
+        self,
+        investor_id: int,
+        number: str,
+        *,
+        amc_code: str = "",
+        broker: str = "",
+        folio_type: str = "mf",
+    ) -> dict[str, Any]:
+        """Create a new folio record."""
+        return await self._service.create_folio(
+            investor_id, number, amc_code=amc_code, broker=broker, folio_type=folio_type
+        )
+
+    async def merge(
+        self,
+        investor_id: int,
+        source_folio_id: int,
+        target_folio_id: int,
+    ) -> dict[str, Any]:
+        """Merge source folio into target folio."""
+        return await self._service.merge_folios(
+            investor_id, source_folio_id, target_folio_id
+        )
+
+
+class ReconcileResource(_BaseResource):
+    """Resource sub-client for running ledger and holding reconciliations."""
+
+    def __init__(
+        self, client: FoliomanClient, service: ReconciliationService
+    ) -> None:
+        super().__init__(client)
+        self._service = service
+
+    async def all(self, *, user_id: str | None = None) -> dict[str, Any]:
+        """Reconcile all positions across all investors."""
+        return await self._service.reconcile_all(
+            user_id=user_id or self._client.user_id
+        )
+
+    async def investor(self, investor_id: int) -> dict[str, Any]:
+        """Reconcile all security positions for a single investor."""
+        return await self._service.reconcile_investor(investor_id)
+
+    async def position(
+        self, investor_id: int, security_id: int, folio_id: int
+    ) -> SecurityIntegrityStatus | None:
+        """Reconcile a single (investor, security, folio) position."""
+        async with self._service.session_factory() as session:
+            status = await self._service.reconcile_security_folio(
+                session, investor_id, security_id, folio_id
+            )
+            await session.commit()
+            return status
+
+    async def acknowledge(
+        self, investor_id: int, security_id: int, folio_id: int
+    ) -> dict[str, Any]:
+        """Acknowledge a unit mismatch on a position."""
+        return await self._service.acknowledge_mismatch(
+            investor_id, security_id, folio_id
+        )
+
+    async def clear(
+        self, investor_id: int, security_id: int, folio_id: int
+    ) -> dict[str, Any]:
+        """Clear user acknowledgement on a position."""
+        return await self._service.clear_acknowledgement(
+            investor_id, security_id, folio_id
+        )
+
+
+class SymbolsResource(_BaseResource):
+    """Resource sub-client for demat trading symbol resolution."""
+
+    def __init__(self, client: FoliomanClient, service: EquitySymbolService) -> None:
+        super().__init__(client)
+        self._service = service
+
+    async def resolve(
+        self,
+        *,
+        dry_run: bool = False,
+        backfill: bool = False,
+        force_backfill: bool = False,
+    ) -> dict[str, Any]:
+        """Resolve missing NSE/BSE symbols for held demat securities."""
+        return await self._service.resolve_symbols(
+            dry_run=dry_run, backfill=backfill, force_backfill=force_backfill
+        )
+
+
+class CorporateActionsResource(_BaseResource):
+    """Resource sub-client for corporate actions (bonuses, splits)."""
+
+    def __init__(
+        self, client: FoliomanClient, service: CorporateActionService
+    ) -> None:
+        super().__init__(client)
+        self._service = service
+
+    async def refresh(
+        self,
+        *,
+        security_ids: list[int] | None = None,
+        since_year: int = 2016,
+    ) -> dict[str, Any]:
+        """Fetch and cache corporate action history from exchange feeds."""
+        return await self._service.refresh_corporate_actions(
+            security_ids=security_ids, since_year=since_year
+        )
+
+    async def list(
+        self,
+        *,
+        security_id: int | None = None,
+        isin: str | None = None,
+        symbol: str | None = None,
+        kind: str | None = None,
+    ) -> list[dict[str, Any]]:
+        """List cached corporate action announcements."""
+        return await self._service.list_references(
+            security_id=security_id, isin=isin, symbol=symbol, kind=kind
+        )
+
+    async def apply(
+        self,
+        investor_id: int,
+        folio_id: int,
+        reference_id: int,
+    ) -> dict[str, Any]:
+        """Apply a cached bonus or split event to an investor folio."""
+        return await self._service.apply_corporate_action(
+            investor_id, folio_id, reference_id
+        )
+
+
 class FoliomanClient:
     """Embedded Python portfolio manager and client for Folioman services.
 
@@ -454,6 +728,7 @@ class FoliomanClient:
         user_id: str = "default",
         start_scheduler: bool = False,
         engine: AsyncEngine | None = None,
+        mode: Literal["embedded", "remote"] | None = None,
     ) -> None:
         """Initialize FoliomanClient.
 
@@ -467,6 +742,7 @@ class FoliomanClient:
             user_id: Multi-tenant user or portfolio identifier. Defaults to 'default'.
             start_scheduler: If True, starts an in-process thread scheduler for 6-hourly NAV refreshes.
             engine: Optional pre-configured SQLAlchemy AsyncEngine.
+            mode: Explicit execution mode ('embedded' or 'remote'). Inferred from base_url if omitted.
         """
         self.base_url = (base_url or default_settings.base_url).rstrip("/")
         self.username = username if username is not None else default_settings.username
@@ -474,6 +750,13 @@ class FoliomanClient:
         self.timeout = timeout
         self.user_id = user_id
         self._start_scheduler_flag = start_scheduler
+
+        # Infer mode: if base_url explicitly provided, treat as remote, else embedded
+        if mode is not None:
+            self.mode = mode
+        else:
+            self.mode = "remote" if base_url else "embedded"
+        self.is_remote = self.mode == "remote"
 
         # DB Engine & Internal Services
         self._owns_engine = engine is None
@@ -484,6 +767,10 @@ class FoliomanClient:
         self._scheduler = (
             FoliomanScheduler(engine=self.engine) if start_scheduler else None
         )
+        self._ledger_service = LedgerService(engine=self.engine)
+        self._reconcile_service = ReconciliationService(engine=self.engine)
+        self._symbol_service = EquitySymbolService(engine=self.engine)
+        self._ca_service = CorporateActionService(engine=self.engine)
 
         self._auth = JWTAuthManager(
             base_url=self.base_url,
@@ -497,11 +784,12 @@ class FoliomanClient:
             timeout=self.timeout,
         )
 
-        # Legacy REST resource sub-clients
+        # Core ledger and position management
         self.investors = InvestorsResource(self)
         self.portfolio = PortfolioResource(self)
         self.holdings = HoldingsResource(self)
         self.transactions = TransactionsResource(self)
+        self.folios = FoliosResource(self, self._ledger_service)
         self.valuations = ValuationsResource(self)
         self.capital_gains = CapitalGainsResource(self)
 
@@ -509,6 +797,10 @@ class FoliomanClient:
         self.imports = ImportsResource(self, self._import_service)
         self.navs = NavsResource(self, self._nav_service)
         self.isin = ISINResource(self, self._isin_service)
+        self.reconcile = ReconcileResource(self, self._reconcile_service)
+        self.symbols = SymbolsResource(self, self._symbol_service)
+        self.corporate_actions = CorporateActionsResource(self, self._ca_service)
+        self.ledger = self._ledger_service
 
     @classmethod
     def from_settings(cls, settings: FoliomanSettings) -> FoliomanClient:
@@ -690,4 +982,8 @@ __all__ = [
     "ImportsResource",
     "NavsResource",
     "ISINResource",
+    "FoliosResource",
+    "ReconcileResource",
+    "SymbolsResource",
+    "CorporateActionsResource",
 ]
