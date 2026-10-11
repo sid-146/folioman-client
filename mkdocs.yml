@@ -22,7 +22,6 @@ theme:
               icon: material/brightness-4
               name: Switch to light mode
     features:
-        - navigation.tabs
         - navigation.sections
         - navigation.expand
         - navigation.top
@@ -61,14 +60,18 @@ markdown_extensions:
           permalink: true
 
 nav:
-    - Home: index.md
-    - Getting Started: getting-started.md
-    - Storage & Database: configuration.md
-    - CLI Reference: cli.md
-    - Python Client SDK: client.md
-    - Security & Privacy: security.md
-    - Models: models.md
-    - Errors: errors.md
-    - Examples: examples.md
-    - API Reference: api-reference.md
-    - Development: development.md
+    - Overview:
+        - Home: index.md
+        - Getting Started: getting-started.md
+        - Storage & Database: configuration.md
+        - Security & Privacy: security.md
+    - Guides & Usage:
+        - CLI Reference: cli.md
+        - Python Client SDK: client.md
+        - Examples: examples.md
+    - Reference & Architecture:
+        - Models: models.md
+        - Errors: errors.md
+        - Backward Compatibility: compatibility.md
+        - API Reference: api-reference.md
+        - Development: development.md
