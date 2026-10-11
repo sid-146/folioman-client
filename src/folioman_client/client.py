@@ -7,13 +7,17 @@ and response parsing into typed Pydantic models.
 
 from __future__ import annotations
 
+import io
 from datetime import date
-from typing import Any, Literal
+from pathlib import Path
+from typing import Any, BinaryIO, Literal
 
 import httpx
+from sqlalchemy.ext.asyncio import AsyncEngine
 
 from folioman_client.auth import JWTAuthManager
 from folioman_client.config import FoliomanSettings, settings as default_settings
+from folioman_client.db.engine import create_folioman_engine
 from folioman_client.errors import (
     FoliomanAPIError,
     FoliomanAuthError,
@@ -31,6 +35,10 @@ from folioman_client.models import (
     ValuationStatus,
     ValueSeries,
 )
+from folioman_client.services.import_service import CASImportService
+from folioman_client.services.isin_service import ISINService
+from folioman_client.services.nav_service import NAVService
+from folioman_client.services.scheduler import FoliomanScheduler
 
 
 class _BaseResource:
@@ -338,10 +346,87 @@ class CapitalGainsResource(_BaseResource):
         return CapitalGainsReport.model_validate(data)
 
 
-class FoliomanClient:
-    """Asynchronous client for interacting with the Folioman API.
+class ImportsResource(_BaseResource):
+    """Resource sub-client for importing CAS statement files."""
 
-    Handles authentication, token refresh, and request execution.
+    def __init__(self, client: FoliomanClient, import_service: CASImportService) -> None:
+        super().__init__(client)
+        self._service = import_service
+
+    async def cas_pdf(
+        self,
+        file_path_or_bytes: str | Path | bytes | io.IOBase | BinaryIO,
+        password: str,
+        *,
+        investor_id: int | None = None,
+        source_ref: str = "",
+    ) -> dict[str, Any]:
+        """Import a CAMS/KFintech MF CAS or NSDL/CDSL eCAS PDF into the active database.
+
+        Args:
+            file_path_or_bytes: File system path or raw PDF byte buffer.
+            password: PDF unlock password.
+            investor_id: Optional target investor ID.
+            source_ref: Optional custom audit source reference.
+
+        Returns:
+            Dictionary summary of imported entities, transactions, and status.
+        """
+        return await self._service.import_cas(
+            file_path_or_bytes,
+            password,
+            user_id=self._client.user_id,
+            investor_id=investor_id,
+            source_ref=source_ref,
+        )
+
+
+class NavsResource(_BaseResource):
+    """Resource sub-client for managing NAV price feeds and backfilling."""
+
+    def __init__(self, client: FoliomanClient, nav_service: NAVService) -> None:
+        super().__init__(client)
+        self._service = nav_service
+
+    async def refresh(self, *, types: list[str] | None = None) -> dict[str, Any]:
+        """Fetch latest available NAVs and market closing prices for held securities."""
+        return await self._service.refresh_navs(types=types)
+
+    async def backfill(self, *, force: bool = False) -> dict[str, Any]:
+        """Backfill historical NAV price points for all held securities."""
+        return await self._service.backfill_navs(force=force)
+
+    async def freshness(self) -> list[dict[str, Any]]:
+        """Return price freshness and staleness metrics for all active securities."""
+        return await self._service.get_nav_freshness()
+
+
+class ISINResource(_BaseResource):
+    """Resource sub-client for managing ISIN and scheme master reference catalog."""
+
+    def __init__(self, client: FoliomanClient, isin_service: ISINService) -> None:
+        super().__init__(client)
+        self._service = isin_service
+
+    async def seed(
+        self, *, force: bool = False, source_path: Path | None = None
+    ) -> dict[str, Any]:
+        """Ingest the reference master dataset into the active database."""
+        return await self._service.seed_reference_data(force=force, source_path=source_path)
+
+    async def update(self) -> dict[str, Any]:
+        """Check for and ingest upstream reference updates."""
+        return await self._service.update_reference_data()
+
+    async def status(self) -> dict[str, Any]:
+        """Get current status and row counts of the reference catalog."""
+        return await self._service.get_reference_status()
+
+
+class FoliomanClient:
+    """Embedded Python portfolio manager and client for Folioman services.
+
+    Handles database management, statement imports, pricing feeds, and background jobs.
 
     Example:
         ```python
@@ -349,10 +434,9 @@ class FoliomanClient:
         from folioman_client import FoliomanClient
 
         async def main() -> None:
-            async with FoliomanClient() as client:
-                investor = await client.investors.get(1)
-                summary = await client.portfolio.get(1)
-                print(investor.name, summary.total_inr)
+            async with FoliomanClient(database_url="sqlite+aiosqlite:///folioman.db") as client:
+                res = await client.imports.cas_pdf("cams_cas.pdf", "pass123")
+                print("Imported:", res["schemes"], "schemes")
 
         asyncio.run(main())
         ```
@@ -365,6 +449,11 @@ class FoliomanClient:
         password: str | None = None,
         timeout: float = 30.0,
         http_client: httpx.AsyncClient | None = None,
+        *,
+        database_url: str | None = None,
+        user_id: str = "default",
+        start_scheduler: bool = False,
+        engine: AsyncEngine | None = None,
     ) -> None:
         """Initialize FoliomanClient.
 
@@ -374,11 +463,27 @@ class FoliomanClient:
             password: Password for API authentication. If None, loaded from settings/environment.
             timeout: Request timeout in seconds. Defaults to 30.0.
             http_client: Optional custom httpx.AsyncClient instance for custom transport/pooling.
+            database_url: SQLAlchemy connection URL (e.g. 'sqlite+aiosqlite:///folioman.db').
+            user_id: Multi-tenant user or portfolio identifier. Defaults to 'default'.
+            start_scheduler: If True, starts an in-process thread scheduler for 6-hourly NAV refreshes.
+            engine: Optional pre-configured SQLAlchemy AsyncEngine.
         """
         self.base_url = (base_url or default_settings.base_url).rstrip("/")
         self.username = username if username is not None else default_settings.username
         self.password = password if password is not None else default_settings.password
         self.timeout = timeout
+        self.user_id = user_id
+        self._start_scheduler_flag = start_scheduler
+
+        # DB Engine & Internal Services
+        self._owns_engine = engine is None
+        self.engine = engine or create_folioman_engine(database_url)
+        self._import_service = CASImportService(engine=self.engine)
+        self._nav_service = NAVService(engine=self.engine)
+        self._isin_service = ISINService(engine=self.engine)
+        self._scheduler = (
+            FoliomanScheduler(engine=self.engine) if start_scheduler else None
+        )
 
         self._auth = JWTAuthManager(
             base_url=self.base_url,
@@ -392,13 +497,18 @@ class FoliomanClient:
             timeout=self.timeout,
         )
 
-        # Resource sub-clients
+        # Legacy REST resource sub-clients
         self.investors = InvestorsResource(self)
         self.portfolio = PortfolioResource(self)
         self.holdings = HoldingsResource(self)
         self.transactions = TransactionsResource(self)
         self.valuations = ValuationsResource(self)
         self.capital_gains = CapitalGainsResource(self)
+
+        # Embedded services
+        self.imports = ImportsResource(self, self._import_service)
+        self.navs = NavsResource(self, self._nav_service)
+        self.isin = ISINResource(self, self._isin_service)
 
     @classmethod
     def from_settings(cls, settings: FoliomanSettings) -> FoliomanClient:
@@ -415,6 +525,8 @@ class FoliomanClient:
             username=settings.username,
             password=settings.password,
             timeout=settings.timeout,
+            database_url=settings.resolved_database_url,
+            user_id=settings.user_id,
         )
 
     @classmethod
@@ -427,19 +539,21 @@ class FoliomanClient:
         return cls.from_settings(FoliomanSettings())
 
     async def __aenter__(self) -> FoliomanClient:
-        """Enter the async context manager.
-
-        Returns:
-            The FoliomanClient instance.
-        """
+        """Enter the async context manager and start scheduler if configured."""
+        if self._scheduler and not self._scheduler.is_running:
+            self._scheduler.start(blocking=False)
         return self
 
     async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
-        """Exit the async context manager and close HTTP connections."""
+        """Exit the async context manager, stopping scheduler and closing transports."""
         await self.close()
 
     async def close(self) -> None:
-        """Close the underlying HTTP transport if owned by this client."""
+        """Close HTTP transport, stop background scheduler, and dispose DB engine if owned."""
+        if self._scheduler and self._scheduler.is_running:
+            self._scheduler.shutdown()
+        if self._owns_engine and self.engine is not None:
+            await self.engine.dispose()
         if self._owns_http_client:
             await self._http_client.aclose()
 
@@ -573,4 +687,7 @@ __all__ = [
     "TransactionsResource",
     "ValuationsResource",
     "CapitalGainsResource",
+    "ImportsResource",
+    "NavsResource",
+    "ISINResource",
 ]

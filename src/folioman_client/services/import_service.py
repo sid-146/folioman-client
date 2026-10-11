@@ -663,6 +663,7 @@ class CASImportService:
             job.finished_at = datetime.now(timezone.utc)
             await session.commit()
 
+            summary["job_id"] = job.id
             summary["investor_id"] = investor.id
             summary["investor_name"] = investor.name
             summary["pan_masked"] = investor.pan_masked
