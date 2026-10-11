@@ -635,7 +635,12 @@ class SecurityIntegrityStatus(Base, TimeStampedMixin):
         DateTime(timezone=True), nullable=True
     )
 
+    investor: Mapped[Investor] = relationship("Investor")
+    security: Mapped[Security] = relationship("Security")
+    folio: Mapped[Folio] = relationship("Folio")
+
     __table_args__ = (
+
         UniqueConstraint(
             "investor_id",
             "security_id",
