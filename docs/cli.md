@@ -8,10 +8,9 @@
 
 All `folioman` commands support the following global options:
 
-- `--db <URL>`: SQLAlchemy database URL (e.g. `postgresql+psycopg://user:pass@localhost/portfolio`). If omitted, uses the `FOLIOMAN_DATABASE_URL` environment variable or defaults to SQLite (`~/.folioman/folioman.db`).
-- `--data-dir <PATH>`: Custom directory for local files and logs. Overrides `FOLIOMAN_DATA_DIR`.
-- `-v, --verbose`: Enable debug logging and verbose SQL output.
+- `--database-url <URL>`: SQLAlchemy database URL (e.g. `postgresql+psycopg://user:pass@localhost/portfolio`). If omitted, uses the `FOLIOMAN_DATABASE_URL` environment variable or defaults to SQLite (`~/.folioman/folioman.db`).
 - `--help`: Display help and usage information.
+- `--version`: Display `folioman` version.
 
 ---
 
@@ -124,10 +123,17 @@ Runs balance reconciliation and integrity verification.
 Re-reconciles trade ledger units against observed statement snapshots across all folios and investors:
 
 ```bash
-folioman reconcile all
+folioman reconcile all [--investor-id <ID>]
 ```
 
 This verifies unit balances, calculates any drift, and updates the `tax_safe` status required for capital gains reporting.
+
+#### `folioman reconcile acknowledge` / `clear`
+
+```bash
+folioman reconcile acknowledge --investor-id <ID> --security-id <SID> --folio-id <FID>
+folioman reconcile clear --investor-id <ID> --security-id <SID> --folio-id <FID>
+```
 
 ---
 
@@ -140,34 +146,100 @@ Fetches and caches corporate actions.
 Queries NSE/BSE feeds for recent stock splits, bonus shares, mergers, and dividends:
 
 ```bash
-folioman corporate-actions refresh
+folioman corporate-actions refresh [--since-year 2020]
 ```
 
 ---
 
-### 7. `folioman valuations`
+### 7. `folioman portfolio`
 
-Manages portfolio net-worth series rollups.
+Queries portfolio summaries, metrics, and asset mix.
 
-#### `folioman valuations extend`
-
-Rolls all active investor portfolio valuations forward to today:
+#### `folioman portfolio summary`
 
 ```bash
-folioman valuations extend
+folioman portfolio summary --investor-id <ID> [--as-of YYYY-MM-DD]
 ```
 
-#### `folioman valuations process-pending`
+Prints total valuation, day change, XIRR, tax-ready folio counts, asset allocation breakdown, and trailing period returns.
 
-Processes pending or failed valuation calculation tasks:
+---
+
+### 8. `folioman valuations`
+
+Manages daily valuation series, coverage checks, and background ticks.
+
+#### `folioman valuations status`
 
 ```bash
-folioman valuations process-pending
+folioman valuations status --investor-id <ID>
+folioman valuations status --family-id <ID>
+```
+
+#### `folioman valuations series`
+
+```bash
+folioman valuations series --investor-id <ID> [--granularity daily|weekly|monthly] [--from YYYY-MM-DD] [--to YYYY-MM-DD]
+```
+
+#### `folioman valuations tick`
+
+```bash
+# Process pending recomputations
+folioman valuations tick --pending
+
+# Enqueue daily valuation extensions
+folioman valuations tick --extend
 ```
 
 ---
 
-### 8. `folioman scheduler`
+### 9. `folioman capital-gains`
+
+Realized capital gains (STCG/LTCG) and official Schedule 112A reports.
+
+#### `folioman capital-gains list`
+
+```bash
+folioman capital-gains list --investor-id <ID> [--include-unreconciled]
+```
+
+Lists realized STCG and LTCG across each financial year.
+
+#### `folioman capital-gains report`
+
+```bash
+folioman capital-gains report --investor-id <ID> --fy "2024-25" [--csv schedule112a.csv] [--include-unreconciled]
+```
+
+Generates lot-level capital gains report with Section 112A grandfathering, and optionally exports official 15-column Schedule 112A CSV.
+
+---
+
+### 10. `folioman investors`, `folios`, `transactions`, `holdings`
+
+Entity management subcommands:
+
+```bash
+# Investors
+folioman investors list
+folioman investors get --investor-id <ID>
+folioman investors create --name "Investor Name" [--pan "ABCDE1234F"] [--email "user@example.com"]
+
+# Folios
+folioman folios list --investor-id <ID>
+folioman folios create --investor-id <ID> --number "FOLIO101" [--amc-code "HDFC"]
+
+# Transactions
+folioman transactions list --investor-id <ID> [--security-id <SID>]
+
+# Holdings
+folioman holdings list --investor-id <ID>
+```
+
+---
+
+### 11. `folioman scheduler`
 
 Runs an in-process background automation daemon.
 
@@ -177,18 +249,4 @@ Starts a blocking in-process scheduler (`APScheduler`) that automatically runs 6
 
 ```bash
 folioman scheduler run
-```
-
----
-
-### 9. `folioman demo`
-
-Demo and testing utilities.
-
-#### `folioman demo seed`
-
-Seeds the database with realistic synthetic investors, mutual fund portfolios, equity transactions, and historical NAVs for testing and demonstration:
-
-```bash
-folioman demo seed
 ```

@@ -42,12 +42,17 @@ To run with verbose output or targeted files:
 uv run pytest -v tests/test_client.py
 ```
 
-All 17 tests verify:
+All 224 tests verify:
 
-- Proactive and reactive JWT token handling
-- Concurrency locks
-- Resource method parsing and status code mapping
-- Serialization and model validation
+- Statement parsers (CAMS/KFintech CAS and NSDL/CDSL eCAS)
+- Reference master (ISIN, MF scheme dictionaries, Grandfathering NAVs)
+- Price feeds (mfapi.in, AMFI bulk, Yahoo Finance, NSE Bhavcopy)
+- Core FIFO lot accounting and Newton-Raphson XIRR solver
+- Corporate actions detection, replay, and cost re-allocation
+- Portfolio balance reconciliations and integrity gates
+- Contiguous daily valuation rollups, series reconstruction, and ticks
+- Indian capital gains (STCG/LTCG) and Schedule 112A CSV generation
+- CLI commands and embedded client resource delegations
 
 ---
 

@@ -35,6 +35,7 @@ async with FoliomanClient(
 ```mermaid
 graph LR
     Client[FoliomanClient] --> Inv[client.investors]
+    Client --> Fol[client.folios]
     Client --> Port[client.portfolio]
     Client --> Hold[client.holdings]
     Client --> Txn[client.transactions]
@@ -43,6 +44,9 @@ graph LR
     Client --> Imp[client.imports]
     Client --> Nav[client.navs]
     Client --> ISIN[client.isin]
+    Client --> Rec[client.reconcile]
+    Client --> Sym[client.symbols]
+    Client --> CA[client.corporate_actions]
 ```
 
 ---
@@ -87,7 +91,47 @@ Creates a new investor with an encrypted PAN.
 
 ---
 
-### 2. `client.portfolio`
+### 2. `client.folios`
+
+Manages mutual fund folios and broker demat accounts.
+
+#### `list()`
+
+```python
+async def list(investor_id: int) -> list[dict[str, Any]]
+```
+
+#### `create()`
+
+```python
+async def create(
+    investor_id: int,
+    number: str,
+    *,
+    amc_code: str | None = None,
+    broker: str | None = None,
+) -> dict[str, Any]
+```
+
+#### `delete()`
+
+```python
+async def delete(investor_id: int, folio_id: int) -> bool
+```
+
+#### `merge()`
+
+```python
+async def merge(
+    investor_id: int,
+    source_folio_id: int,
+    target_folio_id: int,
+) -> dict[str, Any]
+```
+
+---
+
+### 3. `client.portfolio`
 
 Retrieves consolidated portfolio valuation, asset allocation, and XIRR.
 
@@ -104,16 +148,17 @@ async def get(
 Calculates point-in-time portfolio metrics:
 
 - `total_inr`: Current market value.
-- `invested_inr`: Total invested amount (FIFO cost basis).
-- `unrealized_pnl_inr`: Absolute profit/loss.
-- `return_pct`: Total percentage gain.
-- `xirr`: Money-weighted annualized return.
-- `asset_mix`: Allocation across Equity, Debt, Hybrid, Other.
-- `holdings`: Full list of priced holdings.
+- `holdings_count`: Count of active holdings.
+- `tax_ready_count`: Count of reconciled positions ready for tax calculations.
+- `day_change_inr`: Daily valuation change in INR.
+- `xirr`: Money-weighted annualized internal rate of return.
+- `asset_mix`: Allocation across Equity, Debt, Cash, etc.
+- `top_holdings`: Leading holdings by market value.
+- `period_returns`: Trailing performance across standard periods (`1M`, `3M`, `6M`, `1Y`, `3Y`, `5Y`, `ALL`).
 
 ---
 
-### 3. `client.holdings`
+### 4. `client.holdings`
 
 Queries individual positions and scheme details.
 
@@ -144,7 +189,7 @@ Returns detailed historical metrics for a single scheme, including transaction l
 
 ---
 
-### 4. `client.transactions`
+### 5. `client.transactions`
 
 Accesses the raw immutable ledger.
 
@@ -158,7 +203,7 @@ Returns all ledger entries (buys, sells, transfers, dividends) sorted chronologi
 
 ---
 
-### 5. `client.valuations`
+### 6. `client.valuations`
 
 Accesses net-worth time-series data.
 
@@ -186,7 +231,7 @@ Returns readiness status of the portfolio valuation series.
 
 ---
 
-### 6. `client.capital_gains`
+### 7. `client.capital_gains`
 
 Indian tax reporting and Schedule 112A calculations.
 
@@ -215,9 +260,22 @@ async def get(
 
 Generates a lot-level capital gains report for a specific financial year (e.g. `"2024-25"`), factoring in Section 112A 2018 grandfathering FMVs and the 23-Jul-2024 Budget regime cutoff.
 
+#### `schedule_112a()`
+
+```python
+async def schedule_112a(
+    investor_id: int,
+    *,
+    fy: str,
+    include_unreconciled: bool = False,
+) -> dict[str, Any]
+```
+
+Exports official 15-column Income-tax Schedule 112A dictionary with headers matching the official ITR JSON / CSV utility.
+
 ---
 
-### 7. `client.imports`
+### 8. `client.imports`
 
 Ingests statement files.
 
@@ -236,7 +294,7 @@ Parses CAMS/KFintech or NSDL/CDSL eCAS PDF statements, normalizes folios, dedupl
 
 ---
 
-### 8. `client.navs`
+### 9. `client.navs`
 
 Manages price feeds.
 
@@ -258,7 +316,7 @@ Backfills missing historical NAV gaps between the earliest trade date and today.
 
 ---
 
-### 9. `client.isin`
+### 10. `client.isin`
 
 Manages the reference directory.
 
@@ -277,3 +335,71 @@ async def status() -> dict[str, Any]
 ```
 
 Returns current reference dictionary version and statistics.
+
+---
+
+### 11. `client.reconcile`
+
+Manages folio unit integrity and reconciliation checks against statements.
+
+#### `all()`
+
+```python
+async def all(*, user_id: str | None = None) -> dict[str, Any]
+```
+
+Reconciles all positions across all investors.
+
+#### `investor()`
+
+```python
+async def investor(investor_id: int) -> dict[str, Any]
+```
+
+Reconciles all security positions for a single investor.
+
+#### `acknowledge()` / `clear()`
+
+```python
+async def acknowledge(investor_id: int, security_id: int, folio_id: int) -> dict[str, Any]
+async def clear(investor_id: int, security_id: int, folio_id: int) -> dict[str, Any]
+```
+
+Acknowledges or clears discrepancy flags on mismatched holdings.
+
+---
+
+### 12. `client.symbols`
+
+Exchange trading symbol resolution.
+
+#### `resolve()`
+
+```python
+async def resolve(
+    *,
+    dry_run: bool = False,
+    backfill: bool = False,
+    force_backfill: bool = False,
+) -> dict[str, Any]
+```
+
+Resolves missing NSE/BSE ticker symbols from ISIN codes.
+
+---
+
+### 13. `client.corporate_actions`
+
+Corporate actions discovery and event ingestion.
+
+#### `refresh()`
+
+```python
+async def refresh(
+    *,
+    security_ids: list[int] | None = None,
+    since_year: int = 2020,
+) -> dict[str, Any]
+```
+
+Refreshes stock splits, bonus shares, mergers, and demerger actions from NSE/BSE archives.

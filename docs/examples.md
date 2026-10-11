@@ -30,11 +30,12 @@ async def main() -> None:
         # Step 3: Print portfolio valuation
         summary = await client.portfolio.get(investor_id=1)
         print(f"\n=== Portfolio Summary as of {summary.as_of} ===")
-        print(f"Market Value: INR {summary.total_inr:,.2f}")
-        print(f"Cost Basis:   INR {summary.invested_inr:,.2f}")
-        print(f"Absolute P&L: INR {summary.unrealized_pnl_inr:,.2f} ({summary.return_pct:.2f}%)")
+        print(f"Total Valuation: INR {summary.total_inr:,.2f}")
+        print(f"Holdings Count:  {summary.holdings_count}")
+        if summary.day_change_inr is not None:
+            print(f"Day Change:      INR {summary.day_change_inr:,.2f}")
         if summary.xirr is not None:
-            print(f"Annual XIRR:  {summary.xirr * 100:.2f}%")
+            print(f"Annual XIRR:     {summary.xirr * 100:.2f}%")
 
         # Step 4: Asset allocation breakdown
         print("\n--- Asset Allocation ---")
@@ -50,7 +51,7 @@ if __name__ == "__main__":
 
 ## 2. Generating Schedule 112A Realized Capital Gains (Tax Filing)
 
-Generate a detailed lot-level report for the Indian Income Tax Return (ITR):
+Generate a detailed lot-level report and official 15-column Schedule 112A export for the Indian Income Tax Return (ITR):
 
 ```python
 import asyncio
@@ -64,17 +65,21 @@ async def main() -> None:
 
         print(f"=== Capital Gains Report for FY {report.fy} ===")
         print(f"Total Disposals: {len(report.rows)}")
-        print(f"Realized STCG:   INR {report.summary.stcg_inr:,.2f}")
-        print(f"Realized LTCG:   INR {report.summary.ltcg_inr:,.2f}")
-        print(f"Total Gain:      INR {report.summary.total_gain_inr:,.2f}")
+        print(f"Realized STCG:   INR {report.stcg_total:,.2f}")
+        print(f"Realized LTCG:   INR {report.ltcg_total:,.2f}")
 
         # Display Schedule 112A eligible lots
         print("\n--- Disposal Lot Details ---")
         for row in report.rows[:5]:
+            gf_flag = " (!)" if row.grandfathering_unavailable else ""
             print(
-                f"{row.security_name[:25]:<26} | Sold: {row.date} | "
-                f"Units: {row.units:>8.3f} | Gain: INR {row.gain_inr:>10,.2f} ({row.term})"
+                f"{row.name[:25]:<26} | Acquired: {row.acquired_on} | Sold: {row.sold_on} | "
+                f"Units: {row.units:>8.3f} | Gain: INR {row.gain:>10,.2f} ({row.term.upper()}){gf_flag}"
             )
+
+        # Export official Schedule 112A CSV format
+        s112a = await client.capital_gains.schedule_112a(investor_id=1, fy="2024-25")
+        print(f"\nGenerated Schedule 112A rows: {s112a['row_count']}")
 
 
 if __name__ == "__main__":

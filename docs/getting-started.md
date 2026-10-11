@@ -118,20 +118,22 @@ async def main() -> None:
             # 5. Fetch full portfolio summary
             summary = await client.portfolio.get(inv.id)
             print(f"  Total Portfolio Value: INR {summary.total_inr:,.2f}")
-            print(f"  Total Cost Basis:     INR {summary.invested_inr:,.2f}")
+            print(f"  Holdings Count:       {summary.holdings_count}")
+            if summary.day_change_inr is not None:
+                print(f"  Day Change:           INR {summary.day_change_inr:,.2f}")
             if summary.xirr is not None:
                 print(f"  Annualized XIRR:      {summary.xirr * 100:.2f}%")
 
             # 6. Inspect priced holdings
             holdings = await client.holdings.list(inv.id)
-            print(f"  Holdings count:       {len(holdings)}")
+            print(f"  Priced holdings:      {len(holdings)}")
             for h in holdings[:5]:
                 print(f"    - {h.name}: {h.units} units | INR {h.value_inr:,.2f}")
 
             # 7. Generate Realized Capital Gains Report (Schedule 112A)
             gains = await client.capital_gains.get(inv.id, fy="2024-25")
-            print(f"  FY 2024-25 Realized LTCG: INR {gains.summary.ltcg_inr:,.2f}")
-            print(f"  FY 2024-25 Realized STCG: INR {gains.summary.stcg_inr:,.2f}")
+            print(f"  FY 2024-25 Realized LTCG: INR {gains.ltcg_total:,.2f}")
+            print(f"  FY 2024-25 Realized STCG: INR {gains.stcg_total:,.2f}")
 
 
 if __name__ == "__main__":
