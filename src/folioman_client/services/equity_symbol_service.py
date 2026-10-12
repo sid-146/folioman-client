@@ -21,6 +21,9 @@ from folioman_client.services.nav_service import NAVService
 logger = logging.getLogger(__name__)
 
 _QUOTE_TYPES = {
+    SecurityType.EQUITY.value,
+    SecurityType.ETF.value,
+    SecurityType.BOND.value,
     SecurityType.EQUITY.value.upper(),
     SecurityType.ETF.value.upper(),
     SecurityType.BOND.value.upper(),

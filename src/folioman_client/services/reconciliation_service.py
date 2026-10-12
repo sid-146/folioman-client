@@ -142,7 +142,7 @@ class ReconciliationService:
     async def _cached_actions_for_security(
         self, session: AsyncSession, security: Security
     ) -> list[CachedCorporateAction]:
-        if security.security_type != SecurityType.EQUITY.value.upper():
+        if (security.security_type or "").upper() != SecurityType.EQUITY.value.upper():
             return []
         stmt = select(CorporateActionReference).where(
             (CorporateActionReference.security_id == security.id)
@@ -300,7 +300,8 @@ class ReconciliationService:
         # 6. Corporate Action & Opening Lot detection for Equities
         if (
             result is not None
-            and security.security_type == SecurityType.EQUITY.value.upper()
+            and (security.security_type or "").upper()
+            == SecurityType.EQUITY.value.upper()
         ):
             cached_actions = await self._cached_actions_for_security(session, security)
             applied_refs_stmt = select(AppliedCorporateAction.source_ref).where(

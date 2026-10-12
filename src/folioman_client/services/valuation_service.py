@@ -114,7 +114,7 @@ def _category_label(security: Security) -> str:
     fund_type = (meta.get("fund_type") or "").strip()
     if fund_type:
         return fund_type.title()
-    return _SECURITY_TYPE_CATEGORY.get(security.security_type, "Other")
+    return _SECURITY_TYPE_CATEGORY.get((security.security_type or "").lower(), "Other")
 
 
 def _trim(d: Decimal) -> str:
@@ -832,7 +832,7 @@ class ValuationService:
             unpriced_fund_count = sum(
                 1
                 for row in valuation.stale_rows
-                if meta_by_sec.get(row.security, (None,) * 5)[2]
+                if (meta_by_sec.get(row.security, (None,) * 5)[2] or "").lower()
                 == SecurityType.MF.value
             )
 
@@ -1211,7 +1211,7 @@ class ValuationService:
         invested_inr: Decimal | None,
     ) -> dict[str, Any]:
         """Dividend detail for equity scheme view."""
-        if security.security_type != SecurityType.EQUITY.value:
+        if (security.security_type or "").lower() != SecurityType.EQUITY.value:
             return {
                 "dividends": [],
                 "dividends_received_inr": None,

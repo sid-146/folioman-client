@@ -140,7 +140,9 @@ class CorporateActionService:
 
         async with self.session_factory() as session:
             stmt = select(Security).where(
-                Security.security_type == SecurityType.EQUITY.value.upper(),
+                Security.security_type.in_(
+                    [SecurityType.EQUITY.value, SecurityType.EQUITY.value.upper()]
+                ),
                 Security.symbol != "",
             )
             if security_ids:

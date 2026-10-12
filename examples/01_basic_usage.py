@@ -33,15 +33,16 @@ async def main():
         print(f"Total value : {summary.total_inr:,.2f}")
 
         holdings = await client.holdings.list(investor_id=1)
-        # BUG value_inr is coming as 0 for holding
         for h in holdings:
-            print(
-                f"- {h.name}: {h.units} units | Value: INR {h.value_inr:,.2f} | XIRR: {h.xirr:.2%}"
+            val_str = (
+                f"INR {h.value_inr:,.2f}" if h.value_inr is not None else "Unpriced"
             )
+            xirr_str = f"{h.xirr:.2%}" if h.xirr is not None else "N/A"
+            print(f"- {h.name}: {h.units} units | Value: {val_str} | XIRR: {xirr_str}")
         # 4. Generate Realized Capital Gains Report (Schedule 112A)
         gains = await client.capital_gains.get(investor_id=1, fy="2025-26")
-        print(f"FY 2025-26 Realized LTCG: INR {gains.summary.ltcg_inr:,.2f}")
-        print(f"FY 2025-26 Realized STCG: INR {gains.summary.stcg_inr:,.2f}")
+        print(f"FY 2025-26 Realized LTCG: INR {gains.ltcg_total:,.2f}")
+        print(f"FY 2025-26 Realized STCG: INR {gains.stcg_total:,.2f}")
     return
 
 

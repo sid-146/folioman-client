@@ -43,6 +43,10 @@ _QUOTE_TYPES = {
     SecurityType.ETF.value,
     SecurityType.BOND.value,
     SecurityType.FOREIGN_EQUITY.value,
+    SecurityType.EQUITY.value.upper(),
+    SecurityType.ETF.value.upper(),
+    SecurityType.BOND.value.upper(),
+    SecurityType.FOREIGN_EQUITY.value.upper(),
 }
 
 REVALUE_HOURS: tuple[int, ...] = (4, 10, 16, 22)
@@ -55,10 +59,10 @@ _MF_BULK_MAX_LAG = 14
 
 def _feed_code(security: Security) -> str:
     """The identifier the refresh would query for this security, or empty string."""
-    stype = security.security_type
+    stype = (security.security_type or "").lower()
     if stype == SecurityType.MF.value:
         return security.amfi_code or security.isin
-    if stype in _QUOTE_TYPES:
+    if stype in {t.lower() for t in _QUOTE_TYPES}:
         return security.symbol
     if stype == SecurityType.CRYPTO.value:
         return (security.metadata_json or {}).get("coin_id") or ""
@@ -170,7 +174,7 @@ def _fetch_equity_latest(
     security: Security, clients: _FeedClients
 ) -> tuple[date, Decimal, str] | None:
     """Fetch latest equity close: NSE-first for Indian symbols, Yahoo fallback."""
-    stype = security.security_type
+    stype = (security.security_type or "").lower()
     if stype != SecurityType.FOREIGN_EQUITY.value and security.exchange in ("", "NSE"):
         since = last_trading_day(date.today()) - timedelta(days=_QUOTE_LOOKBACK_DAYS)
         try:
@@ -192,10 +196,11 @@ def _fetch_point(
     security: Security, clients: _FeedClients
 ) -> tuple[date, Decimal, str] | None:
     """Return (date, nav, source) for the latest price, or None if unavailable."""
-    stype = security.security_type
+    stype = (security.security_type or "").lower()
+    quote_types = {t.lower() for t in _QUOTE_TYPES}
     if stype == SecurityType.MF.value:
         return _fetch_mf_latest(security, clients)
-    if stype in _QUOTE_TYPES and security.symbol:
+    if stype in quote_types and security.symbol:
         return _fetch_equity_latest(security, clients)
     if stype == SecurityType.CRYPTO.value:
         coin_id = (security.metadata_json or {}).get("coin_id")
@@ -244,13 +249,14 @@ def _bulk_point(
     security: Security, mf_map: dict, eq_map: dict
 ) -> tuple[date, Decimal, str] | None:
     """Lookup latest price in pre-fetched bulk maps."""
-    stype = security.security_type
+    stype = (security.security_type or "").lower()
+    quote_types = {t.lower() for t in _QUOTE_TYPES}
     if stype == SecurityType.MF.value:
         for key in (security.amfi_code, security.isin):
             if key and key in mf_map:
                 return mf_map[key]
     elif (
-        stype in _QUOTE_TYPES
+        stype in quote_types
         and stype != SecurityType.FOREIGN_EQUITY.value
         and security.symbol
         and security.exchange in ("", "NSE")
@@ -381,7 +387,8 @@ class NAVService:
                 else:
                     stmt = select(Security)
                     if types:
-                        valid_types = [t.lower().strip() for t in types]
+                        valid_types = {t.lower().strip() for t in types}
+                        valid_types = valid_types | {t.upper() for t in valid_types}
                         stmt = stmt.where(Security.security_type.in_(valid_types))
                     res = await session.execute(stmt)
                     target_securities = list(res.scalars().all())
@@ -470,8 +477,10 @@ class NAVService:
                     res = await session.execute(stmt)
                     securities = list(res.scalars().all())
                 else:
-                    types = [SecurityType.MF.value, *_QUOTE_TYPES]
-                    stmt = select(Security).where(Security.security_type.in_(types))
+                    quote_types = {t.lower() for t in _QUOTE_TYPES}
+                    types = {SecurityType.MF.value, *quote_types}
+                    db_types = types | {t.upper() for t in types}
+                    stmt = select(Security).where(Security.security_type.in_(db_types))
                     res = await session.execute(stmt)
                     securities = list(res.scalars().all())
 
@@ -498,8 +507,10 @@ class NAVService:
                     # Fetch history
                     history = None
                     source = ""
+                    stype = (security.security_type or "").lower()
+                    quote_types = {t.lower() for t in _QUOTE_TYPES}
                     try:
-                        if security.security_type == SecurityType.MF.value:
+                        if stype == SecurityType.MF.value:
                             fetched = await asyncio.to_thread(
                                 _fetch_mf_history,
                                 security,
@@ -509,7 +520,7 @@ class NAVService:
                             )
                             if fetched:
                                 history, source = fetched
-                        elif security.security_type in _QUOTE_TYPES:
+                        elif stype in quote_types:
                             if security.symbol:
                                 fetched = await asyncio.to_thread(
                                     _fetch_equity_history,
