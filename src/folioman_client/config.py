@@ -75,6 +75,7 @@ class FoliomanSettings(BaseSettings):
         elif os.environ.get("FOLIOMAN_DATA_DIR"):
             p = Path(os.environ["FOLIOMAN_DATA_DIR"])
         else:
+            # Used for local SQLite database and encryption key storage.
             p = Path(user_data_dir("folioman", "folioman"))
         p.mkdir(parents=True, exist_ok=True)
         return p

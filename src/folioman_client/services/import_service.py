@@ -489,6 +489,7 @@ class CASImportService:
                                 or security.symbol
                                 or str(security.id)
                             )
+                            # This code ensures that existing transactions are not duplicated in the database.
                             for line in block.transactions:
                                 key = _dedup_key(sec_ident, folio.number, line)
                                 # Check duplicate

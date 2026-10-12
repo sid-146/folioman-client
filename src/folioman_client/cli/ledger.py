@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import date
-from decimal import Decimal
 import click
 
 from folioman_client.services.ledger_service import LedgerService
