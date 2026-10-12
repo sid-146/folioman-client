@@ -69,6 +69,11 @@ nav:
         - CLI Reference: cli.md
         - Python Client SDK: client.md
         - Examples: examples.md
+    - System Walkthrough:
+        - Overview: walk through/index.md
+        - Mutual Funds Flow: walk through/mutual-funds.md
+        - Stocks & Equities Flow: walk through/stocks.md
+        - ETFs & Other Assets Flow: walk through/etfs-and-others.md
     - Reference & Architecture:
         - Models: models.md
         - Errors: errors.md
