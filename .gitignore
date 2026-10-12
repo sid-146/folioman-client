@@ -219,3 +219,5 @@ __marimo__/
 .streamlit/secrets.toml
 temp_demo.db-shm
 temp_demo.db-wal
+examples/data/
+.DS_Store
