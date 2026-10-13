@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import asyncio
+import sys
+import warnings
+
 import click
 
 from folioman_client import __version__
@@ -37,6 +41,14 @@ def cli(ctx: click.Context, database_url: str | None) -> None:
     ctx.ensure_object(dict)
     if database_url:
         settings.database_url = database_url
+
+    if sys.platform == "win32":
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            try:
+                asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+            except Exception:
+                pass
 
 
 # Register subcommands
