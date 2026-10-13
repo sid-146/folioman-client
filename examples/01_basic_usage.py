@@ -29,7 +29,6 @@ async def main():
 
         print("\n\nPortfolio Summary")
         summary = await client.portfolio.get(investor_id=1)
-        # BUG total value is coming as 0 for all holding
         print(f"Total value : {summary.total_inr:,.2f}")
 
         holdings = await client.holdings.list(investor_id=1)
