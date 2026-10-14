@@ -9,9 +9,7 @@ load_dotenv()
 async def main():
     # Minimum setup; Default to local sqlite database.
     # Replace the URL with your database url.
-    async with FoliomanClient(
-        database_url="sqlite:///./.cache/folioman-example.db"
-    ) as client:
+    async with FoliomanClient(database_url=os.getenv("DB_URL")) as client:
         print("Importing cas file")
         job = await client.imports.cas_pdf(
             os.getenv("CAS_FILE_PATH"), os.getenv("CAS_FILE_PASS")
