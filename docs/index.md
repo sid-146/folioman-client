@@ -109,7 +109,7 @@ async def main() -> None:
     async with FoliomanClient() as client:
         # Ingest statement
         job = await client.imports.cas_pdf("cas_statement.pdf", password="MY_PAN_NUMBER")
-        print(f"Imported {job.result.get('transactions_created', 0)} transactions.")
+        print(f"Imported {job.get('transactions_created', 0)} transactions.")
 
         # Sync latest NAVs & prices
         await client.navs.refresh()
@@ -122,7 +122,8 @@ async def main() -> None:
         # Inspect priced holdings
         holdings = await client.holdings.list(investor_id=1)
         for h in holdings:
-            print(f"- {h.name}: {h.units} units | Value: INR {h.value_inr:,.2f}")
+            val_str = f"INR {h.value_inr:,.2f}" if h.value_inr is not None else "Unpriced"
+            print(f"- {h.name}: {h.units} units | Value: {val_str}")
 
 
 if __name__ == "__main__":

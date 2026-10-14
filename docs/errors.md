@@ -14,6 +14,9 @@ graph TD
     FoliomanParseError --> FoliomanPasswordError[FoliomanPasswordError]
     FoliomanError --> FoliomanFeedError[FoliomanFeedError]
     FoliomanError --> FoliomanDatabaseError[FoliomanDatabaseError]
+    FoliomanError --> FernetKeyUnavailable[FernetKeyUnavailable]
+    FoliomanError --> FoliomanAuthError[FoliomanAuthError]
+    FoliomanError --> FoliomanAPIError[FoliomanAPIError]
 ```
 
 ---
@@ -96,3 +99,44 @@ class FoliomanDatabaseError(FoliomanError):
 
 - **When Raised**:
     - Database URL is unreachable or connection pool is exhausted.
+    - Database integrity violation or unrecoverable SQL syntax error.
+
+---
+
+### `FernetKeyUnavailable`
+
+```python
+class FernetKeyUnavailable(FoliomanError):
+    """Raised when no valid Fernet key can be resolved for PAN encryption."""
+```
+
+- **When Raised**:
+    - The `FOLIOMAN_FERNET_KEY` is missing or invalid, and the local fallback key file (`~/.folioman/fernet.key`) cannot be read or created.
+- **Recommended Action**:
+    - Set `FOLIOMAN_FERNET_KEY` to a valid 32-byte URL-safe base64 string or check filesystem write permissions.
+
+---
+
+### `FoliomanAuthError`
+
+```python
+class FoliomanAuthError(FoliomanError):
+    """Raised when authentication fails (invalid credentials, expired/rejected token refresh)."""
+```
+
+- **When Raised**:
+    - Invalid username or password in legacy remote REST client mode.
+    - Token refresh request fails or is rejected by remote server.
+
+---
+
+### `FoliomanAPIError`
+
+```python
+class FoliomanAPIError(FoliomanError):
+    """Raised when the remote Folioman API returns an error response (HTTP 4xx/5xx)."""
+```
+
+- **Attributes**:
+    - `status_code`: HTTP status code returned by the server (e.g. 400, 500).
+    - `response_data`: Raw text or deserialized JSON response payload.

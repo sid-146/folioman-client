@@ -21,7 +21,7 @@ async def main() -> None:
             file_path="CAMS_CAS_Jan2026.pdf",
             password="ABCDE1234F",
         )
-        print(f"Transactions created: {job.result.get('transactions_created')}")
+        print(f"Transactions created: {job.get('transactions_created', 0)}")
 
         # Step 2: Fetch latest NAVs and prices
         print("Updating market prices...")
@@ -167,6 +167,74 @@ async def main() -> None:
         # Keep process alive
         while True:
             await asyncio.sleep(3600)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+---
+
+## 6. Safely Inspecting Priced Holdings
+
+List active holdings with safe formatting for optional fields (`value_inr` and `xirr` may be `None` if securities are unpriced):
+
+```python
+import asyncio
+from folioman_client import FoliomanClient
+
+
+async def main() -> None:
+    async with FoliomanClient() as client:
+        holdings = await client.holdings.list(investor_id=1)
+        print(f"Total active holdings: {len(holdings)}")
+
+        for h in holdings:
+            val_str = f"INR {h.value_inr:,.2f}" if h.value_inr is not None else "Unpriced"
+            xirr_str = f"{h.xirr:.2%}" if h.xirr is not None else "N/A"
+            nav_str = f"₹{h.latest_nav:,.2f}" if h.latest_nav is not None else "N/A"
+            print(
+                f"- {h.name}: {h.units:,.3f} units | NAV: {nav_str} | "
+                f"Value: {val_str} | XIRR: {xirr_str}"
+            )
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+---
+
+## 7. Ingesting Demat eCAS Statements (Stocks & ETFs)
+
+Ingest an NSDL or CDSL eCAS PDF, resolve exchange ticker symbols via the national reference catalog, and backfill stock closing prices:
+
+```python
+import asyncio
+from folioman_client import FoliomanClient
+
+
+async def main() -> None:
+    async with FoliomanClient() as client:
+        # Step 1: Ingest depository eCAS PDF statement
+        print("Importing demat eCAS...")
+        job = await client.imports.cas_pdf(
+            file_path="NSDL_eCAS_Statement.pdf",
+            password="INVESTOR_PAN",
+        )
+        print(f"Holdings snapshotted: {job.get('holdings_snapshotted', 0)}")
+
+        # Step 2: Resolve ISINs to NSE symbols using reference catalog
+        resolved = await client.symbols.resolve(backfill=True)
+        print(f"Trading symbols updated: {resolved.get('updated_count', 0)}")
+
+        # Step 3: Refresh stock closing prices from NSE Bhavcopy
+        await client.navs.refresh(types=["equity", "etf"])
+
+        # Step 4: View equity holdings
+        holdings = await client.holdings.list(investor_id=1)
+        for h in holdings:
+            print(f"- {h.symbol or h.name}: {h.units} shares | Value: INR {h.value_inr:,.2f}")
 
 
 if __name__ == "__main__":

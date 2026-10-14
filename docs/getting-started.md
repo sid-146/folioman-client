@@ -104,7 +104,7 @@ async def main() -> None:
             file_path="CAS_Jan_2026.pdf",
             password="ABCDE1234F",
         )
-        print(f"Imported successfully! Created {job.result.get('transactions_created', 0)} transactions.")
+        print(f"Imported successfully! Created {job.get('transactions_created', 0)} transactions.")
 
         # 3. Refresh market NAVs
         print("Refreshing market NAVs...")
@@ -128,7 +128,8 @@ async def main() -> None:
             holdings = await client.holdings.list(inv.id)
             print(f"  Priced holdings:      {len(holdings)}")
             for h in holdings[:5]:
-                print(f"    - {h.name}: {h.units} units | INR {h.value_inr:,.2f}")
+                val = f"INR {h.value_inr:,.2f}" if h.value_inr is not None else "Unpriced"
+                print(f"    - {h.name}: {h.units} units | {val}")
 
             # 7. Generate Realized Capital Gains Report (Schedule 112A)
             gains = await client.capital_gains.get(inv.id, fy="2024-25")

@@ -150,7 +150,9 @@ async with FoliomanClient(database_url="sqlite+aiosqlite:///folioman.db") as cli
         file_path="cams_cas.pdf",
         password="investor_pan_or_pass",
     )
-    print(f"Imported {summary['transactions']} transactions into local database.")
+    print(
+        f"Imported {summary.get('transactions_created', 0)} transactions into local database."
+    )
 ```
 
 ### Step 3: Run Valuations and Tax Locally
@@ -160,18 +162,21 @@ Instead of querying a remote server for portfolio valuation and capital gains, c
 ```python
 async with FoliomanClient(database_url="sqlite+aiosqlite:///folioman.db") as client:
     # 1. Update latest mutual fund NAVs from AMFI
-    await client.navs.update_amfi()
+    await client.navs.refresh(types=["mf"])
 
     # 2. Compute portfolio valuation as of today
-    portfolio = await client.portfolio.get(investor_id=1)
-    print(f"Total Portfolio Value: {portfolio.total_value:,.2f}")
+    portfolio = await client.portfolio.summary(investor_id=1)
+    val = float(portfolio.total_inr) if portfolio.total_inr else 0.0
+    print(f"Total Portfolio Value: INR {val:,.2f}")
 
     # 3. Compute Schedule 112A capital gains report for FY 2024-25
-    gains = await client.capital_gains.calculate_fy(
+    gains = await client.capital_gains.get(
         investor_id=1,
-        financial_year="2024-2025",
+        fy="2024-25",
     )
-    print(f"LTCG: {gains.ltcg_total:,.2f} | STCG: {gains.stcg_total:,.2f}")
+    stcg = float(gains.stcg_total) if gains.stcg_total else 0.0
+    ltcg = float(gains.ltcg_total) if gains.ltcg_total else 0.0
+    print(f"LTCG: INR {ltcg:,.2f} | STCG: INR {stcg:,.2f}")
 ```
 
 ### Summary of Configuration Mapping

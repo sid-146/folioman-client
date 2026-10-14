@@ -287,14 +287,15 @@ Ingests statement files.
 
 ```python
 async def cas_pdf(
-    file_path: str | Path | BinaryIO,
+    file_path_or_bytes: str | Path | bytes | BinaryIO,
     password: str,
     *,
     investor_id: int | None = None,
-) -> ImportJob
+    source_ref: str = "",
+) -> dict[str, Any]
 ```
 
-Parses CAMS/KFintech or NSDL/CDSL eCAS PDF statements, normalizes folios, deduplicates transactions via SHA-256 content hashes, and queues NAV backfills.
+Parses CAMS/KFintech or NSDL/CDSL eCAS PDF statements, normalizes folios, deduplicates transactions via SHA-256 content hashes, and records transactions in the ledger. Returns a summary dictionary containing counts of created/skipped transactions, schemes, and quarantined blocks.
 
 ---
 
@@ -318,11 +319,27 @@ async def backfill(*, force: bool = False) -> dict[str, Any]
 
 Backfills missing historical NAV gaps between the earliest trade date and today.
 
+#### `freshness()`
+
+```python
+async def freshness() -> list[dict[str, Any]]
+```
+
+Returns price freshness status (`fresh`, `grace`, `stale`, `pending`, `closed`, `no_feed`), lag in trading days, and latest recorded date for all active portfolio securities.
+
 ---
 
 ### 10. `client.isin`
 
 Manages the reference directory.
+
+#### `seed()`
+
+```python
+async def seed(*, force: bool = False, source_path: Path | None = None) -> dict[str, Any]
+```
+
+Ingests the bundled offline national reference catalog into the database, populating `ref_schemes`, `ref_isins`, and `ref_grandfathering_navs`.
 
 #### `update()`
 
@@ -362,6 +379,18 @@ async def investor(investor_id: int) -> dict[str, Any]
 
 Reconciles all security positions for a single investor.
 
+#### `position()`
+
+```python
+async def position(
+    investor_id: int,
+    security_id: int,
+    folio_id: int,
+) -> SecurityIntegrityStatus | None
+```
+
+Reconciles and returns the integrity status for a specific (investor, security, folio) position (`MATCH`, `SNAPSHOT_ONLY`, `LEDGER_ONLY`, `MISMATCH`).
+
 #### `acknowledge()` / `clear()`
 
 ```python
@@ -369,7 +398,7 @@ async def acknowledge(investor_id: int, security_id: int, folio_id: int) -> dict
 async def clear(investor_id: int, security_id: int, folio_id: int) -> dict[str, Any]
 ```
 
-Acknowledges or clears discrepancy flags on mismatched holdings.
+Manually acknowledges or clears discrepancy flags on mismatched holdings, toggling `tax_safe` status.
 
 ---
 
@@ -394,7 +423,7 @@ Resolves missing NSE/BSE ticker symbols from ISIN codes.
 
 ### 13. `client.corporate_actions`
 
-Corporate actions discovery and event ingestion.
+Corporate actions discovery, inspection, and event application.
 
 #### `refresh()`
 
@@ -402,8 +431,34 @@ Corporate actions discovery and event ingestion.
 async def refresh(
     *,
     security_ids: list[int] | None = None,
-    since_year: int = 2020,
+    since_year: int = 2016,
 ) -> dict[str, Any]
 ```
 
-Refreshes stock splits, bonus shares, mergers, and demerger actions from NSE/BSE archives.
+Fetches stock splits, bonus shares, dividends, and rights announcements from NSE/BSE exchange feeds back to `since_year`.
+
+#### `list()`
+
+```python
+async def list(
+    *,
+    security_id: int | None = None,
+    isin: str | None = None,
+    symbol: str | None = None,
+    kind: str | None = None,
+) -> list[dict[str, Any]]
+```
+
+Lists cached corporate action announcements matching filter criteria (e.g. `kind="bonus"`, `symbol="TCS"`).
+
+#### `apply()`
+
+```python
+async def apply(
+    investor_id: int,
+    folio_id: int,
+    reference_id: int,
+) -> dict[str, Any]
+```
+
+Applies a specific cached corporate action announcement to an investor folio position.
