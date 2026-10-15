@@ -1,6 +1,7 @@
 """Folioman database module: models, engine, and migrations."""
 
 from folioman_client.db.engine import create_folioman_engine, create_sessionmaker
+from folioman_client.db.errors import handle_db_errors, translate_integrity_error
 from folioman_client.db.migrations import (
     CURRENT_SCHEMA_VERSION,
     get_schema_version,
@@ -35,6 +36,8 @@ __all__ = [
     "Base",
     "create_folioman_engine",
     "create_sessionmaker",
+    "handle_db_errors",
+    "translate_integrity_error",
     "init_schema",
     "get_schema_version",
     "CURRENT_SCHEMA_VERSION",
