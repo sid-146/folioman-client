@@ -37,6 +37,7 @@ Because statements frequently need to match existing investor records during re-
     import hashlib
     import hmac
 
+
     def pan_hash(pan: str, key_bytes: bytes) -> str:
         return hmac.new(key_bytes, pan.strip().upper().encode(), hashlib.sha256).hexdigest()
     ```

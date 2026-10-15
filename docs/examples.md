@@ -131,12 +131,16 @@ DATABASE_URL = "postgresql+psycopg://advisor:secret@localhost:5432/wealth_db"
 
 async def main() -> None:
     # Client for Advisor A
-    async with FoliomanClient(database_url=DATABASE_URL, user_id="advisor_alpha") as client_a:
+    async with FoliomanClient(
+        database_url=DATABASE_URL, user_id="advisor_alpha"
+    ) as client_a:
         inv_a = await client_a.investors.create("Ramesh Sharma")
         print(f"Created Investor in Alpha: {inv_a.name} (ID: {inv_a.id})")
 
     # Client for Advisor B
-    async with FoliomanClient(database_url=DATABASE_URL, user_id="advisor_beta") as client_b:
+    async with FoliomanClient(
+        database_url=DATABASE_URL, user_id="advisor_beta"
+    ) as client_b:
         inv_b = await client_b.investors.create("Priya Verma")
         print(f"Created Investor in Beta: {inv_b.name} (ID: {inv_b.id})")
 
@@ -190,7 +194,9 @@ async def main() -> None:
         print(f"Total active holdings: {len(holdings)}")
 
         for h in holdings:
-            val_str = f"INR {h.value_inr:,.2f}" if h.value_inr is not None else "Unpriced"
+            val_str = (
+                f"INR {h.value_inr:,.2f}" if h.value_inr is not None else "Unpriced"
+            )
             xirr_str = f"{h.xirr:.2%}" if h.xirr is not None else "N/A"
             nav_str = f"₹{h.latest_nav:,.2f}" if h.latest_nav is not None else "N/A"
             print(
@@ -234,7 +240,9 @@ async def main() -> None:
         # Step 4: View equity holdings
         holdings = await client.holdings.list(investor_id=1)
         for h in holdings:
-            print(f"- {h.symbol or h.name}: {h.units} shares | Value: INR {h.value_inr:,.2f}")
+            print(
+                f"- {h.symbol or h.name}: {h.units} shares | Value: INR {h.value_inr:,.2f}"
+            )
 
 
 if __name__ == "__main__":

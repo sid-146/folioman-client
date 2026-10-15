@@ -122,7 +122,9 @@ In double-entry portfolio accounting, unit balances are **derived from transacti
 Before inserting transactions, Folioman checks whether the statement covers the entire history from inception:
 1. Queries prior recorded units in the database before the statement start date:
    ```python
-   prior_balance = await self._prior_ledger_balance(session, investor_id, security_id, folio_id, statement_from)
+   prior_balance = await self._prior_ledger_balance(
+       session, investor_id, security_id, folio_id, statement_from
+   )
    ```
 2. Compares `prior_balance` with statement `opening_units`:
    * **Complete History (`is_complete = True`)**: `opening_units == 0` (scheme was bought during statement window) OR `opening_units == prior_balance`.

@@ -108,7 +108,9 @@ async def main() -> None:
     # Zero-setup: defaults to local SQLite; or pass PostgreSQL URL
     async with FoliomanClient() as client:
         # Ingest statement
-        job = await client.imports.cas_pdf("cas_statement.pdf", password="MY_PAN_NUMBER")
+        job = await client.imports.cas_pdf(
+            "cas_statement.pdf", password="MY_PAN_NUMBER"
+        )
         print(f"Imported {job.get('transactions_created', 0)} transactions.")
 
         # Sync latest NAVs & prices
@@ -122,7 +124,9 @@ async def main() -> None:
         # Inspect priced holdings
         holdings = await client.holdings.list(investor_id=1)
         for h in holdings:
-            val_str = f"INR {h.value_inr:,.2f}" if h.value_inr is not None else "Unpriced"
+            val_str = (
+                f"INR {h.value_inr:,.2f}" if h.value_inr is not None else "Unpriced"
+            )
             print(f"- {h.name}: {h.units} units | Value: {val_str}")
 
 

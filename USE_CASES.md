@@ -83,7 +83,9 @@ from folioman_client import FoliomanClient
 
 async def private_portfolio_tracker():
     # Database lives in a local folder with SQLite WAL mode enabled
-    async with FoliomanClient(database_url="sqlite:///./my_private_portfolio.db") as client:
+    async with FoliomanClient(
+        database_url="sqlite:///./my_private_portfolio.db"
+    ) as client:
         # 1. Ingest CAMS/KFintech statement
         await client.imports.cas_pdf("cas_oct_2026.pdf", password="MY_PAN_PASSWORD")
 
@@ -128,19 +130,29 @@ async def advisor_portal():
     db_url = "postgresql+psycopg://advisor_app:secure_pass@localhost:5432/wealth_prod"
     async with FoliomanClient(database_url=db_url) as client:
         # Create or fetch clients
-        client_a = await client.investors.create("Arun Sharma", pan="ABCDE1234F", family_id=101)
-        client_b = await client.investors.create("Priya Sharma", pan="FGHIJ5678K", family_id=101)
+        client_a = await client.investors.create(
+            "Arun Sharma", pan="ABCDE1234F", family_id=101
+        )
+        client_b = await client.investors.create(
+            "Priya Sharma", pan="FGHIJ5678K", family_id=101
+        )
 
         # Ingest statements for family members
-        await client.imports.cas_pdf("arun_cas.pdf", password="ABCDE1234F", investor_id=client_a.id)
-        await client.imports.cas_pdf("priya_cas.pdf", password="FGHIJ5678K", investor_id=client_b.id)
+        await client.imports.cas_pdf(
+            "arun_cas.pdf", password="ABCDE1234F", investor_id=client_a.id
+        )
+        await client.imports.cas_pdf(
+            "priya_cas.pdf", password="FGHIJ5678K", investor_id=client_b.id
+        )
 
         # Refresh price feeds
         await client.navs.refresh()
 
         # Evaluate risk concentration across fund houses
         summary = await client.portfolio.get(investor_id=client_a.id)
-        print(f"Investor: {client_a.name} | Total Value: INR {summary.total_inr:,.2f}\n")
+        print(
+            f"Investor: {client_a.name} | Total Value: INR {summary.total_inr:,.2f}\n"
+        )
         print("Fund House (AMC) Exposure:")
         for amc in summary.amc_mix:
             print(f"  - {amc.label:<30} INR {amc.value_inr:>12,.2f}")
@@ -191,7 +203,9 @@ async def audit_demat_account():
         statuses = await client.reconciliation.get_statuses(investor_id=1)
         for s in statuses:
             print(f"Security: {s['security_name']}")
-            print(f"  - Integrity Status: {s['status']}")  # MATCH, MISMATCH, SNAPSHOT_ONLY
+            print(
+                f"  - Integrity Status: {s['status']}"
+            )  # MATCH, MISMATCH, SNAPSHOT_ONLY
             print(f"  - Trade Ledger Units: {s['ledger_units']}")
             print(f"  - Demat Holding Units: {s['holding_units']}")
             print(f"  - Tax Safe: {s['tax_safe']}\n")
@@ -230,14 +244,19 @@ async def daily_valuation_bot():
 
         print("\n=== Daily Portfolio Report ===")
         print(f"Current Value: INR {summary.total_inr:,.2f}")
-        print(f"Day Change:    INR {summary.day_change_inr:,.2f} ({summary.day_change_pct:.2%})" 
-              if summary.day_change_inr else "Day Change: N/A")
+        print(
+            f"Day Change:    INR {summary.day_change_inr:,.2f} ({summary.day_change_pct:.2%})"
+            if summary.day_change_inr
+            else "Day Change: N/A"
+        )
 
         print("\nTop Holdings Today:")
         holdings = await client.holdings.list(investor_id=1)
         for h in holdings[:5]:
             val = f"INR {h.value_inr:,.2f}" if h.value_inr is not None else "Unpriced"
-            day_chg = f"{h.day_change_pct:+.2%}" if h.day_change_pct is not None else "0.00%"
+            day_chg = (
+                f"{h.day_change_pct:+.2%}" if h.day_change_pct is not None else "0.00%"
+            )
             print(f"  - {h.name[:30]:<30} | {val:>15} | 1D: {day_chg}")
 
 
