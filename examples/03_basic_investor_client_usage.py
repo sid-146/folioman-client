@@ -1,7 +1,7 @@
 import asyncio
 import os
 from dotenv import load_dotenv
-from folioman_client import FoliomanClient
+from folioman_client import DuplicateInvestorError, FoliomanClient
 
 load_dotenv()
 
@@ -29,15 +29,20 @@ async def main():
 
         print("Creating a new investor...")
         # Raises error if investor with same PAN already exists.
-        new_investor = await client.investors.create(
-            name="John Doe",
-            pan="ABCD1234E",
-            email="john.doe@example.com",
-        )
-        print("New investor created:")
-        print("Name: ", new_investor.name)
-        print("Email: ", new_investor.email)
-        print("Family ID: ", new_investor.family_id)
+        try:
+            new_investor = await client.investors.create(
+                name="John Doe",
+                pan="ABCD1234E",
+                email="john.doe@example.com",
+            )
+            print("New investor created:")
+            print("Name: ", new_investor.name)
+            print("Email: ", new_investor.email)
+            print("Family ID: ", new_investor.family_id)
+        except DuplicateInvestorError as e:
+            print(f"Investor already exists: {e}")
+        except Exception as e:
+            print(f"Error creating investor: {e}")
     return
 
 
