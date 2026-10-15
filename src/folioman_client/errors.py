@@ -36,6 +36,10 @@ class FoliomanDatabaseError(FoliomanError):
     """Raised when a database connection or integrity constraint fails."""
 
 
+class DuplicateInvestorError(FoliomanDatabaseError):
+    """Raised when an investor with the same PAN already exists."""
+
+
 class FernetKeyUnavailable(FoliomanError):
     """Raised when no valid Fernet key can be resolved for PAN encryption."""
 
@@ -80,6 +84,7 @@ __all__ = [
     "FoliomanPasswordError",
     "FoliomanFeedError",
     "FoliomanDatabaseError",
+    "DuplicateInvestorError",
     "FernetKeyUnavailable",
     "FoliomanAPIError",
 ]

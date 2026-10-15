@@ -17,8 +17,10 @@ from folioman_client.client import (
 )
 from folioman_client.config import FoliomanSettings, settings
 from folioman_client.errors import (
+    DuplicateInvestorError,
     FoliomanAPIError,
     FoliomanAuthError,
+    FoliomanDatabaseError,
     FoliomanError,
     FoliomanNotFoundError,
 )
@@ -69,6 +71,8 @@ __all__ = [
     "FoliomanError",
     "FoliomanAuthError",
     "FoliomanNotFoundError",
+    "FoliomanDatabaseError",
+    "DuplicateInvestorError",
     "FoliomanAPIError",
     # Models
     "FoliomanBaseModel",
