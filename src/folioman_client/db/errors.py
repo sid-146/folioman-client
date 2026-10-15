@@ -24,9 +24,19 @@ from folioman_client.errors import (
 logger = logging.getLogger(__name__)
 
 
+def _clean_orig_message(exc: SQLAlchemyError) -> str:
+    """Extract a clean driver message without SQL statements or bind parameters."""
+    if hasattr(exc, "orig") and exc.orig is not None:
+        return str(exc.orig).strip()
+    # If no orig, take only the first line of str(exc) to prevent leaking SQL and bind parameters
+    first_line = str(exc).split("\n")[0].strip()
+    return first_line or "Database constraint violation"
+
+
 def translate_integrity_error(exc: IntegrityError) -> Exception:
     """Analyze the DBAPI driver error to provide meaningful domain errors."""
-    msg = str(exc.orig or exc).lower()
+    orig_msg = _clean_orig_message(exc)
+    msg = orig_msg.lower()
 
     # Match investor user_id + pan_hash unique constraint
     if "uniq_investor_user_pan" in msg or ("investors" in msg and "pan" in msg):
@@ -58,11 +68,9 @@ def translate_integrity_error(exc: IntegrityError) -> Exception:
 
     # General unique constraint violation
     if "unique constraint" in msg or "unique" in msg or "duplicate" in msg:
-        return FoliomanDatabaseError(f"Duplicate entry error: {exc.orig or exc}")
+        return FoliomanDatabaseError(f"Duplicate entry error: {orig_msg}")
 
-    return FoliomanDatabaseError(
-        f"Database integrity constraint violated: {exc.orig or exc}"
-    )
+    return FoliomanDatabaseError(f"Database integrity constraint violated: {orig_msg}")
 
 
 @asynccontextmanager
@@ -82,8 +90,9 @@ async def handle_db_errors(
                 await session.rollback()
             except Exception:
                 pass
-        logger.warning("Database integrity violation: %s", exc)
-        raise translate_integrity_error(exc) from exc
+        orig_msg = _clean_orig_message(exc)
+        logger.debug("Database integrity constraint violated: %s", orig_msg)
+        raise translate_integrity_error(exc) from None
 
     except OperationalError as exc:
         if session:
@@ -91,10 +100,11 @@ async def handle_db_errors(
                 await session.rollback()
             except Exception:
                 pass
-        logger.error("Database operational error (connection/lock): %s", exc)
+        orig_msg = _clean_orig_message(exc)
+        logger.error("Database operational error: %s", orig_msg)
         raise FoliomanDatabaseError(
-            f"Database unavailable, timed out, or locked: {exc.orig or exc}"
-        ) from exc
+            f"Database unavailable, timed out, or locked: {orig_msg}"
+        ) from None
 
     except NoResultFound as exc:
         if session:
@@ -102,7 +112,7 @@ async def handle_db_errors(
                 await session.rollback()
             except Exception:
                 pass
-        raise FoliomanNotFoundError(f"Requested resource not found: {exc}") from exc
+        raise FoliomanNotFoundError(f"Requested resource not found: {exc}") from None
 
     except DBAPIError as exc:
         if session:
@@ -110,10 +120,9 @@ async def handle_db_errors(
                 await session.rollback()
             except Exception:
                 pass
-        logger.error("DBAPI driver error: %s", exc)
-        raise FoliomanDatabaseError(
-            f"Database driver error: {exc.orig or exc}"
-        ) from exc
+        orig_msg = _clean_orig_message(exc)
+        logger.error("DBAPI driver error: %s", orig_msg)
+        raise FoliomanDatabaseError(f"Database driver error: {orig_msg}") from None
 
     except SQLAlchemyError as exc:
         if session:
@@ -121,8 +130,8 @@ async def handle_db_errors(
                 await session.rollback()
             except Exception:
                 pass
-        logger.error("SQLAlchemy internal error: %s", exc)
-        raise FoliomanDatabaseError(f"Database error: {exc}") from exc
+        logger.error("Database error occurred: %s", type(exc).__name__)
+        raise FoliomanDatabaseError(f"Database error: {type(exc).__name__}") from None
 
 
 __all__ = [
