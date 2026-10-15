@@ -75,6 +75,8 @@ class LedgerService:
                     "family_id": inv.family_id,
                     "pan_masked": inv.pan_masked,
                     "has_pan": inv.pan_encrypted is not None,
+                    "created_at": inv.created_at,
+                    "updated_at": inv.updated_at,
                 }
                 for inv in investors
             ]
@@ -97,6 +99,8 @@ class LedgerService:
                 "family_id": inv.family_id,
                 "pan_masked": inv.pan_masked,
                 "has_pan": inv.pan_encrypted is not None,
+                "created_at": inv.created_at,
+                "updated_at": inv.updated_at,
             }
 
     async def create_investor(
@@ -141,6 +145,8 @@ class LedgerService:
                 "family_id": inv.family_id,
                 "pan_masked": inv.pan_masked,
                 "has_pan": bool(enc_pan),
+                "created_at": inv.created_at,
+                "updated_at": inv.updated_at,
             }
 
     # ------------------------------------------------------------------------
@@ -167,6 +173,8 @@ class LedgerService:
                     "folio_type": f.folio_type,
                     "broker": f.broker,
                     "pan_kyc": f.pan_kyc,
+                    "created_at": f.created_at,
+                    "updated_at": f.updated_at,
                 }
                 for f in folios
             ]
@@ -195,10 +203,14 @@ class LedgerService:
                 if existing:
                     return {
                         "id": existing.id,
+                        "investor_id": existing.investor_id,
                         "number": existing.number,
                         "amc_code": existing.amc_code,
                         "folio_type": existing.folio_type,
                         "broker": existing.broker,
+                        "pan_kyc": existing.pan_kyc,
+                        "created_at": existing.created_at,
+                        "updated_at": existing.updated_at,
                     }
 
                 folio = Folio(
@@ -212,10 +224,14 @@ class LedgerService:
                 await session.commit()
                 return {
                     "id": folio.id,
+                    "investor_id": folio.investor_id,
                     "number": folio.number,
                     "amc_code": folio.amc_code,
                     "folio_type": folio.folio_type,
                     "broker": folio.broker,
+                    "pan_kyc": folio.pan_kyc,
+                    "created_at": folio.created_at,
+                    "updated_at": folio.updated_at,
                 }
 
     async def merge_folios(
@@ -408,6 +424,12 @@ class LedgerService:
             "units": str(u),
             "nav_or_price": str(p),
             "amount": str(amt),
+            "fees": str(f),
+            "stamp_duty": str(sd),
+            "narration": narration,
+            "source": source,
+            "source_ref": source_ref,
+            "cost_basis_complete": True,
         }
 
     async def create_opening_lot(

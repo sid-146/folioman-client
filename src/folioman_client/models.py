@@ -7,6 +7,7 @@ All models use extra="ignore" to remain resilient against future schema extensio
 from __future__ import annotations
 
 from decimal import Decimal
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -20,14 +21,28 @@ from folioman_client.types import (
 class FoliomanBaseModel(BaseModel):
     """Base model with common configuration for all Folioman models.
 
-    Ignores extra keys sent by the API for forward compatibility and
-    supports field population by name.
+    Ignores extra keys sent by the API for forward compatibility,
+    supports field population by name and from object attributes,
+    and enables dictionary-like subscription for backward compatibility.
     """
 
     model_config = ConfigDict(
         extra="ignore",
         populate_by_name=True,
+        from_attributes=True,
     )
+
+    def __getitem__(self, item: str) -> Any:
+        try:
+            return getattr(self, item)
+        except AttributeError:
+            raise KeyError(item)
+
+    def get(self, item: str, default: Any = None) -> Any:
+        return getattr(self, item, default)
+
+    def __contains__(self, item: str) -> bool:
+        return hasattr(self, item)
 
 
 # --- Auth Models ---
@@ -181,6 +196,42 @@ class FolioBalance(FoliomanBaseModel):
     folio_type: str = ""
     units: ConfiguredDecimal
     value_inr: ConfiguredDecimal | None = None
+
+
+# --- Folio Models ---
+class Folio(FoliomanBaseModel):
+    """Investor account or folio record.
+
+    Attributes:
+        id: Unique numeric identifier for the folio record.
+        number: Folio account number string.
+        investor_id: ID of the owning investor.
+        amc_code: Asset management company code.
+        broker: Broker / ARN code.
+        folio_type: Type classification (e.g., 'mf', 'demat').
+        pan_kyc: KYC PAN associated with the folio.
+        created_at: Creation timestamp.
+        updated_at: Last update timestamp.
+    """
+
+    id: int
+    number: str
+    investor_id: int | None = None
+    amc_code: str = ""
+    broker: str = ""
+    folio_type: str = "mf"
+    pan_kyc: bool = False
+    created_at: ConfiguredDatetime | None = None
+    updated_at: ConfiguredDatetime | None = None
+
+
+class FolioMergeResult(FoliomanBaseModel):
+    """Summary result of merging two folios."""
+
+    source_folio_id: int
+    target_folio_id: int
+    transactions_moved: int = 0
+    holdings_moved: int = 0
 
 
 # --- Transaction Models ---
@@ -484,6 +535,230 @@ class CapitalGainsFyPoint(FoliomanBaseModel):
     ltcg: ConfiguredDecimal
 
 
+# --- Tax Export Models ---
+class Schedule112AReport(FoliomanBaseModel):
+    """Official Schedule 112A export report."""
+
+    fy: str
+    include_unreconciled: bool = False
+    row_count: int = 0
+    columns: list[str] = Field(default_factory=list)
+    rows: list[dict[str, Any]] = Field(default_factory=list)
+
+
+# --- Import Models ---
+class CASImportResult(FoliomanBaseModel):
+    """Summary of imported CAS statement entities and status."""
+
+    job_id: int | None = None
+    investor_id: int | None = None
+    investor_name: str = ""
+    pan_masked: str = ""
+    status: str = "completed"
+    file: str = ""
+    is_ecas: bool = False
+    schemes: int = 0
+    folios_created: int = 0
+    securities_created: int = 0
+    transactions_created: int = 0
+    transactions_skipped: int = 0
+    holdings_created: int = 0
+    holdings_snapshotted: int = 0
+    partial_transactions: int = 0
+    incomplete_history: list[dict[str, Any]] = Field(default_factory=list)
+    quarantined: list[dict[str, Any]] = Field(default_factory=list)
+
+
+# --- NAV Models ---
+class NavSyncResult(FoliomanBaseModel):
+    """Result of NAV price synchronization."""
+
+    updated: int = 0
+    skipped: int = 0
+    errors: int = 0
+    failed: int = 0
+
+
+class NavBackfillResult(FoliomanBaseModel):
+    """Result of NAV price backfilling."""
+
+    securities: int = 0
+    points: int = 0
+    errors: int = 0
+    skipped: int = 0
+    closed: int = 0
+
+
+class NavFreshnessItem(FoliomanBaseModel):
+    """Freshness status of a single security."""
+
+    security_id: int
+    name: str = ""
+    security_type: str = ""
+    identifier: str = ""
+    feed_code: str = ""
+    latest_nav_date: ConfiguredDate | None = None
+    first_nav_date: ConfiguredDate | None = None
+    points: int = 0
+    lag_trading_days: int | None = None
+    status: str = ""
+
+
+class NavFreshnessReport(FoliomanBaseModel):
+    """Overall NAV freshness evaluation report."""
+
+    as_of: ConfiguredDate | None = None
+    securities: list[NavFreshnessItem] = Field(default_factory=list)
+    last_refreshed_at: ConfiguredDatetime | None = None
+    next_refresh_at: ConfiguredDatetime | None = None
+
+    def __len__(self) -> int:
+        return len(self.securities)
+
+    def __iter__(self):
+        return iter(self.securities)
+
+    def __getitem__(self, item: Any) -> Any:
+        if isinstance(item, int):
+            return self.securities[item]
+        return super().__getitem__(item)
+
+
+# --- ISIN Models ---
+class ISINReferenceStatus(FoliomanBaseModel):
+    """Status of the national ISIN and mutual fund scheme master catalog."""
+
+    is_seeded: bool = False
+    schemes_count: int = 0
+    isins_count: int = 0
+    grandfathering_count: int = 0
+    version: str | None = None
+
+
+class ISINSeedResult(FoliomanBaseModel):
+    """Result of seeding the reference catalog."""
+
+    seeded: bool = True
+    schemes_count: int = 0
+    isins_count: int = 0
+    grandfathering_count: int = 0
+    version: str | None = None
+
+
+class ISINUpdateResult(FoliomanBaseModel):
+    """Result of checking and applying reference database updates."""
+
+    updated: bool = False
+    version: str | None = None
+    message: str = ""
+    seeded: bool = False
+    schemes_count: int = 0
+    isins_count: int = 0
+    grandfathering_count: int = 0
+
+
+# --- Reconciliation Models ---
+class PositionIntegrity(FoliomanBaseModel):
+    """Reconciliation state between raw trade ledger and statement holdings."""
+
+    id: int | None = None
+    investor_id: int
+    security_id: int
+    folio_id: int
+    status: str
+    tax_safe: bool = False
+    units_from_transactions: ConfiguredDecimal | None = None
+    units_from_holdings: ConfiguredDecimal | None = None
+    issues_json: list[Any] = Field(default_factory=list)
+    ledger_through: ConfiguredDate | None = None
+    snapshot_as_of: ConfiguredDate | None = None
+    last_reconciled_at: ConfiguredDatetime | None = None
+    user_acknowledged: bool = False
+    user_acknowledged_at: ConfiguredDatetime | None = None
+    user_acknowledged_reason: str = ""
+
+
+class PositionAcknowledgment(FoliomanBaseModel):
+    """Position mismatch user acknowledgement state."""
+
+    status: str
+    tax_safe: bool = False
+    issues: list[Any] = Field(default_factory=list)
+
+
+class ReconcileInvestorResult(FoliomanBaseModel):
+    """Summary of investor position reconciliation."""
+
+    investor_id: int
+    securities_reconciled: int = 0
+    statuses_count: int = 0
+    tax_safe_count: int = 0
+    mismatch_count: int = 0
+
+
+class ReconcileAllResult(FoliomanBaseModel):
+    """Summary of database-wide position reconciliation."""
+
+    investors_count: int = 0
+    securities_reconciled: int = 0
+    statuses_count: int = 0
+    tax_safe_count: int = 0
+    mismatch_count: int = 0
+
+
+# --- Symbol Models ---
+class SymbolResolveResult(FoliomanBaseModel):
+    """Summary of equity symbol resolution against exchange catalogs."""
+
+    unresolved_count: int = 0
+    matched_count: int = 0
+    unmatched_count: int = 0
+    updated_count: int = 0
+    matched: list[dict[str, Any]] = Field(default_factory=list)
+    unmatched: list[dict[str, Any]] = Field(default_factory=list)
+    backfill: dict[str, Any] | None = None
+
+
+# --- Corporate Action Models ---
+class CorporateActionReference(FoliomanBaseModel):
+    """Corporate action announcement event."""
+
+    id: int
+    isin: str = ""
+    symbol: str = ""
+    ex_date: ConfiguredDate
+    record_date: ConfiguredDate | None = None
+    subject: str = ""
+    type: str = ""
+    unit_multiplier: ConfiguredDecimal | None = None
+    amount: ConfiguredDecimal | None = None
+    needs_review: bool = False
+
+
+class CorporateActionRefreshResult(FoliomanBaseModel):
+    """Result of syncing corporate actions from exchange feeds."""
+
+    securities_checked: int = 0
+    actions_fetched: int = 0
+    actions_stored: int = 0
+    errors: int = 0
+
+
+class CorporateActionApplyResult(FoliomanBaseModel):
+    """Result of applying a corporate action to an investor holding."""
+
+    applied: bool = True
+    action_id: int | None = None
+    kind: str = ""
+    ex_date: ConfiguredDate | None = None
+    unit_multiplier: ConfiguredDecimal | None = None
+    status: str = "applied"
+    reference_id: int | None = None
+    investor_id: int | None = None
+    folio_id: int | None = None
+    transactions_created: int = 0
+
+
 __all__ = [
     "FoliomanBaseModel",
     "TokenPair",
@@ -493,7 +768,9 @@ __all__ = [
     "Holding",
     "SchemeRef",
     "NavPoint",
+    "Folio",
     "FolioBalance",
+    "FolioMergeResult",
     "Transaction",
     "SchemeDetail",
     "AssetMixRow",
@@ -506,6 +783,23 @@ __all__ = [
     "CapitalGainRow",
     "CapitalGainsReport",
     "CapitalGainsFyPoint",
+    "Schedule112AReport",
+    "CASImportResult",
+    "NavSyncResult",
+    "NavBackfillResult",
+    "NavFreshnessItem",
+    "NavFreshnessReport",
+    "ISINReferenceStatus",
+    "ISINSeedResult",
+    "ISINUpdateResult",
+    "PositionIntegrity",
+    "PositionAcknowledgment",
+    "ReconcileInvestorResult",
+    "ReconcileAllResult",
+    "SymbolResolveResult",
+    "CorporateActionReference",
+    "CorporateActionRefreshResult",
+    "CorporateActionApplyResult",
     "ConfiguredDecimal",
     "ConfiguredDate",
     "ConfiguredDatetime",

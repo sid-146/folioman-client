@@ -19,20 +19,37 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from folioman_client.auth import JWTAuthManager
 from folioman_client.config import FoliomanSettings, settings as default_settings
 from folioman_client.db.engine import create_folioman_engine
-from folioman_client.db.models import SecurityIntegrityStatus
 from folioman_client.errors import (
     FoliomanAPIError,
     FoliomanAuthError,
     FoliomanNotFoundError,
 )
 from folioman_client.models import (
+    CASImportResult,
     CapitalGainsFyPoint,
     CapitalGainsReport,
+    CorporateActionApplyResult,
+    CorporateActionReference,
+    CorporateActionRefreshResult,
+    Folio,
+    FolioMergeResult,
     Holding,
     Investor,
     InvestorDetail,
+    ISINReferenceStatus,
+    ISINSeedResult,
+    ISINUpdateResult,
+    NavBackfillResult,
+    NavFreshnessReport,
+    NavSyncResult,
     PortfolioSummary,
+    PositionAcknowledgment,
+    PositionIntegrity,
+    ReconcileAllResult,
+    ReconcileInvestorResult,
+    Schedule112AReport,
     SchemeDetail,
+    SymbolResolveResult,
     Transaction,
     ValuationStatus,
     ValueSeries,
@@ -304,9 +321,9 @@ class TransactionsResource(_BaseResource):
         narration: str = "",
         source: str = "manual",
         source_ref: str = "",
-    ) -> dict[str, Any]:
+    ) -> Transaction:
         """Manually record a trade transaction into the ledger."""
-        return await self._client._ledger_service.create_transaction(
+        data = await self._client._ledger_service.create_transaction(
             investor_id=investor_id,
             security_id=security_id,
             date=date,
@@ -321,6 +338,7 @@ class TransactionsResource(_BaseResource):
             source=source,
             source_ref=source_ref,
         )
+        return Transaction.model_validate(data)
 
     async def create_opening_lot(
         self,
@@ -332,9 +350,9 @@ class TransactionsResource(_BaseResource):
         cost_basis: Decimal | str,
         as_of_date: date,
         classification: str = "ipo_allotment",
-    ) -> dict[str, Any]:
+    ) -> Transaction:
         """Record an opening lot for a snapshot-only position."""
-        return await self._client._ledger_service.create_opening_lot(
+        data = await self._client._ledger_service.create_opening_lot(
             investor_id=investor_id,
             folio_id=folio_id,
             security_id=security_id,
@@ -343,6 +361,7 @@ class TransactionsResource(_BaseResource):
             as_of_date=as_of_date,
             classification=classification,
         )
+        return Transaction.model_validate(data)
 
 
 class ValuationsResource(_BaseResource):
@@ -507,21 +526,23 @@ class CapitalGainsResource(_BaseResource):
         *,
         fy: str,
         include_unreconciled: bool = False,
-    ) -> dict[str, Any]:
+    ) -> Schedule112AReport:
         """Export official Schedule 112A rows and columns for Indian tax return filing."""
         if not self._client.is_remote:
-            return await self._client._capital_gains_service.get_schedule_112a(
+            data = await self._client._capital_gains_service.get_schedule_112a(
                 investor_id, fy=fy, include_unreconciled=include_unreconciled
             )
+            return Schedule112AReport.model_validate(data)
         params = {
             "fy": fy,
             "include_unreconciled": str(include_unreconciled).lower(),
         }
-        return await self._client.request(
+        data = await self._client.request(
             "GET",
             f"/investors/{investor_id}/exports/schedule-112a",
             params=params,
         )
+        return Schedule112AReport.model_validate(data)
 
 
 class ImportsResource(_BaseResource):
@@ -540,7 +561,7 @@ class ImportsResource(_BaseResource):
         *,
         investor_id: int | None = None,
         source_ref: str = "",
-    ) -> dict[str, Any]:
+    ) -> CASImportResult:
         """Import a CAMS/KFintech MF CAS or NSDL/CDSL eCAS PDF into the active database.
 
         Args:
@@ -550,15 +571,16 @@ class ImportsResource(_BaseResource):
             source_ref: Optional custom audit source reference.
 
         Returns:
-            Dictionary summary of imported entities, transactions, and status.
+            Summary model of imported entities, transactions, and status.
         """
-        return await self._service.import_cas(
+        data = await self._service.import_cas(
             file_path_or_bytes,
             password,
             user_id=self._client.user_id,
             investor_id=investor_id,
             source_ref=source_ref,
         )
+        return CASImportResult.model_validate(data)
 
 
 class NavsResource(_BaseResource):
@@ -568,17 +590,22 @@ class NavsResource(_BaseResource):
         super().__init__(client)
         self._service = nav_service
 
-    async def refresh(self, *, types: list[str] | None = None) -> dict[str, Any]:
+    async def refresh(self, *, types: list[str] | None = None) -> NavSyncResult:
         """Fetch latest available NAVs and market closing prices for held securities."""
-        return await self._service.refresh_navs(types=types)
+        data = await self._service.refresh_navs(types=types)
+        return NavSyncResult.model_validate(data)
 
-    async def backfill(self, *, force: bool = False) -> dict[str, Any]:
+    async def backfill(self, *, force: bool = False) -> NavBackfillResult:
         """Backfill historical NAV price points for all held securities."""
-        return await self._service.backfill_navs(force=force)
+        data = await self._service.backfill_navs(force=force)
+        return NavBackfillResult.model_validate(data)
 
-    async def freshness(self) -> list[dict[str, Any]]:
+    async def freshness(self) -> NavFreshnessReport:
         """Return price freshness and staleness metrics for all active securities."""
-        return await self._service.get_nav_freshness()
+        data = await self._service.get_nav_freshness()
+        if isinstance(data, list):
+            data = {"as_of": date.today(), "securities": data}
+        return NavFreshnessReport.model_validate(data)
 
 
 class ISINResource(_BaseResource):
@@ -590,19 +617,22 @@ class ISINResource(_BaseResource):
 
     async def seed(
         self, *, force: bool = False, source_path: Path | None = None
-    ) -> dict[str, Any]:
+    ) -> ISINSeedResult:
         """Ingest the reference master dataset into the active database."""
-        return await self._service.seed_reference_data(
+        data = await self._service.seed_reference_data(
             force=force, source_path=source_path
         )
+        return ISINSeedResult.model_validate(data)
 
-    async def update(self) -> dict[str, Any]:
+    async def update(self) -> ISINUpdateResult:
         """Check for and ingest upstream reference updates."""
-        return await self._service.update_reference_data()
+        data = await self._service.update_reference_data()
+        return ISINUpdateResult.model_validate(data)
 
-    async def status(self) -> dict[str, Any]:
+    async def status(self) -> ISINReferenceStatus:
         """Get current status and row counts of the reference catalog."""
-        return await self._service.get_reference_status()
+        data = await self._service.get_reference_status()
+        return ISINReferenceStatus.model_validate(data)
 
 
 class FoliosResource(_BaseResource):
@@ -612,9 +642,10 @@ class FoliosResource(_BaseResource):
         super().__init__(client)
         self._service = service
 
-    async def list(self, investor_id: int) -> list[dict[str, Any]]:
+    async def list(self, investor_id: int) -> list[Folio]:
         """List all accounts and folios belonging to an investor."""
-        return await self._service.list_folios(investor_id)
+        data = await self._service.list_folios(investor_id)
+        return [Folio.model_validate(row) for row in data]
 
     async def create(
         self,
@@ -624,22 +655,24 @@ class FoliosResource(_BaseResource):
         amc_code: str = "",
         broker: str = "",
         folio_type: str = "mf",
-    ) -> dict[str, Any]:
+    ) -> Folio:
         """Create a new folio record."""
-        return await self._service.create_folio(
+        data = await self._service.create_folio(
             investor_id, number, amc_code=amc_code, broker=broker, folio_type=folio_type
         )
+        return Folio.model_validate(data)
 
     async def merge(
         self,
         investor_id: int,
         source_folio_id: int,
         target_folio_id: int,
-    ) -> dict[str, Any]:
+    ) -> FolioMergeResult:
         """Merge source folio into target folio."""
-        return await self._service.merge_folios(
+        data = await self._service.merge_folios(
             investor_id, source_folio_id, target_folio_id
         )
+        return FolioMergeResult.model_validate(data)
 
 
 class ReconcileResource(_BaseResource):
@@ -649,42 +682,48 @@ class ReconcileResource(_BaseResource):
         super().__init__(client)
         self._service = service
 
-    async def all(self, *, user_id: str | None = None) -> dict[str, Any]:
+    async def all(self, *, user_id: str | None = None) -> ReconcileAllResult:
         """Reconcile all positions across all investors."""
-        return await self._service.reconcile_all(
+        data = await self._service.reconcile_all(
             user_id=user_id or self._client.user_id
         )
+        return ReconcileAllResult.model_validate(data)
 
-    async def investor(self, investor_id: int) -> dict[str, Any]:
+    async def investor(self, investor_id: int) -> ReconcileInvestorResult:
         """Reconcile all security positions for a single investor."""
-        return await self._service.reconcile_investor(investor_id)
+        data = await self._service.reconcile_investor(investor_id)
+        return ReconcileInvestorResult.model_validate(data)
 
     async def position(
         self, investor_id: int, security_id: int, folio_id: int
-    ) -> SecurityIntegrityStatus | None:
+    ) -> PositionIntegrity | None:
         """Reconcile a single (investor, security, folio) position."""
         async with self._service.session_factory() as session:
             status = await self._service.reconcile_security_folio(
                 session, investor_id, security_id, folio_id
             )
             await session.commit()
-            return status
+            if status is None:
+                return None
+            return PositionIntegrity.model_validate(status)
 
     async def acknowledge(
         self, investor_id: int, security_id: int, folio_id: int
-    ) -> dict[str, Any]:
+    ) -> PositionAcknowledgment:
         """Acknowledge a unit mismatch on a position."""
-        return await self._service.acknowledge_mismatch(
+        data = await self._service.acknowledge_mismatch(
             investor_id, security_id, folio_id
         )
+        return PositionAcknowledgment.model_validate(data)
 
     async def clear(
         self, investor_id: int, security_id: int, folio_id: int
-    ) -> dict[str, Any]:
+    ) -> PositionAcknowledgment:
         """Clear user acknowledgement on a position."""
-        return await self._service.clear_acknowledgement(
+        data = await self._service.clear_acknowledgement(
             investor_id, security_id, folio_id
         )
+        return PositionAcknowledgment.model_validate(data)
 
 
 class SymbolsResource(_BaseResource):
@@ -700,11 +739,12 @@ class SymbolsResource(_BaseResource):
         dry_run: bool = False,
         backfill: bool = False,
         force_backfill: bool = False,
-    ) -> dict[str, Any]:
+    ) -> SymbolResolveResult:
         """Resolve missing NSE/BSE symbols for held demat securities."""
-        return await self._service.resolve_symbols(
+        data = await self._service.resolve_symbols(
             dry_run=dry_run, backfill=backfill, force_backfill=force_backfill
         )
+        return SymbolResolveResult.model_validate(data)
 
 
 class CorporateActionsResource(_BaseResource):
@@ -719,11 +759,12 @@ class CorporateActionsResource(_BaseResource):
         *,
         security_ids: list[int] | None = None,
         since_year: int = 2016,
-    ) -> dict[str, Any]:
+    ) -> CorporateActionRefreshResult:
         """Fetch and cache corporate action history from exchange feeds."""
-        return await self._service.refresh_corporate_actions(
+        data = await self._service.refresh_corporate_actions(
             security_ids=security_ids, since_year=since_year
         )
+        return CorporateActionRefreshResult.model_validate(data)
 
     async def list(
         self,
@@ -732,22 +773,24 @@ class CorporateActionsResource(_BaseResource):
         isin: str | None = None,
         symbol: str | None = None,
         kind: str | None = None,
-    ) -> list[dict[str, Any]]:
+    ) -> list[CorporateActionReference]:
         """List cached corporate action announcements."""
-        return await self._service.list_references(
+        data = await self._service.list_references(
             security_id=security_id, isin=isin, symbol=symbol, kind=kind
         )
+        return [CorporateActionReference.model_validate(item) for item in data]
 
     async def apply(
         self,
         investor_id: int,
         folio_id: int,
         reference_id: int,
-    ) -> dict[str, Any]:
+    ) -> CorporateActionApplyResult:
         """Apply a cached bonus or split event to an investor folio."""
-        return await self._service.apply_corporate_action(
+        data = await self._service.apply_corporate_action(
             investor_id, folio_id, reference_id
         )
+        return CorporateActionApplyResult.model_validate(data)
 
 
 class FoliomanClient:
