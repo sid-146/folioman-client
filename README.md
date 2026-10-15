@@ -70,7 +70,9 @@ async def main() -> None:
             file_path="cas_statement.pdf",
             password="INVESTOR_PAN",
         )
-        print(f"Import complete! Processed {job.result.get('transactions_created', 0)} transactions.")
+        print(
+            f"Import complete! Processed {job.result.get('transactions_created', 0)} transactions."
+        )
 
         # 2. Sync latest market NAVs & stock quotes
         print("Refreshing market prices...")
@@ -79,7 +81,11 @@ async def main() -> None:
         # 3. Query portfolio summary & metrics
         summary = await client.portfolio.get(investor_id=1)
         print(f"Portfolio Value: INR {summary.total_inr:,.2f}")
-        print(f"Portfolio XIRR: {summary.xirr * 100:.2f}%" if summary.xirr else "XIRR: N/A")
+        print(
+            f"Portfolio XIRR: {summary.xirr * 100:.2f}%"
+            if summary.xirr
+            else "XIRR: N/A"
+        )
 
         # 4. Inspect priced holdings
         holdings = await client.holdings.list(investor_id=1)
