@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import click
 
+from folioman_client.errors import DuplicateInvestorError, FoliomanDatabaseError
 from folioman_client.services.ledger_service import LedgerService
 
 
@@ -54,9 +55,13 @@ def create_investor_cmd(
 ) -> None:
     """Create a new investor with encrypted PAN storage."""
     service = LedgerService()
-    inv = asyncio.run(
-        service.create_investor(name=name, pan=pan, email=email, is_huf=is_huf)
-    )
+    try:
+        inv = asyncio.run(
+            service.create_investor(name=name, pan=pan, email=email, is_huf=is_huf)
+        )
+    except (DuplicateInvestorError, FoliomanDatabaseError) as exc:
+        raise click.ClickException(str(exc))
+
     click.echo(
         f"Created investor {inv['name']} (ID: {inv['id']}, PAN: {inv['pan_masked'] or 'None'})."
     )
