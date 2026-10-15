@@ -24,7 +24,7 @@ async def main():
         print("Investor details:")
         print("Name: ", investor.name)
         print("Email: ", investor.email)
-        # BUG Created at is coming as none. value present in database.
+        # Created at timestamp from database
         print("Investor Created At: ", investor.created_at, end="\n\n")
 
         print("Creating a new investor...")
