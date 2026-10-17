@@ -51,7 +51,11 @@ markdown_extensions:
           line_spans: __span
           pygments_lang_class: true
     - pymdownx.inlinehilite
-    - pymdownx.superfences
+    - pymdownx.superfences:
+          custom_fences:
+              - name: mermaid
+                class: mermaid
+                format: !!python/name:pymdownx.superfences.fence_code_format
     - pymdownx.tabbed:
           alternate_style: true
     - pymdownx.tasklist:
@@ -69,6 +73,7 @@ nav:
         - CLI Reference: cli.md
         - Python Client SDK: client.md
         - Examples: examples.md
+        - Simple Ideas & Everyday Use Cases: SIMPLE_USE_CASES.md
     - System Walkthrough:
         - Overview: walk through/index.md
         - Mutual Funds Flow: walk through/mutual-funds.md
@@ -80,3 +85,4 @@ nav:
         - Backward Compatibility: compatibility.md
         - API Reference: api-reference.md
         - Development: development.md
+        - Future Enhancements & Roadmap: future_enhancement.md
