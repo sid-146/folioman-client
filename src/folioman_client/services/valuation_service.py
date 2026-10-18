@@ -34,7 +34,12 @@ from folioman_client.core.reconciliation import TOLERANCE, IntegrityStatus
 from folioman_client.core.trading_calendar import last_trading_day, trading_days_between
 from folioman_client.core.valuation import value_holdings
 from folioman_client.core.xirr import cashflows_from_transactions, compute_xirr
-from folioman_client.db import create_folioman_engine, create_sessionmaker
+from folioman_client.db import (
+    create_folioman_engine,
+    create_sessionmaker,
+    handle_db_errors,
+)
+from folioman_client.errors import FoliomanNotFoundError
 from folioman_client.db.models import (
     AppliedCorporateAction,
     CorporateActionReference,
@@ -809,11 +814,11 @@ class ValuationService:
     ) -> dict[str, Any]:
         """Per-investor headline numbers: valuation, allocations, XIRR, period returns."""
         as_of_date = as_of or date.today()
-        async with self.session_factory() as session:
+        async with self.session_factory() as session, handle_db_errors(session):
             stmt_inv = select(Investor).where(Investor.id == investor_id)
             investor = (await session.execute(stmt_inv)).scalar_one_or_none()
             if investor is None:
-                raise ValueError(f"Investor {investor_id} not found")
+                raise FoliomanNotFoundError(f"Investor {investor_id} not found")
 
             valuation, meta_by_sec = await self._value_investors(
                 session, [investor_id], as_of_date
@@ -900,11 +905,11 @@ class ValuationService:
     ) -> dict[str, Any]:
         """Aggregate valuation across all family members."""
         as_of_date = as_of or date.today()
-        async with self.session_factory() as session:
+        async with self.session_factory() as session, handle_db_errors(session):
             stmt_fam = select(Family).where(Family.id == family_id)
             family = (await session.execute(stmt_fam)).scalar_one_or_none()
             if family is None:
-                raise ValueError(f"Family {family_id} not found")
+                raise FoliomanNotFoundError(f"Family {family_id} not found")
 
             stmt_invs = select(Investor.id).where(Investor.family_id == family_id)
             investor_ids = list((await session.execute(stmt_invs)).scalars().all())
@@ -1051,9 +1056,7 @@ class ValuationService:
                 signed = (
                     obj.units
                     if obj.transaction_type in _CA_INFLOW
-                    else -obj.units
-                    if obj.transaction_type in _CA_OUTFLOW
-                    else _ZERO
+                    else -obj.units if obj.transaction_type in _CA_OUTFLOW else _ZERO
                 )
                 if complete:
                     balance += signed
@@ -1589,7 +1592,7 @@ class ValuationService:
         """Per-investor net-worth time series."""
         to = to_date or date.today()
         from_ = from_date or _add_months(to, -12)
-        async with self.session_factory() as session:
+        async with self.session_factory() as session, handle_db_errors(session):
             points = await self._series_from_stored(
                 session, [investor_id], from_, to, granularity
             )
@@ -1612,7 +1615,7 @@ class ValuationService:
         """Family aggregate net-worth time series."""
         to = to_date or date.today()
         from_ = from_date or _add_months(to, -12)
-        async with self.session_factory() as session:
+        async with self.session_factory() as session, handle_db_errors(session):
             stmt = select(Investor.id).where(Investor.family_id == family_id)
             member_ids = list((await session.execute(stmt)).scalars().all())
             points = await self._series_from_stored(
@@ -1636,7 +1639,7 @@ class ValuationService:
     ) -> tuple[date, list[dict[str, Any]]]:
         """One holding's worth over time."""
         to = to_date or date.today()
-        async with self.session_factory() as session:
+        async with self.session_factory() as session, handle_db_errors(session):
             txn_keys, _hold = await self._ledger_index(session, [investor_id])
             filtered_keys = {k: v for k, v in txn_keys.items() if k[0] == security_id}
             if not filtered_keys:
@@ -1671,11 +1674,11 @@ class ValuationService:
 
     async def get_valuation_status(self, investor_id: int) -> dict[str, Any]:
         """Readiness status for an investor."""
-        async with self.session_factory() as session:
+        async with self.session_factory() as session, handle_db_errors(session):
             stmt = select(Investor).where(Investor.id == investor_id)
             inv = (await session.execute(stmt)).scalar_one_or_none()
             if inv is None:
-                raise ValueError(f"Investor {investor_id} not found")
+                raise FoliomanNotFoundError(f"Investor {investor_id} not found")
 
             stmt_prov = (
                 select(InvestorValue.id)
@@ -1697,7 +1700,7 @@ class ValuationService:
 
     async def get_family_valuation_status(self, family_id: int) -> dict[str, Any]:
         """Readiness status for a family."""
-        async with self.session_factory() as session:
+        async with self.session_factory() as session, handle_db_errors(session):
             stmt = select(
                 Investor.valuation_status, Investor.valuation_computed_through
             ).where(Investor.family_id == family_id)
@@ -1742,7 +1745,7 @@ class ValuationService:
         as_of: date | None = None,
     ) -> None:
         """Mark investor for recomputation and optionally seed provisional value."""
-        async with self.session_factory() as session:
+        async with self.session_factory() as session, handle_db_errors(session):
             stmt = select(Investor).where(Investor.id == investor_id)
             inv = (await session.execute(stmt)).scalar_one_or_none()
             if inv is None:
@@ -1835,7 +1838,7 @@ class ValuationService:
         prime_navs: bool = True,
     ) -> str:
         """Recompute daily InvestorValue series from from_date (or start) to today."""
-        async with self.session_factory() as session:
+        async with self.session_factory() as session, handle_db_errors(session):
             stmt = select(Investor).where(Investor.id == investor_id)
             inv = (await session.execute(stmt)).scalar_one_or_none()
             if inv is None:
@@ -1863,23 +1866,27 @@ class ValuationService:
                 await self._nav_service.refresh_navs()
 
             async with self.session_factory() as session:
-                points = await self._value_series(
-                    session, [investor_id], start, today, "daily"
-                )
-                await self._upsert_series(session, investor_id, points)
+                async with handle_db_errors(session):
+                    points = await self._value_series(
+                        session, [investor_id], start, today, "daily"
+                    )
+                    await self._upsert_series(session, investor_id, points)
 
-                stmt = select(Investor).where(Investor.id == investor_id)
-                inv = (await session.execute(stmt)).scalar_one()
-                inv.valuation_status = "ready"
-                inv.valuation_computed_through = today
-                inv.valuation_recompute_from = None
-                inv.valuation_attempts = 0
-                inv.valuation_error = ""
-                inv.valuation_next_attempt_at = None
-                await session.commit()
-            return "ready"
+                    stmt = select(Investor).where(Investor.id == investor_id)
+                    inv = (await session.execute(stmt)).scalar_one()
+                    inv.valuation_status = "ready"
+                    inv.valuation_computed_through = today
+                    inv.valuation_recompute_from = None
+                    inv.valuation_attempts = 0
+                    inv.valuation_error = ""
+                    inv.valuation_next_attempt_at = None
+                    await session.commit()
+                return "ready"
         except Exception as exc:
-            async with self.session_factory() as session:
+            async with (
+                self.session_factory() as session,
+                handle_db_errors(session),
+            ):
                 stmt = select(Investor).where(Investor.id == investor_id)
                 inv = (await session.execute(stmt)).scalar_one_or_none()
                 if inv:
@@ -1898,7 +1905,7 @@ class ValuationService:
     async def process_pending_valuations(self) -> int:
         """Process all investors that are pending/computing or due for retry."""
         now = datetime.now(timezone.utc)
-        async with self.session_factory() as session:
+        async with self.session_factory() as session, handle_db_errors(session):
             stmt = select(Investor.id, Investor.valuation_recompute_from).where(
                 (Investor.valuation_status.in_(["pending", "computing"]))
                 | (
@@ -1922,7 +1929,7 @@ class ValuationService:
 
     async def enqueue_daily_extend(self) -> int:
         """Re-queue every ready and error investor for daily extension."""
-        async with self.session_factory() as session:
+        async with self.session_factory() as session, handle_db_errors(session):
             # Ready investors: set pending and recompute_from = computed_through
             stmt_ready = (
                 update(Investor)
@@ -1951,7 +1958,7 @@ class ValuationService:
     async def enqueue_catch_up_if_stale(self) -> int:
         """Launch-time catch-up if valuation or NAVs are stale."""
         today = date.today()
-        async with self.session_factory() as session:
+        async with self.session_factory() as session, handle_db_errors(session):
             stmt = (
                 select(Investor.id)
                 .where(

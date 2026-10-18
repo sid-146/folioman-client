@@ -29,7 +29,12 @@ from folioman_client.core.tax.india import (
 )
 from folioman_client.core.tax.models import Term
 from folioman_client.core.tax.schedule_112a import SCHEDULE_112A_CSV_COLUMNS
-from folioman_client.db import create_folioman_engine, create_sessionmaker
+from folioman_client.db import (
+    create_folioman_engine,
+    create_sessionmaker,
+    handle_db_errors,
+)
+from folioman_client.errors import FoliomanNotFoundError
 from folioman_client.db.models import (
     GrandfatheringNAV,
     Investor,
@@ -159,10 +164,11 @@ class CapitalGainsService:
         """Realized capital gains report for a single financial year (e.g. '2024-25')."""
         fy_start, fy_end = india_fy_range(fy)
         async with self.session_factory() as session:
-            stmt_inv = select(Investor).where(Investor.id == investor_id)
-            inv = (await session.execute(stmt_inv)).scalar_one_or_none()
-            if inv is None:
-                raise ValueError(f"Investor {investor_id} not found")
+            async with handle_db_errors(session):
+                stmt_inv = select(Investor).where(Investor.id == investor_id)
+                inv = (await session.execute(stmt_inv)).scalar_one_or_none()
+                if inv is None:
+                    raise FoliomanNotFoundError(f"Investor {investor_id} not found")
 
             transactions = await self._tax_ready_transactions(
                 session, investor_id, include_unreconciled=include_unreconciled
@@ -253,10 +259,11 @@ class CapitalGainsService:
     ) -> list[dict[str, Any]]:
         """STCG/LTCG totals for every financial year with realized disposals."""
         async with self.session_factory() as session:
-            stmt_inv = select(Investor).where(Investor.id == investor_id)
-            inv = (await session.execute(stmt_inv)).scalar_one_or_none()
-            if inv is None:
-                raise ValueError(f"Investor {investor_id} not found")
+            async with handle_db_errors(session):
+                stmt_inv = select(Investor).where(Investor.id == investor_id)
+                inv = (await session.execute(stmt_inv)).scalar_one_or_none()
+                if inv is None:
+                    raise FoliomanNotFoundError(f"Investor {investor_id} not found")
 
             transactions = await self._tax_ready_transactions(
                 session, investor_id, include_unreconciled=include_unreconciled
@@ -313,10 +320,11 @@ class CapitalGainsService:
     ) -> dict[str, Any]:
         """Official Schedule 112A export for an Indian financial year."""
         async with self.session_factory() as session:
-            stmt_inv = select(Investor).where(Investor.id == investor_id)
-            inv = (await session.execute(stmt_inv)).scalar_one_or_none()
-            if inv is None:
-                raise ValueError(f"Investor {investor_id} not found")
+            async with handle_db_errors(session):
+                stmt_inv = select(Investor).where(Investor.id == investor_id)
+                inv = (await session.execute(stmt_inv)).scalar_one_or_none()
+                if inv is None:
+                    raise FoliomanNotFoundError(f"Investor {investor_id} not found")
 
             transactions = await self._tax_ready_transactions(
                 session, investor_id, include_unreconciled=include_unreconciled
