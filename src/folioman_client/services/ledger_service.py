@@ -16,9 +16,11 @@ from folioman_client.db import handle_db_errors
 from folioman_client.db.engine import create_folioman_engine, create_sessionmaker
 from folioman_client.db.migrations import init_schema
 from folioman_client.db.models import (
+    AppliedCorporateAction,
     Folio,
     Holding,
     Investor,
+    PartialBlock,
     Security,
     SecurityIntegrityStatus,
     Transaction,
@@ -233,6 +235,60 @@ class LedgerService:
                     "created_at": folio.created_at,
                     "updated_at": folio.updated_at,
                 }
+
+    async def delete_folio(self, investor_id: int, folio_id: int) -> bool:
+        """Delete an investor folio or demat account record.
+
+        Args:
+            investor_id: ID of the investor.
+            folio_id: ID of the folio to delete.
+
+        Returns:
+            True if deleted, False if folio was not found.
+        """
+        await init_schema(self.engine)
+
+        async with self.session_factory() as session:
+            async with handle_db_errors(session):
+                folio = await session.get(Folio, folio_id)
+                if not folio or folio.investor_id != investor_id:
+                    return False
+
+                # Nullify folio references in transactions, holdings, and opening lots
+                await session.execute(
+                    update(Transaction)
+                    .where(Transaction.folio_id == folio_id)
+                    .values(folio_id=None)
+                )
+                await session.execute(
+                    update(Holding)
+                    .where(Holding.folio_id == folio_id)
+                    .values(folio_id=None)
+                )
+                await session.execute(
+                    update(AppliedCorporateAction)
+                    .where(AppliedCorporateAction.folio_id == folio_id)
+                    .values(folio_id=None)
+                )
+
+                # Delete cascading integrity statuses and partial blocks
+                await session.execute(
+                    delete(SecurityIntegrityStatus).where(
+                        SecurityIntegrityStatus.folio_id == folio_id
+                    )
+                )
+                await session.execute(
+                    delete(PartialBlock).where(
+                        PartialBlock.folio_id == folio_id
+                    )
+                )
+
+                await session.delete(folio)
+                await session.commit()
+
+        # Recompute reconciliation for the investor
+        await self._reconcile_service.reconcile_investor(investor_id)
+        return True
 
     async def merge_folios(
         self, investor_id: int, source_folio_id: int, target_folio_id: int

@@ -134,6 +134,20 @@ def merge_folios_cmd(
     )
 
 
+@folios_group.command(name="delete")
+@click.option("--investor-id", "-i", type=int, required=True, help="Investor ID.")
+@click.option("--folio-id", "-f", type=int, required=True, help="Folio ID to delete.")
+@click.pass_context
+def delete_folio_cmd(ctx: click.Context, investor_id: int, folio_id: int) -> None:
+    """Delete a folio or demat account."""
+    service = LedgerService()
+    success = asyncio.run(service.delete_folio(investor_id, folio_id))
+    if success:
+        click.echo(f"Folio {folio_id} deleted successfully.")
+    else:
+        click.echo(f"Folio {folio_id} not found for investor {investor_id}.")
+
+
 @click.group(name="transactions")
 def transactions_group() -> None:
     """Inspect and manage trade transactions in the immutable ledger."""

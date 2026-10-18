@@ -8,10 +8,18 @@ from __future__ import annotations
 from folioman_client.auth import EXP_SKEW_SECONDS, JWTAuthManager
 from folioman_client.client import (
     CapitalGainsResource,
+    CorporateActionsResource,
+    FolioResource,
+    FoliosResource,
     FoliomanClient,
     HoldingsResource,
+    ImportsResource,
     InvestorsResource,
+    ISINResource,
+    NavsResource,
     PortfolioResource,
+    ReconcileResource,
+    SymbolsResource,
     TransactionsResource,
     ValuationsResource,
 )
@@ -81,6 +89,14 @@ __all__ = [
     "TransactionsResource",
     "ValuationsResource",
     "CapitalGainsResource",
+    "ImportsResource",
+    "NavsResource",
+    "ISINResource",
+    "FoliosResource",
+    "FolioResource",
+    "ReconcileResource",
+    "SymbolsResource",
+    "CorporateActionsResource",
     # Auth & Config
     "JWTAuthManager",
     "EXP_SKEW_SECONDS",

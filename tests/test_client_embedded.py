@@ -195,6 +195,15 @@ async def test_client_embedded_investors_and_folios():
         folios = await client.folios.list(inv.id)
         assert len(folios) == 2
 
+        # Delete a folio
+        assert await client.folios.delete(inv.id, fol1["id"]) is True
+        folios_after = await client.folios.list(inv.id)
+        assert len(folios_after) == 1
+        assert folios_after[0].id == fol2["id"]
+
+        # Deleting non-existent folio returns False
+        assert await client.folios.delete(inv.id, 99999) is False
+
 
 @pytest.mark.asyncio
 async def test_client_embedded_reconcile_symbols_and_ca_delegation():

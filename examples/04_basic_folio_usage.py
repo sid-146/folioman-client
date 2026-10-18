@@ -33,6 +33,11 @@ async def main():
                 folio_type="mf",
             )
             print(f"Created Folio: ID={new_folio.id}, Number={new_folio.number}, AMC={new_folio.amc_code}")
+
+            # Delete the sample folio
+            print("\nDeleting sample folio...")
+            deleted = await client.folios.delete(investor.id, new_folio.id)
+            print(f"Deleted Folio status: {deleted}")
         except Exception as e:
             print(f"Info/Error: {e}")
 

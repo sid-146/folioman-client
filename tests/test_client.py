@@ -9,7 +9,7 @@ import httpx
 import pytest
 import respx
 
-from folioman_client.client import FoliomanClient
+from folioman_client.client import FolioResource, FoliosResource, FoliomanClient
 from folioman_client.errors import (
     FoliomanAPIError,
     FoliomanAuthError,
@@ -17,6 +17,8 @@ from folioman_client.errors import (
 )
 from folioman_client.models import (
     CapitalGainsReport,
+    Folio,
+    FolioMergeResult,
     Investor,
     InvestorDetail,
     PortfolioSummary,
@@ -530,3 +532,83 @@ async def test_client_auth_failure_on_retry_raises_auth_error() -> None:
 
             with pytest.raises(FoliomanAuthError):
                 await client.investors.get(1)
+
+
+@pytest.mark.asyncio
+async def test_folio_resource_alias_and_delete(mock_tokens: tuple[str, str]) -> None:
+    access, _ = mock_tokens
+    assert FolioResource is FoliosResource
+
+    async with FoliomanClient(
+        base_url=BASE_URL,
+        username="test_user",
+        password="test_password",
+    ) as client:
+        client._auth._access_token = access
+        assert isinstance(client.folios, FoliosResource)
+        assert isinstance(client.folios, FolioResource)
+
+        with respx.mock(base_url=BASE_URL) as respx_mock:
+            # 1. List folios
+            respx_mock.get("/api/investors/1/folios/").respond(
+                200,
+                json=[
+                    {
+                        "id": 10,
+                        "investor_id": 1,
+                        "number": "FOL-100",
+                        "amc_code": "HDFC",
+                        "folio_type": "mf",
+                        "broker": "",
+                    }
+                ],
+            )
+            folios = await client.folios.list(1)
+            assert len(folios) == 1
+            assert isinstance(folios[0], Folio)
+            assert folios[0].number == "FOL-100"
+
+            # 2. Create folio
+            respx_mock.post("/api/investors/1/folios/").respond(
+                200,
+                json={
+                    "id": 11,
+                    "investor_id": 1,
+                    "number": "FOL-200",
+                    "amc_code": "SBI",
+                    "folio_type": "mf",
+                    "broker": "ZERODHA",
+                },
+            )
+            created = await client.folios.create(
+                1, "FOL-200", amc_code="SBI", broker="ZERODHA"
+            )
+            assert isinstance(created, Folio)
+            assert created.id == 11
+            assert created.number == "FOL-200"
+
+            # 3. Delete folio - success
+            respx_mock.delete("/api/investors/1/folios/10").respond(204)
+            deleted = await client.folios.delete(1, 10)
+            assert deleted is True
+
+            # 4. Delete folio - 404 not found
+            respx_mock.delete("/api/investors/1/folios/99").respond(404)
+            not_found = await client.folios.delete(1, 99)
+            assert not_found is False
+
+            # 5. Merge folios
+            respx_mock.post("/api/investors/1/folios/merge").respond(
+                200,
+                json={
+                    "source_folio_id": 10,
+                    "target_folio_id": 11,
+                    "transactions_moved": 3,
+                    "holdings_moved": 1,
+                },
+            )
+            merge_res = await client.folios.merge(1, 10, 11)
+            assert isinstance(merge_res, FolioMergeResult)
+            assert merge_res.transactions_moved == 3
+            assert merge_res.holdings_moved == 1
+

@@ -95,14 +95,14 @@ Creates a new investor with an encrypted PAN.
 
 ---
 
-### 2. `client.folios`
+### 2. `client.folios` (`FoliosResource` / `FolioResource`)
 
 Manages mutual fund folios and broker demat accounts.
 
 #### `list()`
 
 ```python
-async def list(investor_id: int) -> list[dict[str, Any]]
+async def list(investor_id: int) -> list[Folio]
 ```
 
 #### `create()`
@@ -112,9 +112,10 @@ async def create(
     investor_id: int,
     number: str,
     *,
-    amc_code: str | None = None,
-    broker: str | None = None,
-) -> dict[str, Any]
+    amc_code: str = "",
+    broker: str = "",
+    folio_type: str = "mf",
+) -> Folio
 ```
 
 #### `delete()`
@@ -123,6 +124,8 @@ async def create(
 async def delete(investor_id: int, folio_id: int) -> bool
 ```
 
+Deletes a folio or demat account record for the specified investor. Returns `True` if deleted, `False` if not found.
+
 #### `merge()`
 
 ```python
@@ -130,7 +133,7 @@ async def merge(
     investor_id: int,
     source_folio_id: int,
     target_folio_id: int,
-) -> dict[str, Any]
+) -> FolioMergeResult
 ```
 
 ---

@@ -245,6 +245,26 @@ def test_cli_folios_commands():
             "Merge complete: 4 transactions and 1 holdings moved." in res_merge.output
         )
 
+    with patch(
+        "folioman_client.cli.ledger.LedgerService.delete_folio",
+        new_callable=AsyncMock,
+        return_value=True,
+    ) as mock_del:
+        res_del = runner.invoke(cli, ["folios", "delete", "-i", "1", "-f", "5"])
+        assert res_del.exit_code == 0
+        assert "Folio 5 deleted successfully." in res_del.output
+        mock_del.assert_awaited_once_with(1, 5)
+
+    with patch(
+        "folioman_client.cli.ledger.LedgerService.delete_folio",
+        new_callable=AsyncMock,
+        return_value=False,
+    ) as mock_del_fail:
+        res_del_fail = runner.invoke(cli, ["folios", "delete", "-i", "1", "-f", "99"])
+        assert res_del_fail.exit_code == 0
+        assert "Folio 99 not found for investor 1." in res_del_fail.output
+        mock_del_fail.assert_awaited_once_with(1, 99)
+
 
 def test_cli_transactions_and_holdings_commands():
     runner = CliRunner()

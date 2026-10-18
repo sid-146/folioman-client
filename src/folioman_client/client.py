@@ -644,6 +644,9 @@ class FoliosResource(_BaseResource):
 
     async def list(self, investor_id: int) -> list[Folio]:
         """List all accounts and folios belonging to an investor."""
+        if self._client.is_remote:
+            data = await self._client.request("GET", f"/investors/{investor_id}/folios/")
+            return [Folio.model_validate(row) for row in data]
         data = await self._service.list_folios(investor_id)
         return [Folio.model_validate(row) for row in data]
 
@@ -657,10 +660,42 @@ class FoliosResource(_BaseResource):
         folio_type: str = "mf",
     ) -> Folio:
         """Create a new folio record."""
+        if self._client.is_remote:
+            data = await self._client.request(
+                "POST",
+                f"/investors/{investor_id}/folios/",
+                json={
+                    "number": number,
+                    "amc_code": amc_code,
+                    "broker": broker,
+                    "folio_type": folio_type,
+                },
+            )
+            return Folio.model_validate(data)
         data = await self._service.create_folio(
             investor_id, number, amc_code=amc_code, broker=broker, folio_type=folio_type
         )
         return Folio.model_validate(data)
+
+    async def delete(self, investor_id: int, folio_id: int) -> bool:
+        """Delete an investor folio or demat account record.
+
+        Args:
+            investor_id: Unique identifier of the investor.
+            folio_id: Unique identifier of the folio to delete.
+
+        Returns:
+            True if the folio was deleted, False if not found.
+        """
+        if self._client.is_remote:
+            try:
+                await self._client.request(
+                    "DELETE", f"/investors/{investor_id}/folios/{folio_id}"
+                )
+                return True
+            except FoliomanNotFoundError:
+                return False
+        return await self._service.delete_folio(investor_id, folio_id)
 
     async def merge(
         self,
@@ -669,10 +704,23 @@ class FoliosResource(_BaseResource):
         target_folio_id: int,
     ) -> FolioMergeResult:
         """Merge source folio into target folio."""
+        if self._client.is_remote:
+            data = await self._client.request(
+                "POST",
+                f"/investors/{investor_id}/folios/merge",
+                json={
+                    "source_folio_id": source_folio_id,
+                    "target_folio_id": target_folio_id,
+                },
+            )
+            return FolioMergeResult.model_validate(data)
         data = await self._service.merge_folios(
             investor_id, source_folio_id, target_folio_id
         )
         return FolioMergeResult.model_validate(data)
+
+
+FolioResource = FoliosResource
 
 
 class ReconcileResource(_BaseResource):
@@ -1083,6 +1131,7 @@ __all__ = [
     "NavsResource",
     "ISINResource",
     "FoliosResource",
+    "FolioResource",
     "ReconcileResource",
     "SymbolsResource",
     "CorporateActionsResource",

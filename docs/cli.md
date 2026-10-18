@@ -367,6 +367,9 @@ folioman folios list --investor-id 1
 
 # Merge a duplicate/migrated folio into a target folio
 folioman folios merge --investor-id 1 --source-id 3 --target-id 2
+
+# Delete a folio or demat account
+folioman folios delete --investor-id 1 --folio-id 3
 ```
 
 #### `folioman transactions`

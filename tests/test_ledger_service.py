@@ -234,6 +234,56 @@ async def test_merge_folios(ledger_service: LedgerService):
 
 
 @pytest.mark.asyncio
+async def test_delete_folio(ledger_service: LedgerService):
+    inv1 = await ledger_service.create_investor(name="Virat Kohli")
+    inv2 = await ledger_service.create_investor(name="MS Dhoni")
+
+    f1 = await ledger_service.create_folio(inv1["id"], "VK-100", amc_code="SBI")
+    f2 = await ledger_service.create_folio(inv2["id"], "MSD-200", amc_code="SBI")
+
+    async with ledger_service.session_factory() as session:
+        sec = Security(
+            name="SBI Bluechip Fund", isin="INF200K01999", security_type="MF"
+        )
+        session.add(sec)
+        await session.commit()
+        sec_id = sec.id
+
+    # Create transaction in f1
+    tx = await ledger_service.create_transaction(
+        investor_id=inv1["id"],
+        security_id=sec_id,
+        folio_id=f1["id"],
+        date=date(2025, 3, 1),
+        transaction_type="BUY",
+        units=Decimal("100"),
+        nav_or_price=Decimal("50"),
+    )
+
+    # Deleting with wrong investor returns False
+    assert await ledger_service.delete_folio(inv2["id"], f1["id"]) is False
+
+    # Deleting non-existent folio returns False
+    assert await ledger_service.delete_folio(inv1["id"], 99999) is False
+
+    # Deleting correct folio returns True
+    assert await ledger_service.delete_folio(inv1["id"], f1["id"]) is True
+
+    # Folio no longer in list_folios
+    remaining = await ledger_service.list_folios(inv1["id"])
+    assert len(remaining) == 0
+
+    # Transaction still exists, but folio_id is now None
+    txns = await ledger_service.list_transactions(inv1["id"])
+    assert len(txns) == 1
+    assert txns[0]["id"] == tx["id"]
+    assert txns[0]["folio_id"] is None
+
+    # Deleting already-deleted folio returns False
+    assert await ledger_service.delete_folio(inv1["id"], f1["id"]) is False
+
+
+@pytest.mark.asyncio
 async def test_list_holdings_active_positions(ledger_service: LedgerService):
     inv = await ledger_service.create_investor(name="Jasprit Bumrah")
     fol = await ledger_service.create_folio(inv["id"], "FOLIO-1")
