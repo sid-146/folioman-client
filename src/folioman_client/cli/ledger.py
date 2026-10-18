@@ -5,7 +5,11 @@ from __future__ import annotations
 import asyncio
 import click
 
-from folioman_client.errors import DuplicateInvestorError, FoliomanDatabaseError
+from folioman_client.errors import (
+    DuplicateInvestorError,
+    FoliomanDatabaseError,
+    FoliomanError,
+)
 from folioman_client.services.ledger_service import LedgerService
 
 
@@ -23,9 +27,12 @@ def list_investors_cmd(
 ) -> None:
     """List all registered investors."""
     service = LedgerService()
-    investors = asyncio.run(
-        service.list_investors(family_id=family_id, unaffiliated=unaffiliated)
-    )
+    try:
+        investors = asyncio.run(
+            service.list_investors(family_id=family_id, unaffiliated=unaffiliated)
+        )
+    except (FoliomanError, ValueError) as exc:
+        raise click.ClickException(str(exc))
 
     if not investors:
         click.echo("No investors found.")
@@ -59,7 +66,7 @@ def create_investor_cmd(
         inv = asyncio.run(
             service.create_investor(name=name, pan=pan, email=email, is_huf=is_huf)
         )
-    except (DuplicateInvestorError, FoliomanDatabaseError) as exc:
+    except (FoliomanError, ValueError) as exc:
         raise click.ClickException(str(exc))
 
     click.echo(
@@ -78,7 +85,10 @@ def folios_group() -> None:
 def list_folios_cmd(ctx: click.Context, investor_id: int) -> None:
     """List folios and demat accounts for an investor."""
     service = LedgerService()
-    folios = asyncio.run(service.list_folios(investor_id))
+    try:
+        folios = asyncio.run(service.list_folios(investor_id))
+    except (FoliomanError, ValueError) as exc:
+        raise click.ClickException(str(exc))
 
     if not folios:
         click.echo(f"No folios found for investor {investor_id}.")
@@ -115,7 +125,10 @@ def merge_folios_cmd(
     click.echo(
         f"Merging folio {source_id} -> {target_id} for investor {investor_id}..."
     )
-    res = asyncio.run(service.merge_folios(investor_id, source_id, target_id))
+    try:
+        res = asyncio.run(service.merge_folios(investor_id, source_id, target_id))
+    except (FoliomanError, ValueError) as exc:
+        raise click.ClickException(str(exc))
     click.echo(
         f"Merge complete: {res['transactions_moved']} transactions and {res['holdings_moved']} holdings moved."
     )
@@ -139,11 +152,14 @@ def list_transactions_cmd(
 ) -> None:
     """List transactions for an investor ordered chronologically."""
     service = LedgerService()
-    txns = asyncio.run(
-        service.list_transactions(
-            investor_id, security_id=security_id, folio_id=folio_id
+    try:
+        txns = asyncio.run(
+            service.list_transactions(
+                investor_id, security_id=security_id, folio_id=folio_id
+            )
         )
-    )
+    except (FoliomanError, ValueError) as exc:
+        raise click.ClickException(str(exc))
 
     if not txns:
         click.echo(f"No transactions found for investor {investor_id}.")
@@ -178,7 +194,10 @@ def holdings_group() -> None:
 def list_holdings_cmd(ctx: click.Context, investor_id: int) -> None:
     """List active positions (from ledger or statement snapshots)."""
     service = LedgerService()
-    holdings = asyncio.run(service.list_holdings(investor_id))
+    try:
+        holdings = asyncio.run(service.list_holdings(investor_id))
+    except (FoliomanError, ValueError) as exc:
+        raise click.ClickException(str(exc))
 
     if not holdings:
         click.echo(f"No active holdings found for investor {investor_id}.")

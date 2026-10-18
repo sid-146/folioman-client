@@ -8,6 +8,8 @@ import warnings
 
 import click
 
+from typing import Any
+
 from folioman_client import __version__
 from folioman_client.cli.capital_gains import capital_gains_group
 from folioman_client.cli.corporate_actions import corporate_actions_group
@@ -26,9 +28,20 @@ from folioman_client.cli.scheduler import scheduler_group
 from folioman_client.cli.symbols import symbols_group
 from folioman_client.cli.valuations import valuations_group
 from folioman_client.config import settings
+from folioman_client.errors import FoliomanError
 
 
-@click.group()
+class FoliomanCLI(click.Group):
+    """Custom Click Group that catches unhandled domain errors and reports them cleanly."""
+
+    def invoke(self, ctx: click.Context) -> Any:
+        try:
+            return super().invoke(ctx)
+        except FoliomanError as exc:
+            raise click.ClickException(str(exc)) from None
+
+
+@click.group(cls=FoliomanCLI)
 @click.version_option(version=__version__, prog_name="folioman")
 @click.option(
     "--database-url",

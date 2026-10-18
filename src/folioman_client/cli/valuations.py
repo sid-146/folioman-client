@@ -6,6 +6,7 @@ import asyncio
 from datetime import date
 import click
 
+from folioman_client.errors import FoliomanError
 from folioman_client.services.valuation_service import ValuationService
 
 
@@ -26,23 +27,26 @@ def status_cmd(
         raise click.UsageError("Must provide either --investor-id or --family-id")
 
     service = ValuationService()
-    if investor_id is not None:
-        st = asyncio.run(service.get_valuation_status(investor_id))
-        click.echo("-" * 40)
-        click.echo(f"Investor ID:      {st['investor_id']}")
-        click.echo(f"Status:           {st['status'].upper()}")
-        click.echo(f"Computed Through: {st['computed_through'] or 'None'}")
-        click.echo(f"Recompute From:   {st['recompute_from'] or 'None'}")
-        click.echo(f"Is Provisional:   {st['is_provisional']}")
-        click.echo("-" * 40)
-    elif family_id is not None:
-        st = asyncio.run(service.get_family_valuation_status(family_id))
-        click.echo("-" * 40)
-        click.echo(f"Family ID:        {st['family_id']}")
-        click.echo(f"Status:           {st['status'].upper()}")
-        click.echo(f"Computed Through: {st['computed_through'] or 'None'}")
-        click.echo(f"Is Provisional:   {st['is_provisional']}")
-        click.echo("-" * 40)
+    try:
+        if investor_id is not None:
+            st = asyncio.run(service.get_valuation_status(investor_id))
+            click.echo("-" * 40)
+            click.echo(f"Investor ID:      {st['investor_id']}")
+            click.echo(f"Status:           {st['status'].upper()}")
+            click.echo(f"Computed Through: {st['computed_through'] or 'None'}")
+            click.echo(f"Recompute From:   {st['recompute_from'] or 'None'}")
+            click.echo(f"Is Provisional:   {st['is_provisional']}")
+            click.echo("-" * 40)
+        elif family_id is not None:
+            st = asyncio.run(service.get_family_valuation_status(family_id))
+            click.echo("-" * 40)
+            click.echo(f"Family ID:        {st['family_id']}")
+            click.echo(f"Status:           {st['status'].upper()}")
+            click.echo(f"Computed Through: {st['computed_through'] or 'None'}")
+            click.echo(f"Is Provisional:   {st['is_provisional']}")
+            click.echo("-" * 40)
+    except (FoliomanError, ValueError) as exc:
+        raise click.ClickException(str(exc))
 
 
 @valuations_group.command(name="series")
@@ -67,15 +71,18 @@ def series_cmd(
     granularity: str,
 ) -> None:
     """Print reconstructed historical net-worth time series."""
-    f_date = date.fromisoformat(from_date) if from_date else None
-    t_date = date.fromisoformat(to_date) if to_date else None
+    try:
+        f_date = date.fromisoformat(from_date) if from_date else None
+        t_date = date.fromisoformat(to_date) if to_date else None
 
-    service = ValuationService()
-    series = asyncio.run(
-        service.value_series(
-            investor_id, from_date=f_date, to_date=t_date, granularity=granularity
+        service = ValuationService()
+        series = asyncio.run(
+            service.value_series(
+                investor_id, from_date=f_date, to_date=t_date, granularity=granularity
+            )
         )
-    )
+    except (FoliomanError, ValueError) as exc:
+        raise click.ClickException(str(exc))
 
     click.echo(
         f"\nNet-Worth Series for Investor {investor_id} ({granularity.title()}):"
@@ -100,16 +107,19 @@ def tick_cmd(ctx: click.Context, pending: bool, extend: bool) -> None:
     """Trigger background valuation ticks for pending or daily extension jobs."""
     service = ValuationService()
 
-    if extend:
-        click.echo("Enqueuing daily extension for all investors...")
-        cnt = asyncio.run(service.enqueue_daily_extend())
-        click.echo(f"Queued {cnt} investors for daily extension.")
-    elif pending:
-        click.echo("Processing pending valuations...")
-        cnt = asyncio.run(service.process_pending_valuations())
-        click.echo(f"Processed {cnt} pending valuations.")
-    else:
-        click.echo("Running valuation catch-up and pending ticks...")
-        catch_cnt = asyncio.run(service.enqueue_catch_up_if_stale())
-        proc_cnt = asyncio.run(service.process_pending_valuations())
-        click.echo(f"Catch-up queued: {catch_cnt}, Processed: {proc_cnt}")
+    try:
+        if extend:
+            click.echo("Enqueuing daily extension for all investors...")
+            cnt = asyncio.run(service.enqueue_daily_extend())
+            click.echo(f"Queued {cnt} investors for daily extension.")
+        elif pending:
+            click.echo("Processing pending valuations...")
+            cnt = asyncio.run(service.process_pending_valuations())
+            click.echo(f"Processed {cnt} pending valuations.")
+        else:
+            click.echo("Running valuation catch-up and pending ticks...")
+            catch_cnt = asyncio.run(service.enqueue_catch_up_if_stale())
+            proc_cnt = asyncio.run(service.process_pending_valuations())
+            click.echo(f"Catch-up queued: {catch_cnt}, Processed: {proc_cnt}")
+    except (FoliomanError, ValueError) as exc:
+        raise click.ClickException(str(exc))

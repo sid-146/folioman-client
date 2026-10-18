@@ -6,6 +6,7 @@ import asyncio
 from datetime import date
 import click
 
+from folioman_client.errors import FoliomanError
 from folioman_client.services.valuation_service import ValuationService
 
 
@@ -20,10 +21,14 @@ def portfolio_group() -> None:
 @click.pass_context
 def summary_cmd(ctx: click.Context, investor_id: int, as_of: str | None) -> None:
     """Print overall portfolio summary, metrics, and asset mix for an investor."""
-    as_of_date = date.fromisoformat(as_of) if as_of else None
-    service = ValuationService()
-
-    summary = asyncio.run(service.build_investor_summary(investor_id, as_of=as_of_date))
+    try:
+        as_of_date = date.fromisoformat(as_of) if as_of else None
+        service = ValuationService()
+        summary = asyncio.run(
+            service.build_investor_summary(investor_id, as_of=as_of_date)
+        )
+    except (FoliomanError, ValueError) as exc:
+        raise click.ClickException(str(exc))
 
     click.echo("=" * 60)
     click.echo(f"Portfolio Summary for Investor ID: {investor_id}")
