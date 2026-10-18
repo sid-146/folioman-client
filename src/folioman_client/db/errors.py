@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from contextlib import asynccontextmanager
 import logging
-from typing import AsyncIterator
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 
 from sqlalchemy.exc import (
     DBAPIError,
@@ -15,6 +15,15 @@ from sqlalchemy.exc import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from folioman_client.db.reporting import (
+    DatabaseErrorInfo,
+    analyze_db_error,
+    classify_cause_and_fix,
+    clean_original_error,
+    detect_backend,
+    format_database_error,
+    report_database_error,
+)
 from folioman_client.errors import (
     DuplicateInvestorError,
     FoliomanDatabaseError,
@@ -26,11 +35,18 @@ logger = logging.getLogger(__name__)
 
 def _clean_orig_message(exc: SQLAlchemyError) -> str:
     """Extract a clean driver message without SQL statements or bind parameters."""
-    if hasattr(exc, "orig") and exc.orig is not None:
-        return str(exc.orig).strip()
-    # If no orig, take only the first line of str(exc) to prevent leaking SQL and bind parameters
-    first_line = str(exc).split("\n")[0].strip()
-    return first_line or "Database constraint violation"
+    return clean_original_error(exc)
+
+
+async def _safe_rollback(session: AsyncSession | None) -> None:
+    """Safely attempt to roll back the active session on error."""
+    if session is not None and hasattr(session, "rollback"):
+        try:
+            res = session.rollback()
+            if hasattr(res, "__await__"):
+                await res
+        except (SQLAlchemyError, OSError, RuntimeError, TypeError):
+            pass
 
 
 def translate_integrity_error(exc: IntegrityError) -> Exception:
@@ -73,68 +89,77 @@ def translate_integrity_error(exc: IntegrityError) -> Exception:
     return FoliomanDatabaseError(f"Database integrity constraint violated: {orig_msg}")
 
 
+def translate_operational_error(
+    exc: OperationalError, backend: str | None = None
+) -> FoliomanDatabaseError:
+    """Analyze the DBAPI operational error to provide meaningful, actionable domain errors."""
+    orig_msg = _clean_orig_message(exc)
+    detected_backend = detect_backend(exc, dialect_name=backend)
+    cause, fix = classify_cause_and_fix(exc, detected_backend, orig_msg)
+    if "Table or relation does not exist" in cause:
+        return FoliomanDatabaseError(f"{cause} {fix}".strip())
+    if "column does not exist" in cause.lower():
+        return FoliomanDatabaseError(f"{cause} {fix}".strip())
+    if "authentication failed" in cause.lower():
+        return FoliomanDatabaseError(f"{cause} {fix}".strip())
+    if "unreachable" in cause.lower() or "connection refused" in orig_msg.lower():
+        return FoliomanDatabaseError(f"{cause} {fix}".strip())
+    return FoliomanDatabaseError(
+        f"Database unavailable, timed out, or locked: {orig_msg}"
+    )
+
+
 @asynccontextmanager
 async def handle_db_errors(
     session: AsyncSession | None = None,
+    backend: str | None = None,
+    operation: str | None = None,
 ) -> AsyncIterator[None]:
-    """Context manager to intercept SQLAlchemy exceptions, roll back, and raise domain errors.
+    """Context manager to intercept SQLAlchemy exceptions, report them, roll back, and raise domain errors.
 
     Args:
         session: Optional active AsyncSession. If provided, session.rollback() will be called on error.
+        backend: Optional database backend override (e.g. 'SQLite', 'PostgreSQL').
+        operation: Optional operation description hint (e.g. 'INSERT', 'Transaction commit').
     """
     try:
         yield
     except IntegrityError as exc:
-        if session:
-            try:
-                await session.rollback()
-            except Exception:
-                pass
-        orig_msg = _clean_orig_message(exc)
-        logger.debug("Database integrity constraint violated: %s", orig_msg)
-        raise translate_integrity_error(exc) from None
+        await _safe_rollback(session)
+        report_database_error(exc, backend=backend, operation=operation)
+        raise translate_integrity_error(exc) from exc
 
     except OperationalError as exc:
-        if session:
-            try:
-                await session.rollback()
-            except Exception:
-                pass
+        await _safe_rollback(session)
+        report_database_error(exc, backend=backend, operation=operation)
         orig_msg = _clean_orig_message(exc)
-        logger.error("Database operational error: %s", orig_msg)
-        raise FoliomanDatabaseError(
-            f"Database unavailable, timed out, or locked: {orig_msg}"
-        ) from None
+        logger.debug("Database operational error: %s", orig_msg)
+        raise translate_operational_error(exc, backend=backend) from None
 
     except NoResultFound as exc:
-        if session:
-            try:
-                await session.rollback()
-            except Exception:
-                pass
+        await _safe_rollback(session)
         raise FoliomanNotFoundError(f"Requested resource not found: {exc}") from None
 
     except DBAPIError as exc:
-        if session:
-            try:
-                await session.rollback()
-            except Exception:
-                pass
+        await _safe_rollback(session)
+        report_database_error(exc, backend=backend, operation=operation)
         orig_msg = _clean_orig_message(exc)
         logger.error("DBAPI driver error: %s", orig_msg)
         raise FoliomanDatabaseError(f"Database driver error: {orig_msg}") from None
 
     except SQLAlchemyError as exc:
-        if session:
-            try:
-                await session.rollback()
-            except Exception:
-                pass
+        await _safe_rollback(session)
+        report_database_error(exc, backend=backend, operation=operation)
         logger.error("Database error occurred: %s", type(exc).__name__)
         raise FoliomanDatabaseError(f"Database error: {type(exc).__name__}") from None
 
 
 __all__ = [
+    "DatabaseErrorInfo",
+    "analyze_db_error",
+    "format_database_error",
     "handle_db_errors",
+    "report_database_error",
     "translate_integrity_error",
+    "translate_operational_error",
 ]

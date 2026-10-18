@@ -1,7 +1,15 @@
 """Folioman database module: models, engine, and migrations."""
 
 from folioman_client.db.engine import create_folioman_engine, create_sessionmaker
-from folioman_client.db.errors import handle_db_errors, translate_integrity_error
+from folioman_client.db.errors import (
+    DatabaseErrorInfo,
+    analyze_db_error,
+    format_database_error,
+    handle_db_errors,
+    report_database_error,
+    translate_integrity_error,
+    translate_operational_error,
+)
 from folioman_client.db.migrations import (
     CURRENT_SCHEMA_VERSION,
     get_schema_version,
@@ -25,45 +33,50 @@ from folioman_client.db.models import (
     NAVHistory,
     PartialBlock,
     ReferenceMeta,
-    SchemeReference,
     SchemaVersion,
+    SchemeReference,
     Security,
     SecurityIntegrityStatus,
     Transaction,
 )
 
 __all__ = [
-    "Base",
-    "create_folioman_engine",
-    "create_sessionmaker",
-    "handle_db_errors",
-    "translate_integrity_error",
-    "init_schema",
-    "get_schema_version",
-    "CURRENT_SCHEMA_VERSION",
-    # Reference dictionary
-    "SchemeReference",
-    "ISINReference",
-    "GrandfatheringNAV",
-    "ReferenceMeta",
     # Securities & Market Data
     "AMC",
-    "Security",
-    "NAVHistory",
+    "CURRENT_SCHEMA_VERSION",
+    "AppliedCorporateAction",
+    "Base",
     "CorporateActionReference",
+    "DatabaseErrorInfo",
     "FXRate",
     # Portfolio Ledger
     "Family",
-    "Investor",
     "Folio",
-    "Transaction",
+    "GrandfatheringNAV",
     "Holding",
-    "PartialBlock",
-    "InvestorValue",
-    "AppliedCorporateAction",
-    "SecurityIntegrityStatus",
+    "ISINReference",
     # Auditing & Versioning
     "ImportJob",
     "ImportQuarantine",
+    "Investor",
+    "InvestorValue",
+    "NAVHistory",
+    "PartialBlock",
+    "ReferenceMeta",
     "SchemaVersion",
+    # Reference dictionary
+    "SchemeReference",
+    "Security",
+    "SecurityIntegrityStatus",
+    "Transaction",
+    "analyze_db_error",
+    "create_folioman_engine",
+    "create_sessionmaker",
+    "format_database_error",
+    "get_schema_version",
+    "handle_db_errors",
+    "init_schema",
+    "report_database_error",
+    "translate_integrity_error",
+    "translate_operational_error",
 ]
