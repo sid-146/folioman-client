@@ -24,6 +24,24 @@ All `folioman` commands support the following global options:
 
 ---
 
+## Error Handling & Debugging
+
+`folioman` presents clean, actionable error messages without dumping internal tracebacks or raw SQL queries to the terminal:
+
+```console
+$ folioman portfolio summary --investor-id 1
+Error: Table or relation does not exist in the database schema. Verify the table name and run database schema migrations (init_schema) to create missing tables.
+```
+
+- **Exit Codes**: When a command encounters an error (missing entity, uninitialized schema, or validation failure), it exits cleanly with exit code `1`.
+- **Verbose Diagnostic Mode**: If you need to inspect full database diagnostic blocks (including caller location, operation, and sanitised queries) on `sys.stderr`, set the `FOLIOMAN_DEBUG_DB_ERRORS` environment variable:
+  ```bash
+  export FOLIOMAN_DEBUG_DB_ERRORS=1
+  folioman portfolio summary --investor-id 1
+  ```
+
+---
+
 ## Command Reference
 
 ### 1. `folioman isin`

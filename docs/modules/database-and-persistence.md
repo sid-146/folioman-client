@@ -42,10 +42,17 @@ Fix   : Use a compatible event loop or correct the async driver configuration:
 
 ## 2. Centralized Actionable Error Diagnostics (`db/reporting.py` & `db/errors.py`)
 
-SQLAlchemy and driver exceptions can be verbose and difficult to decipher in complex async architectures. `folioman-client` implements a centralized error analysis and reporting system that intercepts exceptions, inspects application call stacks, redacts sensitive PII, and outputs clear, actionable diagnostic blocks.
+SQLAlchemy and driver exceptions can be verbose and difficult to decipher in complex async architectures. `folioman-client` implements a centralized error analysis and translation system that intercepts exceptions, inspects application call stacks, redacts sensitive PII, and returns clean, actionable domain exceptions.
 
-### 2.1 Standardized Diagnostic Format
-Every database failure outputs a concise diagnostic message to `sys.stderr`:
+### 2.1 Domain Exception Translation & Traceback Suppression
+Low-level driver failures are intercepted by `handle_db_errors(session)` and translated into domain exceptions (`FoliomanDatabaseError`, `DuplicateInvestorError`, `FoliomanNotFoundError`):
+
+- **Actionable Guidance**: Missing tables, syntax errors, or connection dropouts are parsed by `translate_operational_error()` to provide immediate remediation advice (e.g. `"Table or relation does not exist in the database schema. Verify the table name and run database schema migrations (init_schema) to create missing tables."`).
+- **Suppressed Internal Tracebacks**: Domain exceptions are raised using `raise ... from None`, preventing internal SQLAlchemy greenlet and DBAPI driver tracebacks from cluttering terminal logs or application output.
+- **Consistent CLI & SDK Experience**: The exact same clean error message is returned when calling Python SDK services or running CLI commands (which catch domain exceptions and render them via `click.ClickException`).
+
+### 2.2 Standardized Diagnostic Block Format
+For diagnostic purposes, `report_database_error()` generates a structured 8-field analysis:
 
 ```text
 [DATABASE ERROR] sqlalchemy.exc.IntegrityError
@@ -61,7 +68,12 @@ Original error:
 UNIQUE constraint failed: investors.pan_hash
 ```
 
-### 2.2 Accurate Application Call-Site Resolution
+### 2.3 Diagnostic Logging & Debug Mode (`FOLIOMAN_DEBUG_DB_ERRORS`)
+To avoid dumping lengthy multi-line queries and column lists onto user consoles during normal operations:
+- **Default**: The diagnostic metadata is attached to the exception object (`exc._folioman_db_error_info`) and logged at `logger.debug`.
+- **Debug Mode**: Setting the environment variable `FOLIOMAN_DEBUG_DB_ERRORS=1` enables direct writing of the diagnostic banner to `sys.stderr` for interactive troubleshooting or test verification.
+
+### 2.4 Accurate Application Call-Site Resolution
 A major challenge in async SQLAlchemy applications is that exceptions are caught deep inside framework code (greenlets, task loops, or connection pool workers). Standard `traceback` parsing often points incorrectly to SQLAlchemy internals (`sqlalchemy/dialects/sqlite/aiosqlite.py`) rather than the application line that issued the query.
 
 `extract_application_location()` solves this:
@@ -77,23 +89,23 @@ A major challenge in async SQLAlchemy applications is that exceptions are caught
    - `folioman_client/db/errors.py`
 5. Returns the true application call site (e.g. `src/folioman_client/services/ledger_service.py:126`).
 
-### 2.3 Security, Privacy & Secret Redaction
+### 2.5 Security, Privacy & Secret Redaction
 To protect financial confidentiality, the error reporting engine automatically sanitizes all output:
 - **Connection URLs**: Passwords and usernames are stripped via `sanitize_url()`.
 - **PANs**: Any 10-character Permanent Account Number string matching `[A-Z]{5}[0-9]{4}[A-Z]` is masked to `XXXXXX123D`.
-- **Passwords**: Database and PDF passwords in messages or query strings are replaced with `[REDACTED]`.
+- **Passwords**: Database and PDF passwords in messages or query strings are replaced with `***`.
 - **Bound Parameters**: Bound SQL parameters are omitted by default to prevent leaking transaction amounts, folio numbers, or personal details in console logs.
 
-### 2.4 Error De-Duplication
-In layered architectures, an exception often bubbles up through several layers (e.g., Session listener $\to$ `handle_db_errors` $\to$ Service method $\to$ CLI command). Without de-duplication, the diagnostic banner would print 3 or 4 times for a single failure.
+### 2.6 Error De-Duplication
+In layered architectures, an exception often bubbles up through several layers (e.g., Session listener $\to$ `handle_db_errors` $\to$ Service method $\to$ CLI command). Without de-duplication, the diagnostic banner would print multiple times for a single failure.
 
 `report_database_error()` sets an internal flag on the exception instance:
 ```python
 if getattr(exc, "_folioman_db_error_reported", False):
-    return info  # Already reported; do not print again
-setattr(exc, "_folioman_db_error_reported", True)
+    return getattr(exc, "_folioman_db_error_info", None)
+exc._folioman_db_error_reported = True
 ```
-This guarantees that diagnostic blocks appear **exactly once**.
+This guarantees that diagnostic blocks are processed **exactly once**.
 
 ---
 

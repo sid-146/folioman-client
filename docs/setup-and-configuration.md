@@ -50,6 +50,7 @@ pip install -e ".[dev,postgres]"
 | `FOLIOMAN_LOG_LEVEL` | `str` | `"INFO"` | Logging verbosity (`DEBUG`, `INFO`, `WARNING`, `ERROR`). |
 | `FOLIOMAN_HTTP_TIMEOUT` | `float` | `30.0` | HTTP request timeout in seconds for market data feeds. |
 | `FOLIOMAN_RUN_SCHEDULER`| `bool` | `False` | Launch background APScheduler automatically inside SDK client. |
+| `FOLIOMAN_DEBUG_DB_ERRORS` | `bool / int` | `0` | Enable verbose diagnostic database error blocks on stderr. |
 
 ---
 

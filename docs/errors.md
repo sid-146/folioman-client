@@ -94,12 +94,16 @@ class FoliomanFeedError(FoliomanError):
 
 ```python
 class FoliomanDatabaseError(FoliomanError):
-    """Raised on database connection failures or integrity constraint violations."""
+    """Raised on database connection failures, missing schema/tables, or integrity violations."""
 ```
 
 - **When Raised**:
-    - Database URL is unreachable or connection pool is exhausted.
-    - Database integrity violation or unrecoverable SQL syntax error.
+    - Database tables have not been created (e.g. running queries prior to `init_schema()`).
+    - Database URL is unreachable, connection is refused, or connection pool is exhausted.
+    - Database integrity violation or unrecoverable SQL driver error.
+- **Recommended Action**:
+    - For missing tables, run `folioman isin seed` or invoke `await init_schema(engine)` in code.
+    - Inspect the exception message (`str(exc)`), which contains actionable remediation advice.
 
 ---
 
