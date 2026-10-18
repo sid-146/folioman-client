@@ -22,10 +22,14 @@ theme:
               icon: material/brightness-4
               name: Switch to light mode
     features:
+        - navigation.tabs
+        - navigation.tabs.sticky
         - navigation.sections
-        - navigation.expand
         - navigation.top
+        - navigation.path
+        - navigation.prune
         - search.highlight
+        - search.suggest
         - content.code.copy
         - content.action.edit
 
@@ -67,22 +71,41 @@ nav:
     - Overview:
         - Home: index.md
         - Getting Started: getting-started.md
-        - Storage & Database: configuration.md
-        - Security & Privacy: security.md
-    - Guides & Usage:
+        - Setup & Configuration: setup-and-configuration.md
+        - System Architecture: architecture.md
+        - Project & Module Structure: project-structure.md
+        - Codebase Audit Report: CODEBASE_AUDIT.md
+    - Subsystems & Modules:
+        - Application Services: modules/services.md
+        - Core Math & Parsers: modules/core-math-and-parsers.md
+        - Corporate Actions Engine: modules/core-corporate-actions.md
+        - Indian Tax Engine: modules/core-tax.md
+        - Market Price Feeds: modules/price-feeds.md
+        - Database & Diagnostics: modules/database-and-persistence.md
+        - Security & Cryptography: modules/security.md
+    - Execution Flows:
+        - Statement Ingestion: execution-flows/statement-ingestion.md
+        - Portfolio Valuation & XIRR: execution-flows/valuation-and-xirr.md
+        - Capital Gains Tax & Schedule 112A: execution-flows/capital-gains-tax.md
+        - Corporate Actions Replay: execution-flows/corporate-actions.md
+        - Portfolio Reconciliation: execution-flows/reconciliation.md
+        - NAV Synchronization: execution-flows/nav-synchronization.md
+    - Guides & Operations:
         - CLI Reference: cli.md
         - Python Client SDK: client.md
-        - Examples: examples.md
-        - Simple Ideas & Everyday Use Cases: SIMPLE_USE_CASES.md
-    - System Walkthrough:
-        - Overview: walk through/index.md
+        - Error Handling & Debugging: error-handling-and-debugging.md
+        - Testing & Verification: testing.md
+        - Integration Examples: examples.md
+        - Everyday Use Cases: SIMPLE_USE_CASES.md
+    - Asset Walkthroughs:
+        - Walkthrough Overview: walk through/index.md
         - Mutual Funds Flow: walk through/mutual-funds.md
         - Stocks & Equities Flow: walk through/stocks.md
         - ETFs & Other Assets Flow: walk through/etfs-and-others.md
-    - Reference & Architecture:
-        - Models: models.md
-        - Errors: errors.md
-        - Backward Compatibility: compatibility.md
+    - Reference & Technical Specs:
         - API Reference: api-reference.md
-        - Development: development.md
+        - Domain Models: models.md
+        - Error Hierarchy: errors.md
+        - Backward Compatibility: compatibility.md
+        - Development Guide: development.md
         - Future Enhancements & Roadmap: future_enhancement.md
