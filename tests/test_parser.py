@@ -471,9 +471,9 @@ def test_sub_unit_allotment_without_same_day_nav_books_zero_cost():
 def test_every_casparser_txn_type_is_categorised():
     covered = parser._BUY_TXNS | parser._SELL_TXNS | parser._DIVIDEND_TXNS
     covered |= parser._SKIP_TXNS | parser._UNSUPPORTED_TXNS
-    assert covered == set(CTxn), (
-        f"uncategorised casparser txn types: {set(CTxn) - covered}"
-    )
+    assert covered == set(
+        CTxn
+    ), f"uncategorised casparser txn types: {set(CTxn) - covered}"
 
 
 def test_transactions_from_statement_are_valid_ledger_rows():

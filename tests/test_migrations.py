@@ -63,9 +63,9 @@ async def test_init_schema_creates_tables_and_sets_version() -> None:
             lambda sync_conn: inspect(sync_conn).get_table_names()
         )
         for expected in expected_tables:
-            assert expected in tables, (
-                f"Expected table '{expected}' not found in created schema."
-            )
+            assert (
+                expected in tables
+            ), f"Expected table '{expected}' not found in created schema."
 
     await engine.dispose()
 
