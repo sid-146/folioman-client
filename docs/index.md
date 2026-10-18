@@ -65,6 +65,17 @@ graph TD
 
 ---
 
+## Technical Documentation Map
+
+| Section | Focus Area | Key Documents |
+| :--- | :--- | :--- |
+| **System Architecture** | Subsystem design, Three Model Layers, and lifecycles | [Architecture](architecture.md) • [Project Structure](project-structure.md) • [Audit Report](CODEBASE_AUDIT.md) |
+| **Module Deep-Dives** | Function-level implementations, queries, and algorithms | [Services](modules/services.md) • [Core Math & Parsers](modules/core-math-and-parsers.md) • [Corporate Actions](modules/core-corporate-actions.md) • [Tax Engine](modules/core-tax.md) • [Price Feeds](modules/price-feeds.md) • [Database & Diagnostics](modules/database-and-persistence.md) • [Security & PAN Crypto](modules/security.md) |
+| **Execution Flows** | Step-by-step sequence diagrams and transaction lifecycles | [Statement Ingestion](execution-flows/statement-ingestion.md) • [Valuation & XIRR](execution-flows/valuation-and-xirr.md) • [Capital Gains](execution-flows/capital-gains-tax.md) • [Corporate Actions](execution-flows/corporate-actions.md) • [Reconciliation](execution-flows/reconciliation.md) • [NAV Synchronization](execution-flows/nav-synchronization.md) |
+| **Operations & Testing** | Environment configuration, debugging, and verification | [Setup & Config](setup-and-configuration.md) • [Error Handling & Debugging](error-handling-and-debugging.md) • [Testing Guide](testing.md) • [CLI Reference](cli.md) • [Python SDK Client](client.md) |
+
+---
+
 ## Installation
 
 Install using standard Python package managers:

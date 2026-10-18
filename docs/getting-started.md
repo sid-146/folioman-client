@@ -173,6 +173,6 @@ The library automatically creates all tables and indexes, seeds reference dictio
 
 ## Next Steps
 
-- Explore [Storage & Database Configuration](configuration.md) to learn about SQLite concurrency and PostgreSQL setup.
+- Explore [Setup & Configuration](setup-and-configuration.md) to learn about SQLite concurrency and PostgreSQL setup.
 - Read the [CLI Reference](cli.md) for full terminal command options.
 - Review the [Python Client SDK](client.md) for detailed resource APIs and methods.
