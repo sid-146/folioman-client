@@ -35,6 +35,16 @@ class FoliomanFeedError(FoliomanError):
 class FoliomanDatabaseError(FoliomanError):
     """Raised when a database connection or integrity constraint fails."""
 
+    def __init__(
+        self,
+        message: str,
+        location: str | None = None,
+        orig_error: str | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.location = location
+        self.orig_error = orig_error
+
 
 class DuplicateInvestorError(FoliomanDatabaseError):
     """Raised when an investor with the same PAN already exists."""

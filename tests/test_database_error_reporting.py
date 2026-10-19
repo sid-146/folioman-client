@@ -608,3 +608,34 @@ async def test_exception_chaining_preserved() -> None:
     # __cause__ must be the original IntegrityError
     assert err.__cause__ is orig_exc
     assert err.__cause__.__traceback__ is not None
+
+
+@pytest.mark.asyncio
+async def test_statement_error_location_and_chaining() -> None:
+    """Verify that StatementError includes file/line location and preserves exception chaining."""
+    from sqlalchemy.exc import StatementError
+
+    session_mock = MagicMock()
+    session_mock.rollback = MagicMock()
+
+    orig_exc = StatementError(
+        "cannot adapt type DeclarativeAttributeIntercept",
+        "SELECT CAST(:param_1 AS TEXT)",
+        {"param_1": "dummy"},
+        None,
+    )
+
+    with pytest.raises(FoliomanDatabaseError) as exc_info:
+        async with handle_db_errors(session_mock):
+            raise orig_exc
+
+    err = exc_info.value
+    assert err.__cause__ is orig_exc
+    assert err.__cause__.__traceback__ is not None
+    # Must include line number and location
+    assert "test_database_error_reporting.py" in str(err)
+    assert "StatementError" in str(err)
+    assert "cannot adapt type DeclarativeAttributeIntercept" in str(err)
+    assert err.location is not None
+    assert "test_database_error_reporting.py" in err.location
+    assert err.orig_error == "cannot adapt type DeclarativeAttributeIntercept"
