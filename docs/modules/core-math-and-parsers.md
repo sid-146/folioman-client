@@ -156,11 +156,16 @@ Scans statement narrations for statutory deductions and charges:
 Allocates these expenses directly to the parent transaction record to ensure Section 48 tax deductibility.
 
 ### 3.3 History Gap & Continuity Analysis
-- `scheme_history_gap(block, prior_balance=0) -> str | None`:
-  Determines whether a statement scheme block represents complete, unbroken history:
-  - If `block.opening_units == 0`: History starts at scheme inception (Complete).
+- `scheme_history_gap(block: MfCasSchemeBlock, prior_balance=0) -> str | None`:
+  Evaluates whether an internal [`MfCasSchemeBlock`](../models.md#mfcasschemeblock) from a parsed statement cleanly chains onto existing portfolio ledger records without missing trade history:
+  - If `block.opening_units == 0` (with 0 prior balance): History starts at scheme inception (Complete).
   - If `block.opening_units > 0` and `prior_balance == block.opening_units`: Prior statement already established the opening balance (Complete).
-  - If `block.opening_units > 0` and `prior_balance != block.opening_units`: Transactions prior to statement start date are missing (Incomplete History Gap).
+  - If `block.opening_units > 0` and `prior_balance != block.opening_units`: Transactions prior to statement start date are missing (`"history_gap"` or `"opening_nonzero"`).
+  - If `block.opening_units + net_units != block.closing_units`: The listed transactions do not reconcile to the closing units (`"rows_unreconciled"`).
+
+> [!NOTE]
+> `MfCasSchemeBlock` is an internal core domain model (`folioman_client.core.models.cas`) and is not exposed to the public API. See [Data Models Documentation](../models.md#mfcasschemeblock) for complete specification.
+
 
 ---
 
