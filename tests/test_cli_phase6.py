@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import date
 from decimal import Decimal
 from unittest.mock import AsyncMock, patch
+
 from click.testing import CliRunner
 
 from folioman_client.cli.main import cli
@@ -38,7 +39,7 @@ def test_cli_portfolio_summary():
         "top_holdings": [
             {
                 "name": "HDFC Top 100",
-                "units": Decimal("500"),
+                "units": Decimal(500),
                 "value_inr": Decimal("100000.00"),
                 "return_pct": 0.25,
             }
@@ -122,14 +123,14 @@ def test_cli_valuations_series():
         "points": [
             {
                 "date": date(2024, 1, 1),
-                "value_inr": Decimal("50000"),
-                "invested_inr": Decimal("40000"),
+                "value_inr": Decimal(50000),
+                "invested_inr": Decimal(40000),
                 "stale": False,
             },
             {
                 "date": date(2024, 2, 1),
-                "value_inr": Decimal("52000"),
-                "invested_inr": Decimal("40000"),
+                "value_inr": Decimal(52000),
+                "invested_inr": Decimal(40000),
                 "stale": True,
             },
         ],
@@ -224,7 +225,7 @@ def test_cli_capital_gains_report_with_csv(tmp_path):
         "rows": [
             {
                 "name": "Tata Motors",
-                "units": Decimal("100"),
+                "units": Decimal(100),
                 "term": "long",
                 "acquired_on": date(2020, 1, 1),
                 "sold_on": date(2024, 5, 1),
@@ -283,9 +284,9 @@ def test_cli_capital_gains_report_with_csv(tmp_path):
         assert "Tata Motors" in result.output
         assert "10,000.00" in result.output
         assert (
-            f"Exporting official Schedule 112A CSV to {str(csv_file)}" in result.output
+            f"Exporting official Schedule 112A CSV to {csv_file!s}" in result.output
         )
-        assert f"Successfully exported 1 rows to {str(csv_file)}" in result.output
+        assert f"Successfully exported 1 rows to {csv_file!s}" in result.output
         mock_report.assert_awaited_once_with(1, "2024-25", include_unreconciled=False)
         mock_csv.assert_awaited_once_with(1, "2024-25", include_unreconciled=False)
 

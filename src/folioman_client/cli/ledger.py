@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 import asyncio
+
 import click
 
 from folioman_client.errors import (
-    DuplicateInvestorError,
-    FoliomanDatabaseError,
     FoliomanError,
 )
 from folioman_client.services.ledger_service import LedgerService

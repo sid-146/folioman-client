@@ -22,7 +22,7 @@ from folioman_client.core.tax.india import (
 from folioman_client.core.tax.models import GainLine, Term
 from folioman_client.core.tax.policy import FmvLookup
 
-_ZERO = Decimal("0")
+_ZERO = Decimal(0)
 
 # Official Income-tax Schedule 112A CSV headers (ITR JSON utility template).
 # Headers byte-match the casparser 1.0 utility-verified template (drift guard:
@@ -105,7 +105,7 @@ def _fmt_natural(value: Decimal | None) -> str:
 def _fmt_money(value: Decimal | None) -> str:
     """Two-decimal currency string (e.g. ``1500.00``, ``0.00``)."""
     if value is None:
-        value = Decimal("0")
+        value = Decimal(0)
     return format(value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP), "f")
 
 
@@ -145,7 +145,7 @@ def gain_line_to_112a_row(
     sale_px = disposal.sale_price_per_unit
     # All money fields are quantized to 2dp at the point they're computed,
     # banker's rounded — matches casparser's per-disposal ``round(x, 2)``.
-    q = lambda v: v.quantize(Decimal("0.01"), rounding=ROUND_HALF_EVEN)  # noqa: E731
+    q = lambda v: v.quantize(Decimal("0.01"), rounding=ROUND_HALF_EVEN)
     full_value = q(units * sale_px)
     actual_cost = q(units * disposal.cost_per_unit)
     transfer_exp = disposal.fees_allocated  # already 2dp from disposal_from_lot

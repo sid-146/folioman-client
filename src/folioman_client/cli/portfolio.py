@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 from datetime import date
+
 import click
 
 from folioman_client.errors import FoliomanError
@@ -28,7 +29,7 @@ def summary_cmd(ctx: click.Context, investor_id: int, as_of: str | None) -> None
             service.build_investor_summary(investor_id, as_of=as_of_date)
         )
     except (FoliomanError, ValueError) as exc:
-        raise click.ClickException(str(exc))
+        raise click.ClickException(f"{type(exc).__name__}: {exc}")
 
     click.echo("=" * 60)
     click.echo(f"Portfolio Summary for Investor ID: {investor_id}")

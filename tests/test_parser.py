@@ -17,6 +17,7 @@ from casparser.types import (
     StatementPeriod,
     TransactionData,
 )
+
 from folioman_client.core import parser
 from folioman_client.core.models.security import SecurityType
 from folioman_client.core.models.transaction import TransactionType
@@ -29,7 +30,7 @@ def _txn(d: date, typ: CTxn, units: str, nav: str, amount: str) -> TransactionDa
         amount=Decimal(amount),
         units=Decimal(units),
         nav=Decimal(nav),
-        balance=Decimal("0"),
+        balance=Decimal(0),
         type=typ,
         dividend_rate=None,
     )
@@ -44,9 +45,9 @@ def _cas(
 ) -> CASData:
     val = SchemeValuation(
         date=date(2025, 3, 31),
-        nav=Decimal("25"),
-        cost=Decimal("400"),
-        value=Decimal("1000"),
+        nav=Decimal(25),
+        cost=Decimal(400),
+        value=Decimal(1000),
     )
     scheme = Scheme(
         scheme="Test Equity Fund",
@@ -86,9 +87,9 @@ def _cas_named(scheme_name: str, *, isin: str | None, amfi: str | None) -> CASDa
     """A single-scheme CAS with a custom name/isin/amfi, for mapping-failure tests."""
     val = SchemeValuation(
         date=date(2025, 3, 31),
-        nav=Decimal("25"),
-        cost=Decimal("400"),
-        value=Decimal("1000"),
+        nav=Decimal(25),
+        cost=Decimal(400),
+        value=Decimal(1000),
     )
     scheme = Scheme(
         scheme=scheme_name,
@@ -99,9 +100,9 @@ def _cas_named(scheme_name: str, *, isin: str | None, amfi: str | None) -> CASDa
         isin=isin,
         amfi=amfi,
         nominees=[],
-        open=Decimal("0"),
-        close=Decimal("0"),
-        close_calculated=Decimal("0"),
+        open=Decimal(0),
+        close=Decimal(0),
+        close_calculated=Decimal(0),
         valuation=val,
         transactions=[_txn(date(2022, 1, 1), CTxn.PURCHASE, "100", "10", "1000")],
     )
@@ -150,9 +151,9 @@ def test_identified_schemes_import_alongside_a_skipped_one():
     # one imports, the other is skipped, and the statement still succeeds.
     val = SchemeValuation(
         date=date(2025, 3, 31),
-        nav=Decimal("25"),
-        cost=Decimal("400"),
-        value=Decimal("1000"),
+        nav=Decimal(25),
+        cost=Decimal(400),
+        value=Decimal(1000),
     )
 
     def _scheme(name, isin, amfi):
@@ -165,9 +166,9 @@ def test_identified_schemes_import_alongside_a_skipped_one():
             isin=isin,
             amfi=amfi,
             nominees=[],
-            open=Decimal("0"),
-            close=Decimal("0"),
-            close_calculated=Decimal("0"),
+            open=Decimal(0),
+            close=Decimal(0),
+            close_calculated=Decimal(0),
             valuation=val,
             transactions=[_txn(date(2022, 1, 1), CTxn.PURCHASE, "100", "10", "1000")],
         )
@@ -210,8 +211,8 @@ def test_map_cas_data_structure_and_equity_flag():
     assert block.security.amfi_code == "122639"
     assert block.security.metadata["equity_oriented"] is True
     assert block.folio.number == "12345/67"
-    assert block.opening_units == Decimal("0")
-    assert block.closing_units == Decimal("40")
+    assert block.opening_units == Decimal(0)
+    assert block.closing_units == Decimal(40)
     assert block.transactions[0].transaction_type is TransactionType.BUY
 
 
@@ -229,7 +230,7 @@ def test_sale_units_normalized_to_positive():
     cas = _cas([_txn(date(2024, 8, 1), CTxn.REDEMPTION, "-60", "25", "-1500")])
     line = parser.map_cas_data(cas).schemes[0].transactions[0]
     assert line.transaction_type is TransactionType.SELL
-    assert line.units == Decimal("60")
+    assert line.units == Decimal(60)
 
 
 def test_charge_rows_skipped():
@@ -276,7 +277,7 @@ def test_reversal_of_purchase_is_netted_out():
     )
     block = parser.map_cas_data(cas).schemes[0]
     assert [li.transaction_type for li in block.transactions] == [TransactionType.BUY]
-    assert block.transactions[0].units == Decimal("100")
+    assert block.transactions[0].units == Decimal(100)
     assert parser.scheme_has_full_history(block)  # net 100 == close 100
 
 
@@ -294,7 +295,7 @@ def test_reversal_listed_before_its_original_is_paired():
     )
     block = parser.map_cas_data(cas).schemes[0]
     assert [li.transaction_type for li in block.transactions] == [TransactionType.BUY]
-    assert block.transactions[0].units == Decimal("100")
+    assert block.transactions[0].units == Decimal(100)
     assert parser.scheme_has_full_history(block)
 
 
@@ -329,7 +330,7 @@ def test_reversal_pairs_with_nav_matched_lot():
     )
     block = parser.map_cas_data(cas).schemes[0]
     assert len(block.transactions) == 1
-    assert block.transactions[0].nav == Decimal("10")
+    assert block.transactions[0].nav == Decimal(10)
     assert parser.scheme_has_full_history(block)
 
 
@@ -367,7 +368,7 @@ def test_dividend_payout_without_units_or_nav_is_kept_as_income():
             TransactionData(
                 date=date(2024, 8, 1),
                 description="DIVIDEND PAYOUT",
-                amount=Decimal("500"),
+                amount=Decimal(500),
                 units=None,
                 nav=None,
                 balance=None,
@@ -380,9 +381,9 @@ def test_dividend_payout_without_units_or_nav_is_kept_as_income():
     lines = parser.map_cas_data(cas).schemes[0].transactions
     div = lines[1]
     assert div.transaction_type is TransactionType.DIVIDEND
-    assert div.units == Decimal("0")
-    assert div.nav == Decimal("0")
-    assert div.amount == Decimal("500")  # cash income preserved
+    assert div.units == Decimal(0)
+    assert div.nav == Decimal(0)
+    assert div.amount == Decimal(500)  # cash income preserved
     # Dividends don't move units, so the block still reconciles to its close.
     assert parser.scheme_has_full_history(parser.map_cas_data(cas).schemes[0])
 
@@ -397,7 +398,7 @@ def test_material_buy_missing_nav_raises():
                 date=date(2022, 1, 1),
                 description="PURCHASE",
                 amount=None,
-                units=Decimal("100"),
+                units=Decimal(100),
                 nav=None,
                 balance=None,
                 type=CTxn.PURCHASE,
@@ -464,16 +465,16 @@ def test_sub_unit_allotment_without_same_day_nav_books_zero_cost():
     )
     t = parser.map_cas_data(cas).schemes[0].transactions[0]
     assert t.units == Decimal("0.010")
-    assert t.nav == Decimal("0")
-    assert t.amount == Decimal("0")
+    assert t.nav == Decimal(0)
+    assert t.amount == Decimal(0)
 
 
 def test_every_casparser_txn_type_is_categorised():
     covered = parser._BUY_TXNS | parser._SELL_TXNS | parser._DIVIDEND_TXNS
     covered |= parser._SKIP_TXNS | parser._UNSUPPORTED_TXNS
-    assert covered == set(
-        CTxn
-    ), f"uncategorised casparser txn types: {set(CTxn) - covered}"
+    assert covered == set(CTxn), (
+        f"uncategorised casparser txn types: {set(CTxn) - covered}"
+    )
 
 
 def test_transactions_from_statement_are_valid_ledger_rows():
@@ -485,7 +486,7 @@ def test_transactions_from_statement_are_valid_ledger_rows():
     )
     txns = parser.transactions_from_mf_statement(parser.map_cas_data(cas))
     assert [t.type for t in txns] == [TransactionType.BUY, TransactionType.SELL]
-    assert txns[1].units == Decimal("60")
+    assert txns[1].units == Decimal(60)
     assert txns[0].folio_number == "12345/67"
 
 
@@ -500,7 +501,7 @@ def test_scheme_has_full_history_when_open_zero_and_reconciles():
         close_units="40",
     )
     block = parser.map_cas_data(cas).schemes[0]
-    assert block.opening_units == Decimal("0")
+    assert block.opening_units == Decimal(0)
     assert parser.scheme_has_full_history(block) is True
 
 
@@ -512,7 +513,7 @@ def test_scheme_not_full_history_when_opening_balance_nonzero():
         close_units="40",
     )
     block = parser.map_cas_data(cas).schemes[0]
-    assert block.opening_units == Decimal("10")
+    assert block.opening_units == Decimal(10)
     assert parser.scheme_has_full_history(block) is False
 
 
@@ -536,9 +537,9 @@ def test_scheme_chains_onto_matching_prior_ledger_balance():
     )
     block = parser.map_cas_data(cas).schemes[0]
     # Chains cleanly when the prior ledger holds 50; a partial-period gap otherwise.
-    assert parser.scheme_history_gap(block, prior_balance=Decimal("50")) is None
+    assert parser.scheme_history_gap(block, prior_balance=Decimal(50)) is None
     assert (
-        parser.scheme_history_gap(block, prior_balance=Decimal("0"))
+        parser.scheme_history_gap(block, prior_balance=Decimal(0))
         == "opening_nonzero"
     )
 
@@ -553,7 +554,7 @@ def test_scheme_history_gap_when_opening_does_not_match_prior_ledger():
     )
     block = parser.map_cas_data(cas).schemes[0]
     assert (
-        parser.scheme_history_gap(block, prior_balance=Decimal("50")) == "history_gap"
+        parser.scheme_history_gap(block, prior_balance=Decimal(50)) == "history_gap"
     )
 
 

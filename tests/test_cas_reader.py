@@ -8,6 +8,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from casparser.exceptions import IncorrectPasswordError, ParserException
 from casparser.types import CASData, NSDLCASData
+
 from folioman_client.core.cas_reader import ParsedCas, read_cas
 from folioman_client.core.models.cas import (
     CasInvestorIdentity,

@@ -9,9 +9,10 @@ from __future__ import annotations
 
 import calendar
 from collections import defaultdict
-from datetime import date, datetime, timedelta, timezone
+from collections.abc import Sequence
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
-from typing import Any, Sequence
+from typing import Any
 
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
@@ -39,7 +40,6 @@ from folioman_client.db import (
     create_sessionmaker,
     handle_db_errors,
 )
-from folioman_client.errors import FoliomanNotFoundError
 from folioman_client.db.models import (
     AppliedCorporateAction,
     CorporateActionReference,
@@ -53,7 +53,7 @@ from folioman_client.db.models import (
     SecurityIntegrityStatus,
     Transaction,
 )
-
+from folioman_client.errors import FoliomanNotFoundError
 from folioman_client.services.mappers import to_core_security, to_core_transaction
 from folioman_client.services.nav_service import NAVService
 from folioman_client.services.projected_ledger import (
@@ -63,8 +63,8 @@ from folioman_client.services.projected_ledger import (
     security_key,
 )
 
-_ZERO = Decimal("0")
-_ONE = Decimal("1")
+_ZERO = Decimal(0)
+_ONE = Decimal(1)
 _BUY_TYPES = frozenset({TransactionType.BUY.value, TransactionType.TRANSFER_IN.value})
 _SELL_TYPES = frozenset(
     {TransactionType.SELL.value, TransactionType.TRANSFER_OUT.value}
@@ -154,8 +154,7 @@ def _add_months(start: date, months: int) -> date:
 
 def _sample_dates(from_: date, to: date, granularity: str) -> list[date]:
     """Evenly-spaced sample dates ending on `to`."""
-    if from_ > to:
-        from_ = to
+    from_ = min(from_, to)
     out: list[date] = []
     cursor = from_
     if granularity == "daily":
@@ -195,13 +194,19 @@ def _backoff(attempts: int) -> timedelta:
     return timedelta(minutes=min(2**attempts, 60))
 
 
+# Todo: Move this to core/types.py
+SESSION_FACTORY_TYPE = async_sessionmaker[AsyncSession] | None
+ENGINE_TYPE = AsyncEngine | None
+CURRENT_POSITIONS_TYPE = list[tuple[Security, Decimal, date, str]]
+
+
 class ValuationService:
     """Valuation & Performance Engine."""
 
     def __init__(
         self,
-        engine: AsyncEngine | None = None,
-        session_factory: async_sessionmaker[AsyncSession] | None = None,
+        engine: ENGINE_TYPE = None,
+        session_factory: SESSION_FACTORY_TYPE = None,
     ) -> None:
         self.engine = engine or create_folioman_engine()
         self.session_factory = session_factory or create_sessionmaker(self.engine)
@@ -209,7 +214,7 @@ class ValuationService:
 
     async def _current_positions(
         self, session: AsyncSession, investor_id: int
-    ) -> list[tuple[Security, Decimal, date, str]]:
+    ) -> CURRENT_POSITIONS_TYPE:
         """Yield (security, units, as_of_date, source) - current units per security.
 
         Units come per (security, folio) from transaction ledger when available,
@@ -256,7 +261,6 @@ class ValuationService:
                 (Security.transactions.any(Transaction.investor_id == investor_id))
                 | (Security.id.in_(cp_ids))
             )
-            .distinct()
         )
         for sec in (await session.execute(stmt_sec)).scalars().all():
             sec_by_key.setdefault(security_key(sec), sec)
@@ -391,7 +395,6 @@ class ValuationService:
                 (Security.transactions.any(Transaction.investor_id.in_(investor_ids)))
                 | (Security.id.in_(cp_ids))
             )
-            .distinct()
         )
         sec_by_key: dict[str, Security] = {}
         for sec in (await session.execute(stmt_sec)).scalars().all():
@@ -525,9 +528,7 @@ class ValuationService:
             for txn_date, ttype, cash in rec["cash"]:
                 if ttype in _BUY_TYPES:
                     by_sec[sec_id].append((txn_date, cash))
-                elif ttype in _SELL_TYPES:
-                    by_sec[sec_id].append((txn_date, -cash))
-                elif ttype == TransactionType.DIVIDEND.value and cash:
+                elif ttype in _SELL_TYPES or ttype == TransactionType.DIVIDEND.value and cash:
                     by_sec[sec_id].append((txn_date, -cash))
         return by_sec
 
@@ -701,9 +702,7 @@ class ValuationService:
             for txn_date, ttype, cash in rec["cash"]:
                 if ttype in _BUY_TYPES:
                     flows.append((txn_date, cash))
-                elif ttype in _SELL_TYPES:
-                    flows.append((txn_date, -cash))
-                elif ttype == TransactionType.DIVIDEND.value and cash:
+                elif ttype in _SELL_TYPES or ttype == TransactionType.DIVIDEND.value and cash:
                     flows.append((txn_date, -cash))
         if not flows:
             return None
@@ -758,9 +757,7 @@ class ValuationService:
                     continue
                 if ttype in _BUY_TYPES:
                     flows.append((txn_date, cash))
-                elif ttype in _SELL_TYPES:
-                    flows.append((txn_date, -cash))
-                elif ttype == TransactionType.DIVIDEND.value and cash:
+                elif ttype in _SELL_TYPES or ttype == TransactionType.DIVIDEND.value and cash:
                     flows.append((txn_date, -cash))
         if not flows:
             return None
@@ -828,7 +825,6 @@ class ValuationService:
                 session, [investor_id], as_of_date, txn_keys, hold_keys
             )
             rollup = self._rollup(valuation, meta_by_sec, extras)
-
             sec_ids = {k[0] for k in txn_keys}
             nav_idx = await self._nav_index(session, list(sec_ids), as_of_date)
             xirr = self._compute_xirr(txn_keys, nav_idx, as_of_date)
@@ -1056,7 +1052,9 @@ class ValuationService:
                 signed = (
                     obj.units
                     if obj.transaction_type in _CA_INFLOW
-                    else -obj.units if obj.transaction_type in _CA_OUTFLOW else _ZERO
+                    else -obj.units
+                    if obj.transaction_type in _CA_OUTFLOW
+                    else _ZERO
                 )
                 if complete:
                     balance += signed
@@ -1422,9 +1420,7 @@ class ValuationService:
                 partial_history = has_incomplete
 
             xirr = ex.get("xirr")
-            if not complete_core:
-                xirr_status = "estimated"
-            elif xirr is None:
+            if not complete_core or xirr is None:
                 xirr_status = "estimated"
             elif (as_of_date - min(c.date for c in complete_core)).days < 365:
                 xirr_status = "less_than_1_year"
@@ -1895,7 +1891,7 @@ class ValuationService:
                     inv.valuation_error = str(exc)[:500]
                     if inv.valuation_attempts < _MAX_ATTEMPTS:
                         inv.valuation_next_attempt_at = datetime.now(
-                            timezone.utc
+                            UTC
                         ) + _backoff(inv.valuation_attempts)
                     else:
                         inv.valuation_next_attempt_at = None
@@ -1904,7 +1900,7 @@ class ValuationService:
 
     async def process_pending_valuations(self) -> int:
         """Process all investors that are pending/computing or due for retry."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         async with self.session_factory() as session, handle_db_errors(session):
             stmt = select(Investor.id, Investor.valuation_recompute_from).where(
                 (Investor.valuation_status.in_(["pending", "computing"]))

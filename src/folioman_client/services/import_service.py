@@ -9,7 +9,7 @@ from __future__ import annotations
 import hashlib
 import io
 import logging
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -50,7 +50,7 @@ from folioman_client.services.reconciliation_service import ReconciliationServic
 
 logger = logging.getLogger(__name__)
 
-_ZERO = Decimal("0")
+_ZERO = Decimal(0)
 
 
 def _canon_decimal(value: Decimal | None) -> str:
@@ -446,7 +446,7 @@ class CASImportService:
                 filename=filename,
                 source_ref=calc_ref,
                 result_json={},
-                started_at=datetime.now(timezone.utc),
+                started_at=datetime.now(UTC),
             )
             session.add(job)
             await session.flush()
@@ -736,7 +736,7 @@ class CASImportService:
             )
             job.status = final_status
             job.result_json = summary
-            job.finished_at = datetime.now(timezone.utc)
+            job.finished_at = datetime.now(UTC)
             await session.commit()
 
             summary["job_id"] = job.id

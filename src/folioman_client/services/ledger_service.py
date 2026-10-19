@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import logging
 from datetime import date
 from decimal import Decimal
-import logging
 from typing import Any
 
 from sqlalchemy import case, delete, func, select, update
@@ -28,7 +28,7 @@ from folioman_client.services.reconciliation_service import ReconciliationServic
 
 logger = logging.getLogger(__name__)
 
-_ZERO = Decimal("0")
+_ZERO = Decimal(0)
 
 
 class LedgerService:
@@ -192,47 +192,46 @@ class LedgerService:
         await init_schema(self.engine)
 
         norm_num = normalize_folio_number(number)
-        async with self.session_factory() as session:
-            async with handle_db_errors(session):
-                stmt = select(Folio).where(
-                    Folio.investor_id == investor_id,
-                    Folio.number == norm_num,
-                    Folio.amc_code == amc_code,
-                )
-                existing = (await session.execute(stmt)).scalar_one_or_none()
-                if existing:
-                    return {
-                        "id": existing.id,
-                        "investor_id": existing.investor_id,
-                        "number": existing.number,
-                        "amc_code": existing.amc_code,
-                        "folio_type": existing.folio_type,
-                        "broker": existing.broker,
-                        "pan_kyc": existing.pan_kyc,
-                        "created_at": existing.created_at,
-                        "updated_at": existing.updated_at,
-                    }
-
-                folio = Folio(
-                    investor_id=investor_id,
-                    number=norm_num,
-                    amc_code=amc_code,
-                    broker=broker,
-                    folio_type=folio_type,
-                )
-                session.add(folio)
-                await session.commit()
+        async with self.session_factory() as session, handle_db_errors(session):
+            stmt = select(Folio).where(
+                Folio.investor_id == investor_id,
+                Folio.number == norm_num,
+                Folio.amc_code == amc_code,
+            )
+            existing = (await session.execute(stmt)).scalar_one_or_none()
+            if existing:
                 return {
-                    "id": folio.id,
-                    "investor_id": folio.investor_id,
-                    "number": folio.number,
-                    "amc_code": folio.amc_code,
-                    "folio_type": folio.folio_type,
-                    "broker": folio.broker,
-                    "pan_kyc": folio.pan_kyc,
-                    "created_at": folio.created_at,
-                    "updated_at": folio.updated_at,
+                    "id": existing.id,
+                    "investor_id": existing.investor_id,
+                    "number": existing.number,
+                    "amc_code": existing.amc_code,
+                    "folio_type": existing.folio_type,
+                    "broker": existing.broker,
+                    "pan_kyc": existing.pan_kyc,
+                    "created_at": existing.created_at,
+                    "updated_at": existing.updated_at,
                 }
+
+            folio = Folio(
+                investor_id=investor_id,
+                number=norm_num,
+                amc_code=amc_code,
+                broker=broker,
+                folio_type=folio_type,
+            )
+            session.add(folio)
+            await session.commit()
+            return {
+                "id": folio.id,
+                "investor_id": folio.investor_id,
+                "number": folio.number,
+                "amc_code": folio.amc_code,
+                "folio_type": folio.folio_type,
+                "broker": folio.broker,
+                "pan_kyc": folio.pan_kyc,
+                "created_at": folio.created_at,
+                "updated_at": folio.updated_at,
+            }
 
     async def merge_folios(
         self, investor_id: int, source_folio_id: int, target_folio_id: int
@@ -243,41 +242,40 @@ class LedgerService:
 
         await init_schema(self.engine)
 
-        async with self.session_factory() as session:
-            async with handle_db_errors(session):
-                source = await session.get(Folio, source_folio_id)
-                target = await session.get(Folio, target_folio_id)
-                if not source or source.investor_id != investor_id:
-                    raise ValueError(
-                        f"Source folio {source_folio_id} not found for investor."
-                    )
-                if not target or target.investor_id != investor_id:
-                    raise ValueError(
-                        f"Target folio {target_folio_id} not found for investor."
-                    )
-
-                # Move transactions
-                tx_res = await session.execute(
-                    update(Transaction)
-                    .where(Transaction.folio_id == source_folio_id)
-                    .values(folio_id=target_folio_id)
+        async with self.session_factory() as session, handle_db_errors(session):
+            source = await session.get(Folio, source_folio_id)
+            target = await session.get(Folio, target_folio_id)
+            if not source or source.investor_id != investor_id:
+                raise ValueError(
+                    f"Source folio {source_folio_id} not found for investor."
+                )
+            if not target or target.investor_id != investor_id:
+                raise ValueError(
+                    f"Target folio {target_folio_id} not found for investor."
                 )
 
-                # Move holdings
-                hold_res = await session.execute(
-                    update(Holding)
-                    .where(Holding.folio_id == source_folio_id)
-                    .values(folio_id=target_folio_id)
-                )
+            # Move transactions
+            tx_res = await session.execute(
+                update(Transaction)
+                .where(Transaction.folio_id == source_folio_id)
+                .values(folio_id=target_folio_id)
+            )
 
-                # Delete source integrity rows and source folio
-                await session.execute(
-                    delete(SecurityIntegrityStatus).where(
-                        SecurityIntegrityStatus.folio_id == source_folio_id
-                    )
+            # Move holdings
+            hold_res = await session.execute(
+                update(Holding)
+                .where(Holding.folio_id == source_folio_id)
+                .values(folio_id=target_folio_id)
+            )
+
+            # Delete source integrity rows and source folio
+            await session.execute(
+                delete(SecurityIntegrityStatus).where(
+                    SecurityIntegrityStatus.folio_id == source_folio_id
                 )
-                await session.delete(source)
-                await session.commit()
+            )
+            await session.delete(source)
+            await session.commit()
 
         # Recompute reconciliation for target folio
         await self._reconcile_service.reconcile_investor(investor_id)
@@ -375,35 +373,34 @@ class LedgerService:
         sd = Decimal(str(stamp_duty))
         ttype = transaction_type.upper().strip()
 
-        async with self.session_factory() as session:
-            async with handle_db_errors(session):
-                inv = await session.get(Investor, investor_id)
-                if not inv:
-                    raise ValueError(f"Investor {investor_id} not found.")
+        async with self.session_factory() as session, handle_db_errors(session):
+            inv = await session.get(Investor, investor_id)
+            if not inv:
+                raise ValueError(f"Investor {investor_id} not found.")
 
-                sec = await session.get(Security, security_id)
-                if not sec:
-                    raise ValueError(f"Security {security_id} not found.")
+            sec = await session.get(Security, security_id)
+            if not sec:
+                raise ValueError(f"Security {security_id} not found.")
 
-                txn = Transaction(
-                    investor_id=investor_id,
-                    security_id=security_id,
-                    folio_id=folio_id,
-                    date=date,
-                    transaction_type=ttype,
-                    units=u,
-                    nav_or_price=p,
-                    amount=amt,
-                    fees=f,
-                    stamp_duty=sd,
-                    narration=narration,
-                    source=source,
-                    source_ref=source_ref,
-                    cost_basis_complete=True,
-                )
-                session.add(txn)
-                await session.commit()
-                txn_id = txn.id
+            txn = Transaction(
+                investor_id=investor_id,
+                security_id=security_id,
+                folio_id=folio_id,
+                date=date,
+                transaction_type=ttype,
+                units=u,
+                nav_or_price=p,
+                amount=amt,
+                fees=f,
+                stamp_duty=sd,
+                narration=narration,
+                source=source,
+                source_ref=source_ref,
+                cost_basis_complete=True,
+            )
+            session.add(txn)
+            await session.commit()
+            txn_id = txn.id
 
         # Reconcile position after adding transaction
         if folio_id is not None:

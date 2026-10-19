@@ -25,6 +25,7 @@ from folioman_client.models import (
     ValuationStatus,
     ValueSeries,
 )
+
 from .conftest import create_mock_jwt
 
 BASE_URL = "http://folioman.local:8000"

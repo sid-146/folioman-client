@@ -1,7 +1,8 @@
 """Integration tests for NAVService."""
 
-from datetime import date, timedelta
+from datetime import date
 from decimal import Decimal
+
 import pytest
 import respx
 from sqlalchemy import select

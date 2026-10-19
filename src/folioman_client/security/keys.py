@@ -73,8 +73,8 @@ def get_key_bytes() -> bytes:
 
 
 __all__ = [
-    "resolve_fernet_key",
+    "DEV_FERNET_KEY",
     "get_fernet",
     "get_key_bytes",
-    "DEV_FERNET_KEY",
+    "resolve_fernet_key",
 ]

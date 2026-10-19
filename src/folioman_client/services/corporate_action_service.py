@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import date, datetime, timezone
 import logging
-from typing import Any, Sequence
+from datetime import UTC, date, datetime
+from typing import Any
 
-from sqlalchemy import select, update
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
 from folioman_client.core.corporate_action_subject import (
@@ -18,7 +18,6 @@ from folioman_client.core.corporate_action_subject import (
 from folioman_client.core.models.security import SecurityType
 from folioman_client.core.price_feeds import corporate_actions_fetch
 from folioman_client.core.price_feeds.corporate_actions_fetch import (
-    CorporateActionFetchError,
     CorporateActionThrottled,
     _normalize_subject,
 )
@@ -27,8 +26,6 @@ from folioman_client.db.migrations import init_schema
 from folioman_client.db.models import (
     AppliedCorporateAction,
     CorporateActionReference,
-    Folio,
-    Investor,
     Security,
 )
 
@@ -186,7 +183,7 @@ class CorporateActionService:
                         await self._upsert_action_reference(session, sec.id, event)
                         summary["actions_fetched"] += 1
 
-                    sec.corporate_actions_synced_at = datetime.now(timezone.utc)
+                    sec.corporate_actions_synced_at = datetime.now(UTC)
                 except CorporateActionThrottled:
                     logger.warning(
                         "Exchange throttled corporate action fetch; stopping batch pass."

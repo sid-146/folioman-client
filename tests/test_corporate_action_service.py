@@ -4,10 +4,9 @@ from __future__ import annotations
 
 from datetime import date
 from decimal import Decimal
-from unittest.mock import MagicMock, patch
+
 import pytest
 
-from folioman_client.core.corporate_actions import CorpActionType
 from folioman_client.db.engine import create_folioman_engine
 from folioman_client.db.migrations import init_schema
 from folioman_client.db.models import (
@@ -53,7 +52,7 @@ async def test_apply_corporate_action_bonus(ca_service: CorporateActionService):
             ex_date=date(2024, 12, 3),
             subject="Bonus 1:1",
             parsed_type="bonus",
-            unit_multiplier=Decimal("2"),
+            unit_multiplier=Decimal(2),
             parsed_json={"ratio": [1, 1]},
             needs_review=False,
         )
@@ -65,7 +64,7 @@ async def test_apply_corporate_action_bonus(ca_service: CorporateActionService):
     result = await ca_service.apply_corporate_action(inv_id, fol_id, ref_id)
     assert result["applied"] is True
     assert result["kind"] == "bonus"
-    assert Decimal(result["unit_multiplier"]) == Decimal("2")
+    assert Decimal(result["unit_multiplier"]) == Decimal(2)
 
     # Verify AppliedCorporateAction row created
     async with ca_service.session_factory() as session:
@@ -110,7 +109,7 @@ async def test_apply_corporate_action_validation_errors(
             ex_date=date(2025, 1, 1),
             subject="Bonus Scheme Review",
             parsed_type="bonus",
-            unit_multiplier=Decimal("2"),
+            unit_multiplier=Decimal(2),
             needs_review=True,
         )
         # Dividend action
@@ -121,7 +120,7 @@ async def test_apply_corporate_action_validation_errors(
             ex_date=date(2025, 2, 1),
             subject="Interim Dividend Rs 10",
             parsed_type="dividend",
-            amount=Decimal("10"),
+            amount=Decimal(10),
             needs_review=False,
         )
         session.add_all([ref_review, ref_dividend])
@@ -147,7 +146,7 @@ async def test_list_references_filtering(ca_service: CorporateActionService):
             ex_date=date(2024, 5, 10),
             subject="Bonus 1:1",
             parsed_type="bonus",
-            unit_multiplier=Decimal("2"),
+            unit_multiplier=Decimal(2),
         )
         r2 = CorporateActionReference(
             isin="INE001A01010",
@@ -155,7 +154,7 @@ async def test_list_references_filtering(ca_service: CorporateActionService):
             ex_date=date(2023, 6, 15),
             subject="Stock Split From Rs.10/- to Rs.1/-",
             parsed_type="split",
-            unit_multiplier=Decimal("10"),
+            unit_multiplier=Decimal(10),
         )
         r3 = CorporateActionReference(
             isin="INE002A01018",
@@ -163,7 +162,7 @@ async def test_list_references_filtering(ca_service: CorporateActionService):
             ex_date=date(2024, 10, 28),
             subject="Bonus 1:1",
             parsed_type="bonus",
-            unit_multiplier=Decimal("2"),
+            unit_multiplier=Decimal(2),
         )
         session.add_all([r1, r2, r3])
         await session.commit()

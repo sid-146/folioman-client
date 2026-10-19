@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 from datetime import date
+
 import click
 
 from folioman_client.errors import FoliomanError
@@ -94,7 +95,7 @@ def series_cmd(
     for pt in series["points"]:
         stale_flag = "YES" if pt.get("stale") else "no"
         click.echo(
-            f"{str(pt['date']):<12} {pt['value_inr']:>18,.2f} {pt['invested_inr']:>18,.2f} {stale_flag:>8}"
+            f"{pt['date']!s:<12} {pt['value_inr']:>18,.2f} {pt['invested_inr']:>18,.2f} {stale_flag:>8}"
         )
     click.echo(f"Total Points: {len(series['points'])}\n")
 

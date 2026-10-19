@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncEngine
 
@@ -75,4 +76,4 @@ async def get_schema_version(engine: AsyncEngine) -> int | None:
             return None
 
 
-__all__ = ["CURRENT_SCHEMA_VERSION", "init_schema", "get_schema_version"]
+__all__ = ["CURRENT_SCHEMA_VERSION", "get_schema_version", "init_schema"]

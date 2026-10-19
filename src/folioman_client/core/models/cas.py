@@ -51,8 +51,8 @@ class MfCasLineItem(DomainModel):
     units: DecimalField
     nav: DecimalField
     amount: OptionalDecimalField = None
-    fees: DecimalField = Field(default=Decimal("0"))
-    stamp_duty: DecimalField = Field(default=Decimal("0"))
+    fees: DecimalField = Field(default=Decimal(0))
+    stamp_duty: DecimalField = Field(default=Decimal(0))
     description: str = ""
     # Running unit balance after this transaction (from the CAS). Statement-
     # independent, so it disambiguates genuinely-distinct same-day/same-amount

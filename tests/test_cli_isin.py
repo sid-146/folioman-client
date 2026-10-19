@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+
 from click.testing import CliRunner
 
 from folioman_client.cli.main import cli

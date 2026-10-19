@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import date
 from decimal import Decimal
 from unittest.mock import patch
+
 import pytest
 from sqlalchemy import select
 
@@ -20,20 +21,17 @@ from folioman_client.core.models.cas import (
     MfCasStatement,
 )
 from folioman_client.core.models.investor import Folio as CoreFolio
-from folioman_client.core.models.security import Security as CoreSecurity, SecurityType
+from folioman_client.core.models.security import Security as CoreSecurity
+from folioman_client.core.models.security import SecurityType
 from folioman_client.core.models.transaction import TransactionType
 from folioman_client.core.parser import CASParseError, CASPasswordError
 from folioman_client.db.engine import create_folioman_engine
 from folioman_client.db.migrations import init_schema
 from folioman_client.db.models import (
-    AMC,
-    Folio,
     Holding,
-    ImportJob,
     ImportQuarantine,
     Investor,
     PartialBlock,
-    Security,
     Transaction,
 )
 from folioman_client.errors import FoliomanParseError, FoliomanPasswordError
@@ -63,8 +61,8 @@ def _build_mf_statement() -> MfCasStatement:
     block = MfCasSchemeBlock(
         security=sec,
         folio=fol,
-        opening_units=Decimal("0"),
-        closing_units=Decimal("100"),
+        opening_units=Decimal(0),
+        closing_units=Decimal(100),
         transactions=[
             MfCasLineItem(
                 date=date(2026, 1, 15),
@@ -262,7 +260,7 @@ async def test_upgrade_chained_partials(import_service: CASImportService) -> Non
     earlier_block = MfCasSchemeBlock(
         security=sec,
         folio=fol,
-        opening_units=Decimal("0"),
+        opening_units=Decimal(0),
         closing_units=Decimal("50.0000"),
         transactions=[
             MfCasLineItem(
@@ -362,7 +360,7 @@ async def test_import_ecas_statement(import_service: CASImportService) -> None:
     fol = CoreFolio(folio_type="demat", number="1208160012345678", broker="Zerodha")
     line = EcasHoldingLine(
         security=sec,
-        units=Decimal("25"),
+        units=Decimal(25),
         value_observed=Decimal("75000.00"),
         avg_cost_observed=Decimal("2500.00"),
     )
@@ -388,7 +386,7 @@ async def test_import_ecas_statement(import_service: CASImportService) -> None:
 
     async with import_service.session_factory() as session:
         holding = (await session.execute(select(Holding))).scalar_one()
-        assert holding.units == Decimal("25")
+        assert holding.units == Decimal(25)
         assert holding.value_observed == Decimal("75000.00")
         assert holding.source == "ecas"
 
@@ -398,9 +396,8 @@ async def test_import_password_error_wrapping(import_service: CASImportService) 
     with patch(
         "folioman_client.services.import_service.read_cas",
         side_effect=CASPasswordError("Bad password"),
-    ):
-        with pytest.raises(FoliomanPasswordError):
-            await import_service.import_cas(b"%PDF-1.4 dummy", "wrong")
+    ), pytest.raises(FoliomanPasswordError):
+        await import_service.import_cas(b"%PDF-1.4 dummy", "wrong")
 
 
 @pytest.mark.asyncio
@@ -408,6 +405,5 @@ async def test_import_parse_error_wrapping(import_service: CASImportService) -> 
     with patch(
         "folioman_client.services.import_service.read_cas",
         side_effect=CASParseError("Corrupted stream"),
-    ):
-        with pytest.raises(FoliomanParseError):
-            await import_service.import_cas(b"%PDF-1.4 dummy", "secret")
+    ), pytest.raises(FoliomanParseError):
+        await import_service.import_cas(b"%PDF-1.4 dummy", "secret")

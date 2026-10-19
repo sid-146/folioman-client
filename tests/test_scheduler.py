@@ -1,8 +1,9 @@
 """Tests for FoliomanScheduler and scheduler CLI commands."""
 
-from unittest.mock import AsyncMock, MagicMock, patch
-from click.testing import CliRunner
+from unittest.mock import AsyncMock, patch
+
 import pytest
+from click.testing import CliRunner
 
 from folioman_client.cli.main import cli
 from folioman_client.db.engine import create_folioman_engine

@@ -21,6 +21,7 @@ from folioman_client.db.reporting import (
     classify_cause_and_fix,
     clean_original_error,
     detect_backend,
+    extract_application_location,
     format_database_error,
     report_database_error,
 )
@@ -53,6 +54,9 @@ def translate_integrity_error(exc: IntegrityError) -> Exception:
     """Analyze the DBAPI driver error to provide meaningful domain errors."""
     orig_msg = _clean_orig_message(exc)
     msg = orig_msg.lower()
+    loc = extract_application_location(exc)
+    loc_str = f" at {loc}" if loc and loc != "Unknown" else ""
+    loc_val = loc if loc != "Unknown" else None
 
     # Match investor user_id + pan_hash unique constraint
     if "uniq_investor_user_pan" in msg or ("investors" in msg and "pan" in msg):
@@ -63,30 +67,48 @@ def translate_integrity_error(exc: IntegrityError) -> Exception:
     # Match folio unique constraint
     if "uniq_folio_inv_number_amc" in msg:
         return FoliomanDatabaseError(
-            "A folio with this number and AMC already exists for this investor."
+            f"A folio with this number and AMC already exists for this investor{loc_str}.",
+            location=loc_val,
+            orig_error=orig_msg,
         )
 
     # Match family unique constraint
     if "uniq_family_user_name" in msg:
         return FoliomanDatabaseError(
-            "A family group with this name already exists for this user."
+            f"A family group with this name already exists for this user{loc_str}.",
+            location=loc_val,
+            orig_error=orig_msg,
         )
 
     # Match NAV history unique constraint
     if "uniq_nav_security_date" in msg:
-        return FoliomanDatabaseError("NAV for this security and date already exists.")
+        return FoliomanDatabaseError(
+            f"NAV for this security and date already exists{loc_str}.",
+            location=loc_val,
+            orig_error=orig_msg,
+        )
 
     # Foreign key constraint violations
     if "foreign key" in msg or "foreignkey" in msg:
         return FoliomanDatabaseError(
-            "Foreign key constraint violation: referenced entity does not exist."
+            f"Foreign key constraint violation{loc_str}: referenced entity does not exist.",
+            location=loc_val,
+            orig_error=orig_msg,
         )
 
     # General unique constraint violation
     if "unique constraint" in msg or "unique" in msg or "duplicate" in msg:
-        return FoliomanDatabaseError(f"Duplicate entry error: {orig_msg}")
+        return FoliomanDatabaseError(
+            f"Duplicate entry error{loc_str}: {orig_msg}",
+            location=loc_val,
+            orig_error=orig_msg,
+        )
 
-    return FoliomanDatabaseError(f"Database integrity constraint violated: {orig_msg}")
+    return FoliomanDatabaseError(
+        f"Database integrity constraint violated{loc_str}: {orig_msg}",
+        location=loc_val,
+        orig_error=orig_msg,
+    )
 
 
 def translate_operational_error(
@@ -96,16 +118,30 @@ def translate_operational_error(
     orig_msg = _clean_orig_message(exc)
     detected_backend = detect_backend(exc, dialect_name=backend)
     cause, fix = classify_cause_and_fix(exc, detected_backend, orig_msg)
+    loc = extract_application_location(exc)
+    loc_str = f" at {loc}" if loc and loc != "Unknown" else ""
+    loc_val = loc if loc != "Unknown" else None
+
     if "Table or relation does not exist" in cause:
-        return FoliomanDatabaseError(f"{cause} {fix}".strip())
+        return FoliomanDatabaseError(
+            f"{cause} {fix}{loc_str}".strip(), location=loc_val, orig_error=orig_msg
+        )
     if "column does not exist" in cause.lower():
-        return FoliomanDatabaseError(f"{cause} {fix}".strip())
+        return FoliomanDatabaseError(
+            f"{cause} {fix}{loc_str}".strip(), location=loc_val, orig_error=orig_msg
+        )
     if "authentication failed" in cause.lower():
-        return FoliomanDatabaseError(f"{cause} {fix}".strip())
+        return FoliomanDatabaseError(
+            f"{cause} {fix}{loc_str}".strip(), location=loc_val, orig_error=orig_msg
+        )
     if "unreachable" in cause.lower() or "connection refused" in orig_msg.lower():
-        return FoliomanDatabaseError(f"{cause} {fix}".strip())
+        return FoliomanDatabaseError(
+            f"{cause} {fix}{loc_str}".strip(), location=loc_val, orig_error=orig_msg
+        )
     return FoliomanDatabaseError(
-        f"Database unavailable, timed out, or locked: {orig_msg}"
+        f"Database unavailable, timed out, or locked{loc_str}: {orig_msg}",
+        location=loc_val,
+        orig_error=orig_msg,
     )
 
 
@@ -134,24 +170,40 @@ async def handle_db_errors(
         report_database_error(exc, backend=backend, operation=operation)
         orig_msg = _clean_orig_message(exc)
         logger.debug("Database operational error: %s", orig_msg)
-        raise translate_operational_error(exc, backend=backend) from None
+        raise translate_operational_error(exc, backend=backend) from exc
 
     except NoResultFound as exc:
         await _safe_rollback(session)
-        raise FoliomanNotFoundError(f"Requested resource not found: {exc}") from None
+        raise FoliomanNotFoundError(f"Requested resource not found: {exc}") from exc
 
     except DBAPIError as exc:
         await _safe_rollback(session)
         report_database_error(exc, backend=backend, operation=operation)
         orig_msg = _clean_orig_message(exc)
-        logger.error("DBAPI driver error: %s", orig_msg)
-        raise FoliomanDatabaseError(f"Database driver error: {orig_msg}") from None
+        loc = extract_application_location(exc)
+        loc_str = f" at {loc}" if loc and loc != "Unknown" else ""
+        logger.error("DBAPI driver error%s: %s", loc_str, orig_msg)
+        raise FoliomanDatabaseError(
+            f"Database driver error{loc_str}: {orig_msg}",
+            location=loc if loc != "Unknown" else None,
+            orig_error=orig_msg,
+        ) from exc
 
     except SQLAlchemyError as exc:
         await _safe_rollback(session)
         report_database_error(exc, backend=backend, operation=operation)
-        logger.error("Database error occurred: %s", type(exc).__name__)
-        raise FoliomanDatabaseError(f"Database error: {type(exc).__name__}") from None
+        orig_msg = _clean_orig_message(exc)
+        loc = extract_application_location(exc)
+        loc_str = f" at {loc}" if loc and loc != "Unknown" else ""
+        detail = f": {orig_msg}" if orig_msg and orig_msg != type(exc).__name__ else ""
+        logger.error(
+            "Database error occurred: %s%s%s", type(exc).__name__, loc_str, detail
+        )
+        raise FoliomanDatabaseError(
+            f"Database error ({type(exc).__name__}){loc_str}{detail}",
+            location=loc if loc != "Unknown" else None,
+            orig_error=orig_msg,
+        ) from exc
 
 
 __all__ = [

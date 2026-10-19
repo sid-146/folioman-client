@@ -16,7 +16,7 @@ from folioman_client.core.models.holding import Holding
 from folioman_client.core.models.transaction import Transaction
 
 TOLERANCE = Decimal("0.0001")
-_ZERO = Decimal("0")
+_ZERO = Decimal(0)
 
 
 class IntegrityStatus(StrEnum):

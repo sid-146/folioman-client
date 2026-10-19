@@ -68,6 +68,7 @@ from folioman_client.db.engine import create_folioman_engine
 from folioman_client.db.migrations import init_schema
 from folioman_client.services.ledger_service import LedgerService
 
+
 @pytest.fixture
 async def test_engine():
     engine = create_folioman_engine("sqlite+aiosqlite:///:memory:")
@@ -77,16 +78,16 @@ async def test_engine():
     finally:
         await engine.dispose()
 
+
 @pytest.fixture
 async def ledger_service(test_engine: AsyncEngine):
     return LedgerService(engine=test_engine)
 
+
 @pytest.mark.asyncio
 async def test_create_and_fetch_investor(ledger_service: LedgerService):
     investor = await ledger_service.create_investor(
-        user_id="test_user",
-        name="Ananya Sharma",
-        pan="ABCDE1234F"
+        user_id="test_user", name="Ananya Sharma", pan="ABCDE1234F"
     )
     assert investor["name"] == "Ananya Sharma"
     assert investor["pan_masked"] == "XXXXXX234F"
@@ -99,6 +100,7 @@ Click CLI commands can be tested without spawning shell subprocesses:
 ```python
 from click.testing import CliRunner
 from folioman_client.cli.main import cli
+
 
 def test_cli_version():
     runner = CliRunner()

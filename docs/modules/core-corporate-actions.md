@@ -163,7 +163,7 @@ When a discrepancy is explained, the detector returns a structured dictionary:
     "action_type": "SPLIT",
     "holding_units": "1000",
     "ledger_units": "100",
-    "suggested_action": "Apply 10:1 split on 2022-07-28"
+    "suggested_action": "Apply 10:1 split on 2022-07-28",
 }
 ```
 This enables the CLI or GUI to offer a single-click resolution: `folioman corporate-actions apply --investor-id 1 --action-id 89`.

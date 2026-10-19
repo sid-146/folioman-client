@@ -268,9 +268,9 @@ class Transaction(FoliomanBaseModel):
     units: ConfiguredDecimal
     nav_or_price: ConfiguredDecimal
     amount: ConfiguredDecimal | None = None
-    fees: ConfiguredDecimal = Decimal("0")
-    stamp_duty: ConfiguredDecimal = Decimal("0")
-    brokerage: ConfiguredDecimal = Decimal("0")
+    fees: ConfiguredDecimal = Decimal(0)
+    stamp_duty: ConfiguredDecimal = Decimal(0)
+    brokerage: ConfiguredDecimal = Decimal(0)
     currency: str = "INR"
     source: str = ""
     narration: str = ""
@@ -760,47 +760,47 @@ class CorporateActionApplyResult(FoliomanBaseModel):
 
 
 __all__ = [
-    "FoliomanBaseModel",
-    "TokenPair",
     "AccessToken",
-    "Investor",
-    "InvestorDetail",
-    "Holding",
-    "SchemeRef",
-    "NavPoint",
+    "AllocationBucket",
+    "AssetMixRow",
+    "CASImportResult",
+    "CapitalGainRow",
+    "CapitalGainsFyPoint",
+    "CapitalGainsReport",
+    "ConfiguredDate",
+    "ConfiguredDatetime",
+    "ConfiguredDecimal",
+    "CorporateActionApplyResult",
+    "CorporateActionReference",
+    "CorporateActionRefreshResult",
     "Folio",
     "FolioBalance",
     "FolioMergeResult",
-    "Transaction",
-    "SchemeDetail",
-    "AssetMixRow",
-    "AllocationBucket",
-    "PeriodReturn",
-    "PortfolioSummary",
-    "ValueSeriesPoint",
-    "ValueSeries",
-    "ValuationStatus",
-    "CapitalGainRow",
-    "CapitalGainsReport",
-    "CapitalGainsFyPoint",
-    "Schedule112AReport",
-    "CASImportResult",
-    "NavSyncResult",
-    "NavBackfillResult",
-    "NavFreshnessItem",
-    "NavFreshnessReport",
+    "FoliomanBaseModel",
+    "Holding",
     "ISINReferenceStatus",
     "ISINSeedResult",
     "ISINUpdateResult",
-    "PositionIntegrity",
+    "Investor",
+    "InvestorDetail",
+    "NavBackfillResult",
+    "NavFreshnessItem",
+    "NavFreshnessReport",
+    "NavPoint",
+    "NavSyncResult",
+    "PeriodReturn",
+    "PortfolioSummary",
     "PositionAcknowledgment",
-    "ReconcileInvestorResult",
+    "PositionIntegrity",
     "ReconcileAllResult",
+    "ReconcileInvestorResult",
+    "Schedule112AReport",
+    "SchemeDetail",
+    "SchemeRef",
     "SymbolResolveResult",
-    "CorporateActionReference",
-    "CorporateActionRefreshResult",
-    "CorporateActionApplyResult",
-    "ConfiguredDecimal",
-    "ConfiguredDate",
-    "ConfiguredDatetime",
+    "TokenPair",
+    "Transaction",
+    "ValuationStatus",
+    "ValueSeries",
+    "ValueSeriesPoint",
 ]

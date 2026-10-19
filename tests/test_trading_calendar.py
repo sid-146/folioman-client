@@ -1,6 +1,7 @@
 """Unit tests for trading calendar calculations."""
 
-from datetime import date, timedelta
+from datetime import date
+
 from folioman_client.core.trading_calendar import (
     completed_trading_day,
     last_trading_day,

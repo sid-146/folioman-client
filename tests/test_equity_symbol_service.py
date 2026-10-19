@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from unittest.mock import AsyncMock, patch
+
 import pytest
 
-from folioman_client.core.models.security import SecurityType
 from folioman_client.db.engine import create_folioman_engine
 from folioman_client.db.migrations import init_schema
 from folioman_client.db.models import ISINReference, Security

@@ -17,7 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from folioman_client.db.engine import create_folioman_engine
 from folioman_client.services.isin_service import ISINService
-from folioman_client.services.nav_service import NAVService, REVALUE_HOURS
+from folioman_client.services.nav_service import REVALUE_HOURS, NAVService
 
 logger = logging.getLogger(__name__)
 

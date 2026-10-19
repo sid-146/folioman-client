@@ -169,6 +169,7 @@ When modifying or adding code in this repository, strictly adhere to these rules
 - When formatting strings or CSVs, trim trailing zeroes properly without converting to `float`:
   ```python
   from decimal import Decimal
+
   d = Decimal("100.5000")
   # Correct formatting:
   formatted = f"{d:.4f}"
@@ -186,9 +187,9 @@ When modifying or adding code in this repository, strictly adhere to these rules
   from folioman_client.security.pan import normalize_pan, mask_pan, encrypt_pan, hash_pan
 
   pan_clean = normalize_pan(raw_pan)
-  masked = mask_pan(pan_clean)         # e.g., "XXXXXX234F"
-  enc_bytes = encrypt_pan(pan_clean)   # Store in pan_encrypted
-  lookup_hash = hash_pan(pan_clean)    # Store in pan_hash
+  masked = mask_pan(pan_clean)  # e.g., "XXXXXX234F"
+  enc_bytes = encrypt_pan(pan_clean)  # Store in pan_encrypted
+  lookup_hash = hash_pan(pan_clean)  # Store in pan_hash
   ```
 
 ### Rule 3: Transaction Immutability & Corporate Actions
@@ -230,7 +231,9 @@ When modifying or adding code in this repository, strictly adhere to these rules
 - The `InvestorValue` table stores cached daily portfolio net worth history.
 - When new transactions are imported, manually recorded, or updated, always trigger recomputation:
   ```python
-  await valuation_service.queue_recompute(investor_id=investor_id, from_date=earliest_date)
+  await valuation_service.queue_recompute(
+      investor_id=investor_id, from_date=earliest_date
+  )
   ```
 
 ### Rule 8: Async/Sync Concurrency Boundaries
@@ -264,6 +267,7 @@ from folioman_client.db.engine import create_folioman_engine
 from folioman_client.db.migrations import init_schema
 from folioman_client.services.ledger_service import LedgerService
 
+
 @pytest.fixture
 async def ledger_service():
     engine = create_folioman_engine("sqlite+aiosqlite:///:memory:")
@@ -274,12 +278,11 @@ async def ledger_service():
     finally:
         await engine.dispose()
 
+
 @pytest.mark.asyncio
 async def test_my_feature(ledger_service: LedgerService):
     investor = await ledger_service.create_investor(
-        user_id="user_123",
-        name="Test Investor",
-        pan="ABCDE1234F"
+        user_id="user_123", name="Test Investor", pan="ABCDE1234F"
     )
     assert investor["name"] == "Test Investor"
     assert investor["pan_masked"] == "XXXXXX234F"
@@ -294,10 +297,12 @@ async def test_my_feature(ledger_service: LedgerService):
    from folioman_client.db.engine import create_folioman_engine
    from folioman_client.config import get_settings
 
+
    @cli.group("custom")
    def custom_group():
        """Custom operations."""
        pass
+
 
    @custom_group.command("run")
    @click.option("--investor-id", type=int, required=True, help="Investor ID")
@@ -318,7 +323,9 @@ async def test_my_feature(ledger_service: LedgerService):
 
        id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
        name: Mapped[str] = mapped_column(String(255), nullable=False)
-       created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+       created_at: Mapped[datetime] = mapped_column(
+           DateTime, default=lambda: datetime.now(timezone.utc)
+       )
    ```
 2. Export the model in `src/folioman_client/db/models.py` and `__all__`.
 3. In `src/folioman_client/db/migrations.py`, add index or table creation logic if special pragmas are needed.

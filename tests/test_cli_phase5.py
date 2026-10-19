@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from unittest.mock import AsyncMock, patch
+
 from click.testing import CliRunner
 
 from folioman_client.cli.main import cli

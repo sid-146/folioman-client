@@ -27,7 +27,7 @@ ConfiguredDatetime = Annotated[
 """Datetime type serialized to ISO-8601 string unless None."""
 
 __all__ = [
-    "ConfiguredDecimal",
     "ConfiguredDate",
     "ConfiguredDatetime",
+    "ConfiguredDecimal",
 ]

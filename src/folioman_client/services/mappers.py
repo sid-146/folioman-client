@@ -2,16 +2,24 @@
 
 from __future__ import annotations
 
-from folioman_client.core.models.holding import Holding as CoreHolding, HoldingSource
-from folioman_client.core.models.security import Security as CoreSecurity, SecurityType
+from folioman_client.core.models.holding import Holding as CoreHolding
+from folioman_client.core.models.holding import HoldingSource
+from folioman_client.core.models.security import Security as CoreSecurity
+from folioman_client.core.models.security import SecurityType
 from folioman_client.core.models.transaction import (
     Transaction as CoreTransaction,
+)
+from folioman_client.core.models.transaction import (
     TransactionSource,
     TransactionType,
 )
 from folioman_client.db.models import (
     Holding as DBHolding,
+)
+from folioman_client.db.models import (
     Security as DBSecurity,
+)
+from folioman_client.db.models import (
     Transaction as DBTransaction,
 )
 
@@ -93,7 +101,7 @@ def to_core_holding(holding: DBHolding) -> CoreHolding:
 
 
 __all__ = [
+    "to_core_holding",
     "to_core_security",
     "to_core_transaction",
-    "to_core_holding",
 ]

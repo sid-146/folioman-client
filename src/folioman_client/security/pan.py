@@ -47,9 +47,9 @@ def decrypt_pan(token: bytes, key_bytes: bytes | None = None) -> str:
 
 
 __all__ = [
-    "normalize_pan",
-    "mask_pan",
-    "pan_hash",
-    "encrypt_pan",
     "decrypt_pan",
+    "encrypt_pan",
+    "mask_pan",
+    "normalize_pan",
+    "pan_hash",
 ]

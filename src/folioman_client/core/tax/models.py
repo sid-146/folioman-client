@@ -37,7 +37,7 @@ class Disposal(DomainModel):
     units: DecimalField
     sale_price_per_unit: DecimalField
     cost_per_unit: DecimalField
-    fees_allocated: DecimalField = Field(default=Decimal("0"))
+    fees_allocated: DecimalField = Field(default=Decimal(0))
     currency: str = Field(default="INR", min_length=3, max_length=3)
     # The disposal was a share buyback (s.115QA) — its gain is exempt under
     # s.10(34A) for buybacks up to 30-Sep-2024; the policy classifies it EXEMPT.

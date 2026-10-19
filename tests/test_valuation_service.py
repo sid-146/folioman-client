@@ -4,23 +4,22 @@ from __future__ import annotations
 
 from datetime import date
 from decimal import Decimal
+
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
-from folioman_client.core.models import SecurityType, TransactionType
+from folioman_client.core.models import TransactionType
 from folioman_client.db.engine import create_folioman_engine, create_sessionmaker
 from folioman_client.db.migrations import init_schema
 from folioman_client.db.models import (
     AppliedCorporateAction,
     Family,
     Folio,
-    Holding,
     Investor,
     InvestorValue,
     NAVHistory,
     Security,
-    SecurityIntegrityStatus,
     Transaction,
 )
 from folioman_client.services.valuation_service import ValuationService
@@ -84,9 +83,9 @@ async def test_build_investor_summary_mark_to_market(
             folio_id=folio.id,
             date=date(2024, 1, 1),
             transaction_type=TransactionType.BUY.value,
-            units=Decimal("100"),
-            nav_or_price=Decimal("50"),
-            amount=Decimal("5000"),
+            units=Decimal(100),
+            nav_or_price=Decimal(50),
+            amount=Decimal(5000),
             cost_basis_complete=True,
         )
         # Buy Equity: 10 shares @ 1500 on 2024-01-01
@@ -96,21 +95,21 @@ async def test_build_investor_summary_mark_to_market(
             folio_id=folio.id,
             date=date(2024, 1, 1),
             transaction_type=TransactionType.BUY.value,
-            units=Decimal("10"),
-            nav_or_price=Decimal("1500"),
-            amount=Decimal("15000"),
+            units=Decimal(10),
+            nav_or_price=Decimal(1500),
+            amount=Decimal(15000),
             cost_basis_complete=True,
         )
         session.add_all([t1, t2])
 
         # NAV history
-        n1 = NAVHistory(security_id=sec_mf.id, date=date(2024, 1, 1), nav=Decimal("50"))
-        n2 = NAVHistory(security_id=sec_mf.id, date=date(2024, 6, 1), nav=Decimal("60"))
+        n1 = NAVHistory(security_id=sec_mf.id, date=date(2024, 1, 1), nav=Decimal(50))
+        n2 = NAVHistory(security_id=sec_mf.id, date=date(2024, 6, 1), nav=Decimal(60))
         n3 = NAVHistory(
-            security_id=sec_eq.id, date=date(2024, 1, 1), nav=Decimal("1500")
+            security_id=sec_eq.id, date=date(2024, 1, 1), nav=Decimal(1500)
         )
         n4 = NAVHistory(
-            security_id=sec_eq.id, date=date(2024, 6, 1), nav=Decimal("1600")
+            security_id=sec_eq.id, date=date(2024, 6, 1), nav=Decimal(1600)
         )
         session.add_all([n1, n2, n3, n4])
         await session.commit()
@@ -122,7 +121,7 @@ async def test_build_investor_summary_mark_to_market(
     )
 
     # MF value: 100 * 60 = 6000. EQ value: 10 * 1600 = 16000. Total: 22000.
-    assert summary["total_inr"] == Decimal("22000")
+    assert summary["total_inr"] == Decimal(22000)
     assert summary["holdings_count"] == 2
     assert summary["day_change_inr"] is not None
     assert summary["xirr"] is not None
@@ -130,8 +129,8 @@ async def test_build_investor_summary_mark_to_market(
 
     # Allocation check
     asset_types = {am["security_type"]: am["value_inr"] for am in summary["asset_mix"]}
-    assert asset_types["mf"] == Decimal("6000")
-    assert asset_types["equity"] == Decimal("16000")
+    assert asset_types["mf"] == Decimal(6000)
+    assert asset_types["equity"] == Decimal(16000)
 
 
 @pytest.mark.asyncio
@@ -165,8 +164,8 @@ async def test_build_family_summary_aggregation(
             folio_id=fol1.id,
             date=date(2024, 1, 1),
             transaction_type="buy",
-            units=Decimal("50"),
-            nav_or_price=Decimal("100"),
+            units=Decimal(50),
+            nav_or_price=Decimal(100),
             cost_basis_complete=True,
         )
         t2 = Transaction(
@@ -175,16 +174,16 @@ async def test_build_family_summary_aggregation(
             folio_id=fol2.id,
             date=date(2024, 1, 1),
             transaction_type="buy",
-            units=Decimal("50"),
-            nav_or_price=Decimal("100"),
+            units=Decimal(50),
+            nav_or_price=Decimal(100),
             cost_basis_complete=True,
         )
         session.add_all([t1, t2])
         session.add(
-            NAVHistory(security_id=sec.id, date=date(2024, 1, 1), nav=Decimal("100"))
+            NAVHistory(security_id=sec.id, date=date(2024, 1, 1), nav=Decimal(100))
         )
         session.add(
-            NAVHistory(security_id=sec.id, date=date(2024, 5, 1), nav=Decimal("110"))
+            NAVHistory(security_id=sec.id, date=date(2024, 5, 1), nav=Decimal(110))
         )
         await session.commit()
         fam_id = fam.id
@@ -195,7 +194,7 @@ async def test_build_family_summary_aggregation(
     assert fam_sum["investor_count"] == 2
     assert fam_sum["folio_count"] == 2
     # Total units = 100 * 110 = 11000
-    assert fam_sum["total_inr"] == Decimal("11000")
+    assert fam_sum["total_inr"] == Decimal(11000)
 
 
 @pytest.mark.asyncio
@@ -224,8 +223,8 @@ async def test_build_scheme_detail_with_corporate_actions(
                 folio_id=fol.id,
                 date=date(2022, 1, 1),
                 transaction_type="buy",
-                units=Decimal("100"),
-                nav_or_price=Decimal("1000"),
+                units=Decimal(100),
+                nav_or_price=Decimal(1000),
                 cost_basis_complete=True,
             )
         )
@@ -237,14 +236,14 @@ async def test_build_scheme_detail_with_corporate_actions(
                 folio_id=fol.id,
                 kind="split",
                 ex_date=date(2022, 7, 28),
-                unit_multiplier=Decimal("10"),
+                unit_multiplier=Decimal(10),
             )
         )
         session.add(
-            NAVHistory(security_id=sec.id, date=date(2022, 1, 1), nav=Decimal("1000"))
+            NAVHistory(security_id=sec.id, date=date(2022, 1, 1), nav=Decimal(1000))
         )
         session.add(
-            NAVHistory(security_id=sec.id, date=date(2022, 8, 1), nav=Decimal("110"))
+            NAVHistory(security_id=sec.id, date=date(2022, 8, 1), nav=Decimal(110))
         )
         await session.commit()
         inv_id, sec_id = inv.id, sec.id
@@ -254,9 +253,9 @@ async def test_build_scheme_detail_with_corporate_actions(
     )
 
     # After 1:10 split, units held = 1000
-    assert detail["units"] == Decimal("1000")
+    assert detail["units"] == Decimal(1000)
     # Value = 1000 * 110 = 110,000
-    assert detail["value_inr"] == Decimal("110000")
+    assert detail["value_inr"] == Decimal(110000)
     assert len(detail["corporate_actions"]) == 1
     assert detail["corporate_actions"][0]["kind"] == "split"
 
@@ -291,17 +290,17 @@ async def test_recompute_investor_valuation_daily_series(
                 folio_id=fol.id,
                 date=date(2025, 1, 1),
                 transaction_type="buy",
-                units=Decimal("100"),
-                nav_or_price=Decimal("10"),
-                amount=Decimal("1000"),
+                units=Decimal(100),
+                nav_or_price=Decimal(10),
+                amount=Decimal(1000),
                 cost_basis_complete=True,
             )
         )
         session.add(
-            NAVHistory(security_id=sec.id, date=date(2025, 1, 1), nav=Decimal("10"))
+            NAVHistory(security_id=sec.id, date=date(2025, 1, 1), nav=Decimal(10))
         )
         session.add(
-            NAVHistory(security_id=sec.id, date=date(2025, 1, 10), nav=Decimal("12"))
+            NAVHistory(security_id=sec.id, date=date(2025, 1, 10), nav=Decimal(12))
         )
         await session.commit()
         inv_id = inv.id
@@ -329,11 +328,11 @@ async def test_recompute_investor_valuation_daily_series(
         # Verify daily contiguous rows
         assert len(vals) >= 10
         val_map = {v.date: v.value_inr for v in vals}
-        assert val_map[date(2025, 1, 1)] == Decimal("1000")
+        assert val_map[date(2025, 1, 1)] == Decimal(1000)
         # On 2025-01-05 carried forward NAV is 10 -> 1000
-        assert val_map[date(2025, 1, 5)] == Decimal("1000")
+        assert val_map[date(2025, 1, 5)] == Decimal(1000)
         # On 2025-01-10 NAV is 12 -> 1200
-        assert val_map[date(2025, 1, 10)] == Decimal("1200")
+        assert val_map[date(2025, 1, 10)] == Decimal(1200)
 
 
 @pytest.mark.asyncio
@@ -351,8 +350,8 @@ async def test_provisional_value_seeding_and_superseding(
     await valuation_service.queue_recompute(
         inv_id,
         recompute_from=date(2024, 1, 1),
-        provisional_value=Decimal("50000"),
-        provisional_invested=Decimal("40000"),
+        provisional_value=Decimal(50000),
+        provisional_invested=Decimal(40000),
         as_of=date(2024, 1, 1),
     )
 
@@ -380,14 +379,14 @@ async def test_provisional_value_seeding_and_superseding(
                 folio_id=fol.id,
                 date=date(2024, 1, 1),
                 transaction_type="buy",
-                units=Decimal("100"),
-                nav_or_price=Decimal("100"),
-                amount=Decimal("10000"),
+                units=Decimal(100),
+                nav_or_price=Decimal(100),
+                amount=Decimal(10000),
                 cost_basis_complete=True,
             )
         )
         session.add(
-            NAVHistory(security_id=sec.id, date=date(2024, 1, 1), nav=Decimal("100"))
+            NAVHistory(security_id=sec.id, date=date(2024, 1, 1), nav=Decimal(100))
         )
         await session.commit()
 

@@ -7,9 +7,9 @@ No database rows are mutated.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from datetime import date
 from decimal import Decimal
-from typing import Sequence
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -24,12 +24,13 @@ from folioman_client.core.fifo import net_intraday_offsets
 from folioman_client.core.models.transaction import Transaction as CoreTransaction
 from folioman_client.db.models import (
     AppliedCorporateAction,
+    Security,
     Transaction,
 )
 from folioman_client.services.mappers import to_core_security, to_core_transaction
 
 
-def security_key(sec) -> str:
+def security_key(sec: Security) -> str:
     """Stable identity for grouping projected core rows back to a DB security.
 
     Works on both core and DB Security (ISIN for equity, AMFI for MF).
@@ -244,9 +245,9 @@ async def projected_transactions(
 
 
 __all__ = [
-    "event_from_applied",
     "compute_ledger",
+    "demerger_reductions",
+    "event_from_applied",
     "projected_transactions",
     "security_key",
-    "demerger_reductions",
 ]

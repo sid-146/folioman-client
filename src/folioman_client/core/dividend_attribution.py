@@ -11,7 +11,7 @@ from folioman_client.core.corporate_actions import held_units_asof, record_divid
 from folioman_client.core.models.security import Security
 from folioman_client.core.models.transaction import Transaction
 
-_ZERO = Decimal("0")
+_ZERO = Decimal(0)
 
 
 @dataclass(frozen=True, slots=True)

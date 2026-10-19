@@ -6,10 +6,10 @@ and official Schedule 112A tax report rows for Indian financial years.
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from datetime import date
 from decimal import ROUND_HALF_EVEN, Decimal
-from typing import Any, Sequence
+from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
@@ -34,7 +34,6 @@ from folioman_client.db import (
     create_sessionmaker,
     handle_db_errors,
 )
-from folioman_client.errors import FoliomanNotFoundError
 from folioman_client.db.models import (
     GrandfatheringNAV,
     Investor,
@@ -42,6 +41,7 @@ from folioman_client.db.models import (
     Security,
     SecurityIntegrityStatus,
 )
+from folioman_client.errors import FoliomanNotFoundError
 from folioman_client.services.projected_ledger import (
     demerger_reductions,
     projected_transactions,
@@ -206,9 +206,9 @@ class CapitalGainsService:
                 isin_to_id = dict((await session.execute(stmt_sec)).all())
 
             rows: list[dict[str, Any]] = []
-            stcg = Decimal("0")
-            ltcg = Decimal("0")
-            exempt = Decimal("0")
+            stcg = Decimal(0)
+            ltcg = Decimal(0)
+            exempt = Decimal(0)
 
             for line in in_fy:
                 d = line.disposal
@@ -292,18 +292,18 @@ class CapitalGainsService:
             for line in gain_lines:
                 fy = india_fy_label(line.disposal.sold_on)
                 if line.term is Term.SHORT:
-                    stcg[fy] = stcg.get(fy, Decimal("0")) + line.gain
+                    stcg[fy] = stcg.get(fy, Decimal(0)) + line.gain
                 elif line.term is Term.LONG:
-                    ltcg[fy] = ltcg.get(fy, Decimal("0")) + line.gain
+                    ltcg[fy] = ltcg.get(fy, Decimal(0)) + line.gain
 
             all_fys = sorted(set(stcg) | set(ltcg))
             return [
                 {
                     "fy": fy,
-                    "stcg": stcg.get(fy, Decimal("0")).quantize(
+                    "stcg": stcg.get(fy, Decimal(0)).quantize(
                         _Q2, rounding=ROUND_HALF_EVEN
                     ),
-                    "ltcg": ltcg.get(fy, Decimal("0")).quantize(
+                    "ltcg": ltcg.get(fy, Decimal(0)).quantize(
                         _Q2, rounding=ROUND_HALF_EVEN
                     ),
                 }

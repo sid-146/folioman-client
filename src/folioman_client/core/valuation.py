@@ -60,7 +60,7 @@ class PortfolioValuation(DomainModel):
     """Aggregate value + per-holding breakdown for a given ``as_of`` date."""
 
     as_of: _date_cls
-    total_inr: DecimalField = Field(default=Decimal("0"))
+    total_inr: DecimalField = Field(default=Decimal(0))
     rows: list[HoldingValuation] = Field(default_factory=list)
 
     @property
@@ -83,7 +83,7 @@ def value_holdings(
     mis-report total net worth.
     """
     rows: list[HoldingValuation] = []
-    total = Decimal("0")
+    total = Decimal(0)
     for holding in holdings:
         row = _value_one(
             holding,

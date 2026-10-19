@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from datetime import date
 from decimal import Decimal
+
 import pytest
-from sqlalchemy import select
 
 from folioman_client.db.engine import create_folioman_engine
 from folioman_client.db.migrations import init_schema
-from folioman_client.db.models import Family, Folio, Holding, Security, Transaction
+from folioman_client.db.models import Family, Security
 from folioman_client.services.ledger_service import LedgerService
 
 
@@ -121,7 +121,7 @@ async def test_create_transaction_and_listing(ledger_service: LedgerService):
         folio_id=fol["id"],
         date=date(2025, 1, 15),
         transaction_type="BUY",
-        units=Decimal("100"),
+        units=Decimal(100),
         nav_or_price=Decimal("50.0"),
         fees=Decimal("0.5"),
     )
@@ -135,7 +135,7 @@ async def test_create_transaction_and_listing(ledger_service: LedgerService):
         folio_id=fol["id"],
         date=date(2025, 6, 20),
         transaction_type="SELL",
-        units=Decimal("40"),
+        units=Decimal(40),
         nav_or_price=Decimal("60.0"),
     )
 
@@ -174,8 +174,8 @@ async def test_create_opening_lot(ledger_service: LedgerService):
         investor_id=inv["id"],
         folio_id=fol["id"],
         security_id=sec_id,
-        units=Decimal("50"),
-        cost_basis=Decimal("25000"),
+        units=Decimal(50),
+        cost_basis=Decimal(25000),
         as_of_date=date(2024, 3, 1),
         classification="ipo_allotment",
     )
@@ -210,8 +210,8 @@ async def test_merge_folios(ledger_service: LedgerService):
         folio_id=f_source["id"],
         date=date(2025, 2, 1),
         transaction_type="BUY",
-        units=Decimal("75"),
-        nav_or_price=Decimal("120"),
+        units=Decimal(75),
+        nav_or_price=Decimal(120),
     )
 
     # Merge source into target
@@ -252,8 +252,8 @@ async def test_list_holdings_active_positions(ledger_service: LedgerService):
         folio_id=fol["id"],
         date=date(2025, 1, 1),
         transaction_type="BUY",
-        units=Decimal("100"),
-        nav_or_price=Decimal("10"),
+        units=Decimal(100),
+        nav_or_price=Decimal(10),
     )
     await ledger_service.create_transaction(
         investor_id=inv["id"],
@@ -261,8 +261,8 @@ async def test_list_holdings_active_positions(ledger_service: LedgerService):
         folio_id=fol["id"],
         date=date(2025, 2, 1),
         transaction_type="SELL",
-        units=Decimal("30"),
-        nav_or_price=Decimal("12"),
+        units=Decimal(30),
+        nav_or_price=Decimal(12),
     )
 
     # sec2 has net zero units (50 buy - 50 sell = 0)
@@ -272,8 +272,8 @@ async def test_list_holdings_active_positions(ledger_service: LedgerService):
         folio_id=fol["id"],
         date=date(2025, 1, 1),
         transaction_type="BUY",
-        units=Decimal("50"),
-        nav_or_price=Decimal("20"),
+        units=Decimal(50),
+        nav_or_price=Decimal(20),
     )
     await ledger_service.create_transaction(
         investor_id=inv["id"],
@@ -281,11 +281,11 @@ async def test_list_holdings_active_positions(ledger_service: LedgerService):
         folio_id=fol["id"],
         date=date(2025, 2, 1),
         transaction_type="SELL",
-        units=Decimal("50"),
-        nav_or_price=Decimal("22"),
+        units=Decimal(50),
+        nav_or_price=Decimal(22),
     )
 
     holdings = await ledger_service.list_holdings(inv["id"])
     assert len(holdings) == 1
     assert holdings[0]["security_id"] == sec1_id
-    assert Decimal(holdings[0]["units"]) == Decimal("70")
+    assert Decimal(holdings[0]["units"]) == Decimal(70)

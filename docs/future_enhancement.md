@@ -73,12 +73,18 @@ flowchart LR
     $$\text{Overlap}(A, B) = \sum_{i} \min(w_{A,i}, w_{B,i})$$
 - **Target Interface:**
   ```python
-  overlap = await client.analytics.fund_overlap(isin_a="INF174K01LS2", isin_b="INF209K01165")
-  print(f"Overlap: {overlap.common_percentage:.1f}% across {len(overlap.common_stocks)} stocks")
+  overlap = await client.analytics.fund_overlap(
+      isin_a="INF174K01LS2", isin_b="INF209K01165"
+  )
+  print(
+      f"Overlap: {overlap.common_percentage:.1f}% across {len(overlap.common_stocks)} stocks"
+  )
 
   xray = await client.analytics.portfolio_xray(investor_id=1)
   for stock in xray.top_underlying_stocks[:10]:
-      print(f"{stock.name}: {stock.weight_pct:.2f}% of total portfolio (₹{stock.value_inr:,.2f})")
+      print(
+          f"{stock.name}: {stock.weight_pct:.2f}% of total portfolio (₹{stock.value_inr:,.2f})"
+      )
   ```
 
 ### 2.2 Risk-Adjusted Performance Metrics (Sharpe, Sortino, Drawdown)
@@ -107,7 +113,9 @@ flowchart LR
   plan = await client.tax.harvesting_plan(investor_id=1, fy="2024-25")
   print(f"Remaining 112A Exemption: ₹{plan.unutilized_exemption:,.2f}")
   for action in plan.recommended_actions:
-      print(f"[{action.type}] Sell {action.units} of {action.security_name} (Saves ₹{action.tax_saved_inr:,.2f} tax)")
+      print(
+          f"[{action.type}] Sell {action.units} of {action.security_name} (Saves ₹{action.tax_saved_inr:,.2f} tax)"
+      )
   ```
 
 ### 3.2 Quarterly Advance Tax Schedule Estimator (Section 208 / 211)

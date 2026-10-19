@@ -17,7 +17,8 @@ from folioman_client.core.models.cas import (
     MfCasStatement,
 )
 from folioman_client.core.models.investor import Folio as CoreFolio
-from folioman_client.core.models.security import Security as CoreSecurity, SecurityType
+from folioman_client.core.models.security import Security as CoreSecurity
+from folioman_client.core.models.security import SecurityType
 from folioman_client.core.models.transaction import TransactionType
 
 
@@ -33,8 +34,8 @@ def _sample_mf_statement() -> MfCasStatement:
     block = MfCasSchemeBlock(
         security=sec,
         folio=fol,
-        opening_units=Decimal("0"),
-        closing_units=Decimal("50"),
+        opening_units=Decimal(0),
+        closing_units=Decimal(50),
         transactions=[
             MfCasLineItem(
                 date=date(2026, 2, 10),
@@ -245,7 +246,7 @@ async def test_client_embedded_phase6_delegation():
                 return_value={
                     "investor_id": 1,
                     "as_of": date(2024, 6, 1),
-                    "total_inr": Decimal("50000"),
+                    "total_inr": Decimal(50000),
                     "holdings_count": 1,
                     "asset_mix": [],
                     "top_holdings": [],
@@ -279,7 +280,7 @@ async def test_client_embedded_phase6_delegation():
                 "list_capital_gains_by_fy",
                 new_callable=AsyncMock,
                 return_value=[
-                    {"fy": "2024-25", "stcg": Decimal("0"), "ltcg": Decimal("1000")}
+                    {"fy": "2024-25", "stcg": Decimal(0), "ltcg": Decimal(1000)}
                 ],
             ) as mock_cg_list,
             patch.object(
@@ -288,9 +289,9 @@ async def test_client_embedded_phase6_delegation():
                 new_callable=AsyncMock,
                 return_value={
                     "fy": "2024-25",
-                    "stcg_total": Decimal("0"),
-                    "ltcg_total": Decimal("1000"),
-                    "exempt_total": Decimal("0"),
+                    "stcg_total": Decimal(0),
+                    "ltcg_total": Decimal(1000),
+                    "exempt_total": Decimal(0),
                     "rows": [],
                 },
             ) as mock_cg_get,
@@ -307,7 +308,7 @@ async def test_client_embedded_phase6_delegation():
             ) as mock_s112a,
         ):
             p = await client.portfolio.get(investor_id=1)
-            assert p.total_inr == Decimal("50000")
+            assert p.total_inr == Decimal(50000)
             mock_port.assert_called_once_with(1, as_of=None)
 
             vs = await client.valuations.list(investor_id=1, granularity="monthly")
@@ -327,7 +328,7 @@ async def test_client_embedded_phase6_delegation():
 
             cgr = await client.capital_gains.get(investor_id=1, fy="2024-25")
             assert cgr.fy == "2024-25"
-            assert cgr.ltcg_total == Decimal("1000")
+            assert cgr.ltcg_total == Decimal(1000)
             mock_cg_get.assert_called_once_with(
                 1, fy="2024-25", include_unreconciled=False
             )
