@@ -24,12 +24,13 @@ from folioman_client.core.fifo import net_intraday_offsets
 from folioman_client.core.models.transaction import Transaction as CoreTransaction
 from folioman_client.db.models import (
     AppliedCorporateAction,
+    Security,
     Transaction,
 )
 from folioman_client.services.mappers import to_core_security, to_core_transaction
 
 
-def security_key(sec) -> str:
+def security_key(sec: Security) -> str:
     """Stable identity for grouping projected core rows back to a DB security.
 
     Works on both core and DB Security (ISIN for equity, AMFI for MF).

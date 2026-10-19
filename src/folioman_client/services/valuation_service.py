@@ -195,13 +195,19 @@ def _backoff(attempts: int) -> timedelta:
     return timedelta(minutes=min(2**attempts, 60))
 
 
+# Todo: Move this to core/types.py
+SESSION_FACTORY_TYPE = async_sessionmaker[AsyncSession] | None
+ENGINE_TYPE = AsyncEngine | None
+CURRENT_POSITIONS_TYPE = list[tuple[Security, Decimal, date, str]]
+
+
 class ValuationService:
     """Valuation & Performance Engine."""
 
     def __init__(
         self,
-        engine: AsyncEngine | None = None,
-        session_factory: async_sessionmaker[AsyncSession] | None = None,
+        engine: ENGINE_TYPE = None,
+        session_factory: SESSION_FACTORY_TYPE = None,
     ) -> None:
         self.engine = engine or create_folioman_engine()
         self.session_factory = session_factory or create_sessionmaker(self.engine)
@@ -209,7 +215,7 @@ class ValuationService:
 
     async def _current_positions(
         self, session: AsyncSession, investor_id: int
-    ) -> list[tuple[Security, Decimal, date, str]]:
+    ) -> CURRENT_POSITIONS_TYPE:
         """Yield (security, units, as_of_date, source) - current units per security.
 
         Units come per (security, folio) from transaction ledger when available,
@@ -256,7 +262,6 @@ class ValuationService:
                 (Security.transactions.any(Transaction.investor_id == investor_id))
                 | (Security.id.in_(cp_ids))
             )
-            .distinct()
         )
         for sec in (await session.execute(stmt_sec)).scalars().all():
             sec_by_key.setdefault(security_key(sec), sec)
@@ -391,7 +396,6 @@ class ValuationService:
                 (Security.transactions.any(Transaction.investor_id.in_(investor_ids)))
                 | (Security.id.in_(cp_ids))
             )
-            .distinct()
         )
         sec_by_key: dict[str, Security] = {}
         for sec in (await session.execute(stmt_sec)).scalars().all():
@@ -828,7 +832,6 @@ class ValuationService:
                 session, [investor_id], as_of_date, txn_keys, hold_keys
             )
             rollup = self._rollup(valuation, meta_by_sec, extras)
-
             sec_ids = {k[0] for k in txn_keys}
             nav_idx = await self._nav_index(session, list(sec_ids), as_of_date)
             xirr = self._compute_xirr(txn_keys, nav_idx, as_of_date)

@@ -495,6 +495,8 @@ def clean_original_error(exc: BaseException) -> str:
         cause = getattr(exc, "__cause__", None)
         if cause is not None and str(cause).strip():
             raw = str(cause).strip()
+        elif hasattr(exc, "_message") and callable(exc._message):
+            raw = str(exc._message()).strip()
         else:
             raw = str(exc).strip()
 
