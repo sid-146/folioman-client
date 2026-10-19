@@ -129,7 +129,7 @@ from folioman_client.core.tax.schedule_112a import compute_schedule_112a
 rows = compute_schedule_112a(
     disposals=sell_disposals,
     financial_year="2024-2025",
-    fmv_lookup=isin_service.get_grandfathering_nav
+    fmv_lookup=isin_service.get_grandfathering_nav,
 )
 
 # Export directly to standard CSV dictionary

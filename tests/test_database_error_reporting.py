@@ -232,8 +232,8 @@ def test_postgresql_integrity_violation_unit() -> None:
     """Unit test for PostgreSQL unique constraint violation using mocked DBAPI error."""
     mock_orig = MagicMock()
     mock_orig.sqlstate = "23505"
-    mock_orig.__str__ = (
-        lambda self: 'duplicate key value violates unique constraint "users_email_key"'
+    mock_orig.__str__ = lambda self: (
+        'duplicate key value violates unique constraint "users_email_key"'
     )
 
     exc = IntegrityError(

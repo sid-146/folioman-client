@@ -154,6 +154,7 @@ When an error bubbles up through multiple abstraction layers (`AsyncSession` $\t
   ```
   ```python
   from folioman_client.db import init_schema
+
   await init_schema(engine)
   ```
 
@@ -166,6 +167,7 @@ When an error bubbles up through multiple abstraction layers (`AsyncSession` $\t
 - **Fix**: Add the following before starting the event loop:
   ```python
   import asyncio, sys
+
   if sys.platform == "win32":
       asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
   ```

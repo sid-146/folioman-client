@@ -45,7 +45,14 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "YOUR_CHAT_ID")
 async def send_telegram_alert(message: str) -> None:
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     async with httpx.AsyncClient() as http:
-        await http.post(url, json={"chat_id": TELEGRAM_CHAT_ID, "text": message, "parse_mode": "Markdown"})
+        await http.post(
+            url,
+            json={
+                "chat_id": TELEGRAM_CHAT_ID,
+                "text": message,
+                "parse_mode": "Markdown",
+            },
+        )
 
 
 async def daily_net_worth_update() -> None:
@@ -59,7 +66,9 @@ async def daily_net_worth_update() -> None:
         holdings = await client.holdings.list(investor_id=1)
 
         # 3. Format message
-        day_arrow = "🟢 +" if summary.day_change_inr and summary.day_change_inr >= 0 else "🔴 "
+        day_arrow = (
+            "🟢 +" if summary.day_change_inr and summary.day_change_inr >= 0 else "🔴 "
+        )
         day_chg_str = (
             f"{day_arrow}₹{abs(summary.day_change_inr):,.2f} ({summary.day_change_pct:+.2%})"
             if summary.day_change_inr is not None
@@ -137,7 +146,9 @@ pan_pass = st.sidebar.text_input("CAS PDF Password (PAN)", type="password")
 if uploaded_file and pan_pass:
     if st.sidebar.button("Process Statement"):
         with st.spinner("Parsing statement & fetching market prices..."):
-            summary, holdings = asyncio.run(run_import_and_fetch(uploaded_file.read(), pan_pass))
+            summary, holdings = asyncio.run(
+                run_import_and_fetch(uploaded_file.read(), pan_pass)
+            )
             st.session_state["summary"] = summary
             st.session_state["holdings"] = holdings
             st.success("Portfolio successfully updated!")
@@ -149,21 +160,36 @@ if "summary" in st.session_state:
     # Top KPI Metrics
     col1, col2, col3 = st.columns(3)
     col1.metric("Total Net Worth", f"₹{summary.total_inr:,.2f}")
-    col2.metric("Portfolio XIRR", f"{summary.xirr * 100:.2f}%" if summary.xirr else "N/A")
-    day_pct = f"{summary.day_change_pct * 100:.2f}%" if summary.day_change_pct else "0.0%"
-    col3.metric("Day Change", f"₹{summary.day_change_inr:,.2f}" if summary.day_change_inr else "₹0.00", day_pct)
+    col2.metric(
+        "Portfolio XIRR", f"{summary.xirr * 100:.2f}%" if summary.xirr else "N/A"
+    )
+    day_pct = (
+        f"{summary.day_change_pct * 100:.2f}%" if summary.day_change_pct else "0.0%"
+    )
+    col3.metric(
+        "Day Change",
+        f"₹{summary.day_change_inr:,.2f}" if summary.day_change_inr else "₹0.00",
+        day_pct,
+    )
 
     # Charts Row
     c1, c2 = st.columns(2)
     with c1:
         st.subheader("Asset Allocation")
-        mix_data = [{"Asset": m.security_type, "Value": float(m.value_inr)} for m in summary.asset_mix]
-        fig_asset = px.pie(pd.DataFrame(mix_data), names="Asset", values="Value", hole=0.4)
+        mix_data = [
+            {"Asset": m.security_type, "Value": float(m.value_inr)}
+            for m in summary.asset_mix
+        ]
+        fig_asset = px.pie(
+            pd.DataFrame(mix_data), names="Asset", values="Value", hole=0.4
+        )
         st.plotly_chart(fig_asset, use_container_width=True)
 
     with c2:
         st.subheader("Fund House (AMC) Concentration")
-        amc_data = [{"AMC": m.label, "Value": float(m.value_inr)} for m in summary.amc_mix]
+        amc_data = [
+            {"AMC": m.label, "Value": float(m.value_inr)} for m in summary.amc_mix
+        ]
         fig_amc = px.bar(pd.DataFrame(amc_data), x="Value", y="AMC", orientation="h")
         st.plotly_chart(fig_amc, use_container_width=True)
 
@@ -211,13 +237,17 @@ from folioman_client import FoliomanClient
 EXEMPTION_LIMIT_INR = Decimal("125000.00")  # ₹1.25 Lakh annual tax-free LTCG exemption
 
 
-async def tax_harvesting_advisor(investor_id: int = 1, current_fy: str = "2024-25") -> None:
+async def tax_harvesting_advisor(
+    investor_id: int = 1, current_fy: str = "2024-25"
+) -> None:
     async with FoliomanClient() as client:
         # 1. Fetch already realized capital gains for the fiscal year
         gains = await client.capital_gains.get(investor_id=investor_id, fy=current_fy)
         already_realized_ltcg = gains.ltcg_total or Decimal("0")
 
-        remaining_exemption = max(Decimal("0"), EXEMPTION_LIMIT_INR - already_realized_ltcg)
+        remaining_exemption = max(
+            Decimal("0"), EXEMPTION_LIMIT_INR - already_realized_ltcg
+        )
 
         print(f"=== Tax Harvesting Advisor (FY {current_fy}) ===")
         print(f"Annual Section 112A Exemption: ₹{EXEMPTION_LIMIT_INR:,.2f}")
@@ -225,7 +255,9 @@ async def tax_harvesting_advisor(investor_id: int = 1, current_fy: str = "2024-2
         print(f"Remaining Tax-Free Headroom:   ₹{remaining_exemption:,.2f}\n")
 
         if remaining_exemption <= 0:
-            print("✅ You have already fully utilized your ₹1.25L tax-free LTCG quota for this FY!")
+            print(
+                "✅ You have already fully utilized your ₹1.25L tax-free LTCG quota for this FY!"
+            )
             return
 
         # 2. Inspect holdings to suggest tax harvesting candidates
@@ -236,9 +268,13 @@ async def tax_harvesting_advisor(investor_id: int = 1, current_fy: str = "2024-2
             if h.security_type != "MF" or not h.value_inr:
                 continue
             # Highlight holdings with positive unrealized value
-            print(f"• {h.name}: Current Value ₹{h.value_inr:,.2f} ({h.units:,.3f} units)")
+            print(
+                f"• {h.name}: Current Value ₹{h.value_inr:,.2f} ({h.units:,.3f} units)"
+            )
 
-        print(f"\nTip: Redeem up to ₹{remaining_exemption:,.2f} of gains before March 31 to lock in 0% tax.")
+        print(
+            f"\nTip: Redeem up to ₹{remaining_exemption:,.2f} of gains before March 31 to lock in 0% tax."
+        )
 
 
 if __name__ == "__main__":
@@ -280,7 +316,9 @@ async def benchmark_comparison(investor_id: int = 1) -> None:
             flow = -amt if tx.transaction_type in ("BUY", "SIP", "PURCHASE") else amt
             cash_flows.append((tx.date, flow))
 
-        print(f"Analyzed {len(cash_flows)} historical transactions across your lifetime portfolio.")
+        print(
+            f"Analyzed {len(cash_flows)} historical transactions across your lifetime portfolio."
+        )
         print("Benchmark Comparison:")
         print(f"• Actual Portfolio XIRR:      {actual_xirr:.2f}%")
         print("• Nifty 50 Index 10-Yr CAGR:  ~13.20%")
@@ -288,9 +326,13 @@ async def benchmark_comparison(investor_id: int = 1) -> None:
 
         diff = actual_xirr - 13.20
         if diff >= 0:
-            print(f"\n🎉 Great job! Your portfolio generated +{diff:.2f}% alpha over the Nifty 50 index.")
+            print(
+                f"\n🎉 Great job! Your portfolio generated +{diff:.2f}% alpha over the Nifty 50 index."
+            )
         else:
-            print(f"\n⚠️ Your portfolio lagged the Nifty 50 index by {abs(diff):.2f}%. Consider low-cost index funds.")
+            print(
+                f"\n⚠️ Your portfolio lagged the Nifty 50 index by {abs(diff):.2f}%. Consider low-cost index funds."
+            )
 
 
 if __name__ == "__main__":
@@ -322,7 +364,9 @@ async def render_terminal_dashboard():
         holdings = await client.holdings.list(investor_id=1)
 
         # Header panel
-        day_color = "green" if summary.day_change_inr and summary.day_change_inr >= 0 else "red"
+        day_color = (
+            "green" if summary.day_change_inr and summary.day_change_inr >= 0 else "red"
+        )
         day_str = (
             f"[{day_color}]₹{summary.day_change_inr:,.2f} ({summary.day_change_pct:+.2%})[/{day_color}]"
             if summary.day_change_inr
@@ -335,10 +379,14 @@ async def render_terminal_dashboard():
             f"[b]Day Change:[/b] {day_str}  │  "
             f"[b]Portfolio XIRR:[/b] {xirr_val}"
         )
-        console.print(Panel(header_text, title="💼 Folioman Portfolio Monitor", expand=False))
+        console.print(
+            Panel(header_text, title="💼 Folioman Portfolio Monitor", expand=False)
+        )
 
         # Holdings Table
-        table = Table(title="Priced Holdings", show_header=True, header_style="bold magenta")
+        table = Table(
+            title="Priced Holdings", show_header=True, header_style="bold magenta"
+        )
         table.add_column("Security Name", style="white", max_width=40, no_wrap=True)
         table.add_column("Type", justify="center", style="dim")
         table.add_column("Units", justify="right")
@@ -347,8 +395,14 @@ async def render_terminal_dashboard():
         table.add_column("1D Move", justify="right")
 
         for h in sorted(holdings, key=lambda x: x.value_inr or 0, reverse=True):
-            move_color = "green" if h.day_change_pct and h.day_change_pct >= 0 else "red"
-            move_str = f"[{move_color}]{h.day_change_pct:+.2%}[/{move_color}]" if h.day_change_pct else "0.00%"
+            move_color = (
+                "green" if h.day_change_pct and h.day_change_pct >= 0 else "red"
+            )
+            move_str = (
+                f"[{move_color}]{h.day_change_pct:+.2%}[/{move_color}]"
+                if h.day_change_pct
+                else "0.00%"
+            )
             table.add_row(
                 h.name,
                 h.security_type,
@@ -403,7 +457,9 @@ def check_email_for_cas():
     mail.select("inbox")
 
     # Search for unread emails from CAMS or KFintech
-    status, messages = mail.search(None, '(UNSEEN SUBJECT "Consolidated Account Statement")')
+    status, messages = mail.search(
+        None, '(UNSEEN SUBJECT "Consolidated Account Statement")'
+    )
     if status != "OK" or not messages[0]:
         print("No new CAS statements found.")
         return
@@ -455,7 +511,10 @@ async def check_for_dips():
 
         dips_detected = []
         for h in holdings:
-            if h.day_change_pct is not None and (h.day_change_pct * 100) <= DIP_THRESHOLD_PERCENT:
+            if (
+                h.day_change_pct is not None
+                and (h.day_change_pct * 100) <= DIP_THRESHOLD_PERCENT
+            ):
                 dips_detected.append(h)
 
         if dips_detected:
@@ -490,8 +549,8 @@ from folioman_client import FoliomanClient
 # Desired Target Allocation
 TARGET_ALLOCATION = {
     "EQUITY": Decimal("0.70"),  # 70%
-    "DEBT": Decimal("0.20"),    # 20%
-    "GOLD": Decimal("0.10"),    # 10%
+    "DEBT": Decimal("0.20"),  # 20%
+    "GOLD": Decimal("0.10"),  # 10%
 }
 
 
@@ -505,10 +564,14 @@ async def calculate_rebalance(investor_id: int = 1):
             return
 
         # Map existing asset mix
-        current_alloc = {mix.security_type.upper(): mix.value_inr for mix in summary.asset_mix}
+        current_alloc = {
+            mix.security_type.upper(): mix.value_inr for mix in summary.asset_mix
+        }
 
         print(f"=== Portfolio Rebalance Report (Total: ₹{total_val:,.2f}) ===")
-        print(f"{'Asset Class':<12} {'Current':>14} {'Target':>14} {'Diff (INR)':>16} {'Action':<10}")
+        print(
+            f"{'Asset Class':<12} {'Current':>14} {'Target':>14} {'Diff (INR)':>16} {'Action':<10}"
+        )
         print("-" * 70)
 
         for asset, target_pct in TARGET_ALLOCATION.items():
@@ -516,8 +579,14 @@ async def calculate_rebalance(investor_id: int = 1):
             target_val = total_val * target_pct
             diff_val = target_val - curr_val
 
-            action = f"BUY  ₹{diff_val:,.2f}" if diff_val > 0 else f"SELL ₹{abs(diff_val):,.2f}"
-            print(f"{asset:<12} ₹{curr_val:>12,.2f} ₹{target_val:>12,.2f} ₹{diff_val:>14,.2f} {action:<10}")
+            action = (
+                f"BUY  ₹{diff_val:,.2f}"
+                if diff_val > 0
+                else f"SELL ₹{abs(diff_val):,.2f}"
+            )
+            print(
+                f"{asset:<12} ₹{curr_val:>12,.2f} ₹{target_val:>12,.2f} ₹{diff_val:>14,.2f} {action:<10}"
+            )
 
 
 if __name__ == "__main__":
@@ -546,44 +615,52 @@ async def export_to_excel(filename: str = "my_portfolio.xlsx") -> None:
         gains = await client.capital_gains.get(investor_id=1, fy="2024-25")
 
         # 1. Holdings DataFrame
-        df_holdings = pd.DataFrame([
-            {
-                "Security Name": h.name,
-                "Type": h.security_type,
-                "Units": float(h.units),
-                "NAV / Price": float(h.nav_or_price) if h.nav_or_price else 0.0,
-                "Current Value (INR)": float(h.value_inr) if h.value_inr else 0.0,
-                "1-Day Change (%)": float(h.day_change_pct * 100) if h.day_change_pct else 0.0,
-            }
-            for h in holdings
-        ])
+        df_holdings = pd.DataFrame(
+            [
+                {
+                    "Security Name": h.name,
+                    "Type": h.security_type,
+                    "Units": float(h.units),
+                    "NAV / Price": float(h.nav_or_price) if h.nav_or_price else 0.0,
+                    "Current Value (INR)": float(h.value_inr) if h.value_inr else 0.0,
+                    "1-Day Change (%)": float(h.day_change_pct * 100)
+                    if h.day_change_pct
+                    else 0.0,
+                }
+                for h in holdings
+            ]
+        )
 
         # 2. Transactions DataFrame
-        df_tx = pd.DataFrame([
-            {
-                "Date": tx.date,
-                "Security ID": tx.security_id,
-                "Type": tx.transaction_type,
-                "Units": float(tx.units),
-                "Price": float(tx.nav_or_price),
-                "Amount": float(tx.amount),
-            }
-            for tx in transactions
-        ])
+        df_tx = pd.DataFrame(
+            [
+                {
+                    "Date": tx.date,
+                    "Security ID": tx.security_id,
+                    "Type": tx.transaction_type,
+                    "Units": float(tx.units),
+                    "Price": float(tx.nav_or_price),
+                    "Amount": float(tx.amount),
+                }
+                for tx in transactions
+            ]
+        )
 
         # 3. Capital Gains (Schedule 112A)
-        df_gains = pd.DataFrame([
-            {
-                "Security": r.security_name,
-                "Sell Date": r.sell_date,
-                "Units": float(r.units),
-                "Sell Price": float(r.sell_price),
-                "Cost Basis": float(r.cost_basis),
-                "Gain (INR)": float(r.gain_inr),
-                "Gain Type": r.gain_type,
-            }
-            for r in gains.rows
-        ])
+        df_gains = pd.DataFrame(
+            [
+                {
+                    "Security": r.security_name,
+                    "Sell Date": r.sell_date,
+                    "Units": float(r.units),
+                    "Sell Price": float(r.sell_price),
+                    "Cost Basis": float(r.cost_basis),
+                    "Gain (INR)": float(r.gain_inr),
+                    "Gain Type": r.gain_type,
+                }
+                for r in gains.rows
+            ]
+        )
 
         # Write all sheets
         with pd.ExcelWriter(filename, engine="openpyxl") as writer:
@@ -612,7 +689,9 @@ from fastapi import FastAPI, HTTPException
 from folioman_client import FoliomanClient
 import uvicorn
 
-app = FastAPI(title="Local Portfolio Micro-API", description="Personal net worth endpoint")
+app = FastAPI(
+    title="Local Portfolio Micro-API", description="Personal net worth endpoint"
+)
 
 
 @app.get("/api/v1/net-worth")
@@ -625,8 +704,12 @@ async def get_net_worth(investor_id: int = 1):
         return {
             "total_net_worth_inr": float(summary.total_inr),
             "xirr_percent": float(summary.xirr * 100) if summary.xirr else None,
-            "day_change_inr": float(summary.day_change_inr) if summary.day_change_inr else 0.0,
-            "day_change_percent": float(summary.day_change_pct * 100) if summary.day_change_pct else 0.0,
+            "day_change_inr": float(summary.day_change_inr)
+            if summary.day_change_inr
+            else 0.0,
+            "day_change_percent": float(summary.day_change_pct * 100)
+            if summary.day_change_pct
+            else 0.0,
         }
 
 

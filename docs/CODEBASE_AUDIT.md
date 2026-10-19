@@ -429,6 +429,8 @@ In `src/folioman_client/core/price_feeds/corporate_actions_fetch.py:49, 83-85`:
 ```python
 _SLEEP = time.sleep
 ...
+
+
 def _pace() -> None:
     _SLEEP(_BASE_SPACING + random.uniform(0.0, _SPACING_JITTER))
 ```
@@ -598,6 +600,7 @@ A `.env` file containing local PostgreSQL database passwords, local paths, and a
           return ""
       try:
           from folioman_client.security.pan import decrypt_pan, mask_pan
+
           return mask_pan(decrypt_pan(self.pan_encrypted))
       except Exception:
           return "XXXXXXXXXX"
@@ -645,9 +648,7 @@ A `.env` file containing local PostgreSQL database passwords, local paths, and a
   In `TransactionsResource.list` (`client.py:276-280`):
   ```python
   if self._client.is_remote:
-      data = await self._client.request(
-          "GET", f"/investors/{investor_id}/transactions"
-      )
+      data = await self._client.request("GET", f"/investors/{investor_id}/transactions")
       return [Transaction.model_validate(item) for item in data]
   ```
   Arguments `security_id`, `folio_id`, `from_date`, and `to_date` are completely discarded.

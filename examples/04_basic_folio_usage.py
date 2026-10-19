@@ -21,7 +21,9 @@ async def main():
         print(f"Listing folios for investor {investor.name} (ID: {investor.id})...")
         folios = await client.folios.list(investor.id)
         for folio in folios:
-            print(f"Folio: {folio.number} | AMC: {folio.amc_code} | Type: {folio.folio_type}")
+            print(
+                f"Folio: {folio.number} | AMC: {folio.amc_code} | Type: {folio.folio_type}"
+            )
 
         # Create a sample folio (returns typed Folio Pydantic model)
         print("\nCreating a sample folio...")
@@ -32,7 +34,9 @@ async def main():
                 amc_code="HDFC",
                 folio_type="mf",
             )
-            print(f"Created Folio: ID={new_folio.id}, Number={new_folio.number}, AMC={new_folio.amc_code}")
+            print(
+                f"Created Folio: ID={new_folio.id}, Number={new_folio.number}, AMC={new_folio.amc_code}"
+            )
         except Exception as e:
             print(f"Info/Error: {e}")
 

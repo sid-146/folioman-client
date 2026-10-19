@@ -1059,7 +1059,9 @@ class ValuationService:
                 signed = (
                     obj.units
                     if obj.transaction_type in _CA_INFLOW
-                    else -obj.units if obj.transaction_type in _CA_OUTFLOW else _ZERO
+                    else -obj.units
+                    if obj.transaction_type in _CA_OUTFLOW
+                    else _ZERO
                 )
                 if complete:
                     balance += signed
