@@ -4,6 +4,7 @@ from datetime import date
 from decimal import Decimal
 
 import pytest
+
 from folioman_client.core.models import (
     Holding,
     HoldingSource,
@@ -55,10 +56,10 @@ def _holding(units: str, *, on: date = date(2025, 3, 15)) -> Holding:
     ("tx_units", "holding_units", "expected_status", "tax_safe"),
     [
         (None, None, None, None),
-        (None, Decimal("50"), IntegrityStatus.SNAPSHOT_ONLY, False),
+        (None, Decimal(50), IntegrityStatus.SNAPSHOT_ONLY, False),
         (Decimal("125.4320"), None, IntegrityStatus.FULL_HISTORY, True),
-        (Decimal("100"), Decimal("100"), IntegrityStatus.RECONCILED, True),
-        (Decimal("100"), Decimal("110"), IntegrityStatus.MISMATCH, False),
+        (Decimal(100), Decimal(100), IntegrityStatus.RECONCILED, True),
+        (Decimal(100), Decimal(110), IntegrityStatus.MISMATCH, False),
     ],
 )
 def test_reconcile_units_five_cases(
@@ -83,16 +84,16 @@ def test_reconcile_units_within_tolerance():
 
 
 def test_reconcile_units_mismatch_delta_issue():
-    result = reconcile_units(Decimal("50"), Decimal("60"))
+    result = reconcile_units(Decimal(50), Decimal(60))
     assert result is not None
     assert result.status is IntegrityStatus.MISMATCH
-    assert result.issues[0]["delta"] == str(Decimal("10"))
+    assert result.issues[0]["delta"] == str(Decimal(10))
 
 
 def test_user_acknowledged_overrides_mismatch():
     result = reconcile_units(
-        Decimal("50"),
-        Decimal("60"),
+        Decimal(50),
+        Decimal(60),
         user_acknowledged=True,
     )
     assert result is not None
@@ -104,7 +105,7 @@ def test_reconcile_from_ledger_full_history():
     result = reconcile(transactions=[_buy("100")], holdings=None)
     assert result is not None
     assert result.status is IntegrityStatus.FULL_HISTORY
-    assert result.units_from_transactions == Decimal("100")
+    assert result.units_from_transactions == Decimal(100)
 
 
 def test_reconcile_from_ledger_snapshot_only():
@@ -146,7 +147,7 @@ def test_reconcile_sums_multi_account_holdings():
     )
     result = reconcile(transactions=[_buy("110")], holdings=[h1, h2])
     assert result is not None
-    assert result.units_from_holdings == Decimal("110")
+    assert result.units_from_holdings == Decimal(110)
     assert result.status is IntegrityStatus.RECONCILED
 
 
@@ -155,7 +156,7 @@ def test_reconcile_uses_latest_snapshot_date():
     new = _holding("100", on=date(2025, 3, 15))
     result = reconcile(transactions=[_buy("100")], holdings=[new, old])
     assert result is not None
-    assert result.units_from_holdings == Decimal("100")
+    assert result.units_from_holdings == Decimal(100)
     assert result.status is IntegrityStatus.RECONCILED
 
 

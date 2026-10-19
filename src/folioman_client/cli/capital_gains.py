@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import csv
 from pathlib import Path
+
 import click
 
 from folioman_client.errors import FoliomanError
@@ -105,7 +106,7 @@ def report_cmd(
                 gf_flag = " (!)" if r["grandfathering_unavailable"] else ""
                 click.echo(
                     f"{r['name'][:22]:<24} {r['units']:>8.3f} {r['term'].upper():>6} "
-                    f"{str(r['acquired_on']):<11} {str(r['sold_on']):<11} "
+                    f"{r['acquired_on']!s:<11} {r['sold_on']!s:<11} "
                     f"{r['sale_value']:>12,.2f} {r['cost']:>12,.2f} {r['gain']:>12,.2f}{gf_flag}"
                 )
             click.echo("")

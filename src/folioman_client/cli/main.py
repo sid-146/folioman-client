@@ -5,10 +5,9 @@ from __future__ import annotations
 import asyncio
 import sys
 import warnings
+from typing import Any
 
 import click
-
-from typing import Any
 
 from folioman_client import __version__
 from folioman_client.cli.capital_gains import capital_gains_group

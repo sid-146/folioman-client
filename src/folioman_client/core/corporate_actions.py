@@ -16,7 +16,7 @@ from folioman_client.core.models.transaction import (
     TransactionType,
 )
 
-_ZERO = Decimal("0")
+_ZERO = Decimal(0)
 # Tradebook / corp-action feeds are reliable for cost basis from this date onward.
 COST_BASIS_RELIABLE_SINCE = date(2016, 1, 1)
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+
 import click
 
 from folioman_client.services.equity_symbol_service import EquitySymbolService

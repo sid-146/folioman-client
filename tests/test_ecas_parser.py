@@ -45,8 +45,8 @@ def _mf(name: str, isin: str, balance: str, nav: str, avg_cost: str) -> MutualFu
         total_cost=units * Decimal(avg_cost),
         ucc="",
         folio="",
-        pnl=Decimal("0"),
-        return_=Decimal("0"),
+        pnl=Decimal(0),
+        return_=Decimal(0),
     )
 
 
@@ -57,8 +57,8 @@ def _bond(name: str, isin: str, qty: str, market_price: str) -> Bond:
         isin=isin,
         num_bonds=n,
         value=n * Decimal(market_price),
-        face_value=Decimal("1000"),
-        coupon_rate=Decimal("0"),
+        face_value=Decimal(1000),
+        coupon_rate=Decimal(0),
         coupon_frequency="",
         maturity_date="2030-01-01",
         market_price=Decimal(market_price),
@@ -81,7 +81,7 @@ def _account(
         dp_id=dp_id,
         client_id=client_id,
         folios=0,  # casparser: folio *count*, not a list
-        balance=Decimal("0"),
+        balance=Decimal(0),
         owners=owners or [],
         equities=equities or [],
         mutual_funds=mfs or [],
@@ -133,7 +133,7 @@ def test_cdsl_multi_account_with_mixed_holdings():
     }
     assert next(
         h for h in a.holdings if h.security.type is SecurityType.MF
-    ).avg_cost_observed == (Decimal("100"))
+    ).avg_cost_observed == (Decimal(100))
 
     assert b.folio.broker == "HDFC SEC"
     assert {h.security.type for h in b.holdings} == {
@@ -152,7 +152,7 @@ def test_mutual_fund_folios_section_is_tagged_not_demat():
         dp_id="",
         client_id="",
         folios=1,
-        balance=Decimal("0"),
+        balance=Decimal(0),
         owners=[],
         equities=[],
         mutual_funds=[_mf("Equity Fund", "INF109K01VQ4", "50", "120", "100")],
@@ -198,7 +198,7 @@ def test_holdings_carry_account_attribution():
     assert h.source is HoldingSource.ECAS
     assert h.broker == "ZERODHA"
     assert h.folio_number == "1208160001234567"
-    assert h.units == Decimal("10")
+    assert h.units == Decimal(10)
     assert h.as_of_date == date(2025, 3, 15)
 
 
@@ -223,10 +223,10 @@ def test_same_security_across_accounts_is_hashable_and_groupable():
     holdings = ecas_parser.holdings_from_ecas_statement(ecas_parser.map_ecas_data(cas))
     by_sec: dict = {}
     for h in holdings:
-        by_sec.setdefault(h.security, Decimal("0"))
+        by_sec.setdefault(h.security, Decimal(0))
         by_sec[h.security] += h.units
     assert len(by_sec) == 1  # both accounts collapse to one security key
-    assert next(iter(by_sec.values())) == Decimal("15")
+    assert next(iter(by_sec.values())) == Decimal(15)
 
 
 def test_read_ecas_wraps_wrong_password(monkeypatch):
@@ -287,8 +287,8 @@ def test_equity_holding_carries_symbol_and_exchange():
     eq = SimpleNamespace(
         name="Reliance Industries",
         isin="INE002A01018",
-        num_shares=Decimal("10"),
-        value=Decimal("14000"),
+        num_shares=Decimal(10),
+        value=Decimal(14000),
         symbol="RELIANCE",
         exchange="NSE",
     )
@@ -304,8 +304,8 @@ def test_equity_holding_without_symbol_maps_empty():
     eq = SimpleNamespace(
         name="Unlisted Co",
         isin="INE000X00X00",
-        num_shares=Decimal("5"),
-        value=Decimal("50"),
+        num_shares=Decimal(5),
+        value=Decimal(50),
     )
     line = ecas_parser._map_equity_holding(eq)
     assert line.security.symbol == ""

@@ -412,4 +412,4 @@ class ISINService:
             return await session.scalar(stmt)
 
 
-__all__ = ["ISINService", "BATCH_SIZE"]
+__all__ = ["BATCH_SIZE", "ISINService"]

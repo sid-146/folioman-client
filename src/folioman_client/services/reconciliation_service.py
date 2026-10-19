@@ -6,9 +6,9 @@ detects corporate action issues, and flags required opening lots.
 
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta, timezone
-from decimal import Decimal
 import logging
+from datetime import UTC, date, datetime, timedelta
+from decimal import Decimal
 from typing import Any
 
 from sqlalchemy import delete, select
@@ -43,7 +43,6 @@ from folioman_client.db.migrations import init_schema
 from folioman_client.db.models import (
     AppliedCorporateAction,
     CorporateActionReference,
-    Folio,
     Holding,
     Investor,
     PartialBlock,
@@ -60,7 +59,7 @@ from folioman_client.services.projected_ledger import compute_ledger
 
 logger = logging.getLogger(__name__)
 
-_ZERO = Decimal("0")
+_ZERO = Decimal(0)
 
 
 def _parsed_ratio(row: CorporateActionReference) -> tuple[int, int] | None:
@@ -429,7 +428,7 @@ class ReconciliationService:
                 issues_json=result.issues,
                 ledger_through=ledger_through,
                 snapshot_as_of=snapshot_as_of,
-                last_reconciled_at=datetime.now(timezone.utc),
+                last_reconciled_at=datetime.now(UTC),
             )
             session.add(existing)
         else:
@@ -440,7 +439,7 @@ class ReconciliationService:
             existing.issues_json = result.issues
             existing.ledger_through = ledger_through
             existing.snapshot_as_of = snapshot_as_of
-            existing.last_reconciled_at = datetime.now(timezone.utc)
+            existing.last_reconciled_at = datetime.now(UTC)
 
         await session.flush()
         return existing

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import date
 from decimal import Decimal
+
 import pytest
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
@@ -14,7 +15,6 @@ from folioman_client.db.models import (
     Folio,
     GrandfatheringNAV,
     Investor,
-    NAVHistory,
     Security,
     SecurityIntegrityStatus,
     Transaction,
@@ -83,9 +83,9 @@ async def test_stcg_and_ltcg_segregation_and_tie_out(
             folio_id=fol.id,
             date=date(2022, 1, 1),
             transaction_type="buy",
-            units=Decimal("100"),
-            nav_or_price=Decimal("100"),
-            amount=Decimal("10000"),
+            units=Decimal(100),
+            nav_or_price=Decimal(100),
+            amount=Decimal(10000),
             cost_basis_complete=True,
         )
         # Lot 2 (STCG): bought 2024-01-01, 50 units @ 120
@@ -95,9 +95,9 @@ async def test_stcg_and_ltcg_segregation_and_tie_out(
             folio_id=fol.id,
             date=date(2024, 1, 1),
             transaction_type="buy",
-            units=Decimal("50"),
-            nav_or_price=Decimal("120"),
-            amount=Decimal("6000"),
+            units=Decimal(50),
+            nav_or_price=Decimal(120),
+            amount=Decimal(6000),
             cost_basis_complete=True,
         )
         # Sale 1 (LTCG disposal in FY 2024-25): sold 50 units @ 150 on 2024-05-10
@@ -107,9 +107,9 @@ async def test_stcg_and_ltcg_segregation_and_tie_out(
             folio_id=fol.id,
             date=date(2024, 5, 10),
             transaction_type="redemption",
-            units=Decimal("50"),
-            nav_or_price=Decimal("150"),
-            amount=Decimal("7500"),
+            units=Decimal(50),
+            nav_or_price=Decimal(150),
+            amount=Decimal(7500),
             cost_basis_complete=True,
         )
         # Sale 2 (STCG disposal in FY 2024-25): bought on 2024-01-01, sold on 2024-08-15 (after depleting first 100 units)
@@ -120,9 +120,9 @@ async def test_stcg_and_ltcg_segregation_and_tie_out(
             folio_id=fol.id,
             date=date(2024, 8, 15),
             transaction_type="redemption",
-            units=Decimal("60"),
-            nav_or_price=Decimal("160"),
-            amount=Decimal("9600"),
+            units=Decimal(60),
+            nav_or_price=Decimal(160),
+            amount=Decimal(9600),
             cost_basis_complete=True,
         )
         session.add_all([t1, t2, t3, t4])
@@ -197,9 +197,9 @@ async def test_section_112a_grandfathering_with_seeded_fmv(
             folio_id=fol.id,
             date=date(2016, 3, 15),
             transaction_type="buy",
-            units=Decimal("100"),
-            nav_or_price=Decimal("100"),
-            amount=Decimal("10000"),
+            units=Decimal(100),
+            nav_or_price=Decimal(100),
+            amount=Decimal(10000),
             cost_basis_complete=True,
         )
         # Sold post-2018 in FY 2024-25: 100 units @ 400 on 2024-07-20
@@ -209,9 +209,9 @@ async def test_section_112a_grandfathering_with_seeded_fmv(
             folio_id=fol.id,
             date=date(2024, 7, 20),
             transaction_type="redemption",
-            units=Decimal("100"),
-            nav_or_price=Decimal("400"),
-            amount=Decimal("40000"),
+            units=Decimal(100),
+            nav_or_price=Decimal(400),
+            amount=Decimal(40000),
             cost_basis_complete=True,
         )
         session.add_all([t_buy, t_sell])
@@ -272,9 +272,9 @@ async def test_grandfathering_unavailable_fallback(
             folio_id=fol.id,
             date=date(2015, 5, 10),
             transaction_type="buy",
-            units=Decimal("50"),
-            nav_or_price=Decimal("200"),
-            amount=Decimal("10000"),
+            units=Decimal(50),
+            nav_or_price=Decimal(200),
+            amount=Decimal(10000),
             cost_basis_complete=True,
         )
         # Sold in FY 2024-25: 50 units @ 500 on 2024-09-10
@@ -284,9 +284,9 @@ async def test_grandfathering_unavailable_fallback(
             folio_id=fol.id,
             date=date(2024, 9, 10),
             transaction_type="sell",
-            units=Decimal("50"),
-            nav_or_price=Decimal("500"),
-            amount=Decimal("25000"),
+            units=Decimal(50),
+            nav_or_price=Decimal(500),
+            amount=Decimal(25000),
             cost_basis_complete=True,
         )
         session.add_all([t_buy, t_sell])
@@ -358,8 +358,8 @@ async def test_tax_readiness_integrity_gating(
                     folio_id=fol_id,
                     date=date(2024, 1, 1),
                     transaction_type="buy",
-                    units=Decimal("10"),
-                    nav_or_price=Decimal("100"),
+                    units=Decimal(10),
+                    nav_or_price=Decimal(100),
                     cost_basis_complete=True,
                 ),
                 Transaction(
@@ -368,8 +368,8 @@ async def test_tax_readiness_integrity_gating(
                     folio_id=fol_id,
                     date=date(2024, 6, 1),
                     transaction_type="redemption",
-                    units=Decimal("10"),
-                    nav_or_price=Decimal("110"),
+                    units=Decimal(10),
+                    nav_or_price=Decimal(110),
                     cost_basis_complete=True,
                 ),
             ]
@@ -433,8 +433,8 @@ async def test_list_capital_gains_by_fy(
             folio_id=fol.id,
             date=date(2022, 1, 1),
             transaction_type="buy",
-            units=Decimal("100"),
-            nav_or_price=Decimal("100"),
+            units=Decimal(100),
+            nav_or_price=Decimal(100),
             cost_basis_complete=True,
         )
         # Sell 50 units in FY 2022-23 (2022-12-01) @ 120 -> LTCG = 50 * 20 = 1000
@@ -444,8 +444,8 @@ async def test_list_capital_gains_by_fy(
             folio_id=fol.id,
             date=date(2022, 12, 1),
             transaction_type="redemption",
-            units=Decimal("50"),
-            nav_or_price=Decimal("120"),
+            units=Decimal(50),
+            nav_or_price=Decimal(120),
             cost_basis_complete=True,
         )
         # Sell 50 units in FY 2024-25 (2024-05-01) @ 150 -> LTCG = 50 * 50 = 2500
@@ -455,8 +455,8 @@ async def test_list_capital_gains_by_fy(
             folio_id=fol.id,
             date=date(2024, 5, 1),
             transaction_type="redemption",
-            units=Decimal("50"),
-            nav_or_price=Decimal("150"),
+            units=Decimal(50),
+            nav_or_price=Decimal(150),
             cost_basis_complete=True,
         )
         session.add_all([t_buy, t_sell1, t_sell2])
@@ -521,8 +521,8 @@ async def test_get_schedule_112a_export(
             folio_id=fol.id,
             date=date(2017, 1, 10),
             transaction_type="buy",
-            units=Decimal("1000"),
-            nav_or_price=Decimal("20"),
+            units=Decimal(1000),
+            nav_or_price=Decimal(20),
             cost_basis_complete=True,
         )
         # Sold in FY 2024-25: 1000 units @ 50 on 2024-06-15
@@ -532,8 +532,8 @@ async def test_get_schedule_112a_export(
             folio_id=fol.id,
             date=date(2024, 6, 15),
             transaction_type="redemption",
-            units=Decimal("1000"),
-            nav_or_price=Decimal("50"),
+            units=Decimal(1000),
+            nav_or_price=Decimal(50),
             cost_basis_complete=True,
         )
         session.add_all([t1, t2])

@@ -415,16 +415,16 @@ class Transaction(Base, TimeStampedMixin):
     )
     currency: Mapped[str] = mapped_column(String(3), default="INR")
     fx_rate_to_inr: Mapped[Decimal] = mapped_column(
-        Numeric(18, 6, asdecimal=True), default=Decimal("1")
+        Numeric(18, 6, asdecimal=True), default=Decimal(1)
     )
     fees: Mapped[Decimal] = mapped_column(
-        Numeric(20, 2, asdecimal=True), default=Decimal("0")
+        Numeric(20, 2, asdecimal=True), default=Decimal(0)
     )
     stamp_duty: Mapped[Decimal] = mapped_column(
-        Numeric(20, 2, asdecimal=True), default=Decimal("0")
+        Numeric(20, 2, asdecimal=True), default=Decimal(0)
     )
     brokerage: Mapped[Decimal] = mapped_column(
-        Numeric(20, 2, asdecimal=True), default=Decimal("0")
+        Numeric(20, 2, asdecimal=True), default=Decimal(0)
     )
     cost_total: Mapped[Decimal | None] = mapped_column(
         Numeric(22, 4, asdecimal=True), nullable=True
@@ -540,10 +540,10 @@ class InvestorValue(Base, TimeStampedMixin):
     )
     date: Mapped[date] = mapped_column(Date, index=True, nullable=False)
     invested_inr: Mapped[Decimal] = mapped_column(
-        Numeric(20, 2, asdecimal=True), default=Decimal("0")
+        Numeric(20, 2, asdecimal=True), default=Decimal(0)
     )
     value_inr: Mapped[Decimal] = mapped_column(
-        Numeric(20, 2, asdecimal=True), default=Decimal("0")
+        Numeric(20, 2, asdecimal=True), default=Decimal(0)
     )
     is_provisional: Mapped[bool] = mapped_column(Boolean, default=False)
 
@@ -720,26 +720,26 @@ class SchemaVersion(Base):
 
 
 __all__ = [
-    "Base",
-    "SchemeReference",
-    "ISINReference",
-    "GrandfatheringNAV",
-    "ReferenceMeta",
     "AMC",
-    "Security",
-    "NAVHistory",
+    "AppliedCorporateAction",
+    "Base",
     "CorporateActionReference",
     "FXRate",
     "Family",
-    "Investor",
     "Folio",
-    "Transaction",
+    "GrandfatheringNAV",
     "Holding",
-    "PartialBlock",
-    "InvestorValue",
-    "AppliedCorporateAction",
-    "SecurityIntegrityStatus",
+    "ISINReference",
     "ImportJob",
     "ImportQuarantine",
+    "Investor",
+    "InvestorValue",
+    "NAVHistory",
+    "PartialBlock",
+    "ReferenceMeta",
     "SchemaVersion",
+    "SchemeReference",
+    "Security",
+    "SecurityIntegrityStatus",
+    "Transaction",
 ]

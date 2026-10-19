@@ -4,20 +4,21 @@ from __future__ import annotations
 
 from datetime import date
 from decimal import Decimal
-import pytest
 
 from folioman_client.core.models.cas import (
     MfCasLineItem,
     MfCasSchemeBlock,
-    MfCasStatement,
 )
 from folioman_client.core.models.investor import (
     Folio as CoreFolio,
+)
+from folioman_client.core.models.investor import (
     normalize_folio_number,
 )
-from folioman_client.core.models.security import Security as CoreSecurity, SecurityType
+from folioman_client.core.models.security import Security as CoreSecurity
+from folioman_client.core.models.security import SecurityType
 from folioman_client.core.models.transaction import TransactionType
-from folioman_client.core.parser import _HISTORY_TOLERANCE, scheme_history_gap
+from folioman_client.core.parser import scheme_history_gap
 
 
 def test_normalize_folio_number() -> None:
@@ -41,20 +42,20 @@ def test_scheme_history_gap_complete_history() -> None:
     block = MfCasSchemeBlock(
         security=security,
         folio=folio,
-        opening_units=Decimal("0"),
-        closing_units=Decimal("100"),
+        opening_units=Decimal(0),
+        closing_units=Decimal(100),
         transactions=[
             MfCasLineItem(
                 date=date(2026, 1, 1),
                 transaction_type=TransactionType.BUY,
-                units=Decimal("100"),
-                nav=Decimal("50"),
-                amount=Decimal("5000"),
+                units=Decimal(100),
+                nav=Decimal(50),
+                amount=Decimal(5000),
             )
         ],
     )
     # Zero opening balance with zero prior ledger chains cleanly
-    assert scheme_history_gap(block, prior_balance=Decimal("0")) is None
+    assert scheme_history_gap(block, prior_balance=Decimal(0)) is None
 
 
 def test_scheme_history_gap_opening_nonzero() -> None:
@@ -65,20 +66,20 @@ def test_scheme_history_gap_opening_nonzero() -> None:
     block = MfCasSchemeBlock(
         security=security,
         folio=folio,
-        opening_units=Decimal("50"),
-        closing_units=Decimal("150"),
+        opening_units=Decimal(50),
+        closing_units=Decimal(150),
         transactions=[
             MfCasLineItem(
                 date=date(2026, 1, 1),
                 transaction_type=TransactionType.BUY,
-                units=Decimal("100"),
-                nav=Decimal("50"),
-                amount=Decimal("5000"),
+                units=Decimal(100),
+                nav=Decimal(50),
+                amount=Decimal(5000),
             )
         ],
     )
     # Non-zero opening balance when prior ledger is zero -> opening_nonzero
-    assert scheme_history_gap(block, prior_balance=Decimal("0")) == "opening_nonzero"
+    assert scheme_history_gap(block, prior_balance=Decimal(0)) == "opening_nonzero"
 
 
 def test_scheme_history_gap_mismatch() -> None:
@@ -89,20 +90,20 @@ def test_scheme_history_gap_mismatch() -> None:
     block = MfCasSchemeBlock(
         security=security,
         folio=folio,
-        opening_units=Decimal("50"),
-        closing_units=Decimal("150"),
+        opening_units=Decimal(50),
+        closing_units=Decimal(150),
         transactions=[
             MfCasLineItem(
                 date=date(2026, 1, 1),
                 transaction_type=TransactionType.BUY,
-                units=Decimal("100"),
-                nav=Decimal("50"),
-                amount=Decimal("5000"),
+                units=Decimal(100),
+                nav=Decimal(50),
+                amount=Decimal(5000),
             )
         ],
     )
     # Prior ledger has 30 units, but statement says opening is 50 -> history_gap
-    assert scheme_history_gap(block, prior_balance=Decimal("30")) == "history_gap"
+    assert scheme_history_gap(block, prior_balance=Decimal(30)) == "history_gap"
 
 
 def test_scheme_history_gap_rows_unreconciled() -> None:
@@ -113,16 +114,16 @@ def test_scheme_history_gap_rows_unreconciled() -> None:
     block = MfCasSchemeBlock(
         security=security,
         folio=folio,
-        opening_units=Decimal("0"),
-        closing_units=Decimal("150"),  # Expected 150
+        opening_units=Decimal(0),
+        closing_units=Decimal(150),  # Expected 150
         transactions=[
             MfCasLineItem(
                 date=date(2026, 1, 1),
                 transaction_type=TransactionType.BUY,
-                units=Decimal("100"),  # Only adds 100 -> opening + net = 100 != 150
-                nav=Decimal("50"),
-                amount=Decimal("5000"),
+                units=Decimal(100),  # Only adds 100 -> opening + net = 100 != 150
+                nav=Decimal(50),
+                amount=Decimal(5000),
             )
         ],
     )
-    assert scheme_history_gap(block, prior_balance=Decimal("0")) == "rows_unreconciled"
+    assert scheme_history_gap(block, prior_balance=Decimal(0)) == "rows_unreconciled"

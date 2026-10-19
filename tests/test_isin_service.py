@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from decimal import Decimal
+
 import pytest
 
 from folioman_client.db.engine import create_folioman_engine

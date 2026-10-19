@@ -1,6 +1,8 @@
 import asyncio
 import os
+
 from dotenv import load_dotenv
+
 from folioman_client import FoliomanClient
 
 load_dotenv()

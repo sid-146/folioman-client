@@ -1,6 +1,8 @@
 import asyncio
 import os
+
 from dotenv import load_dotenv
+
 from folioman_client import DuplicateInvestorError, FoliomanClient
 
 load_dotenv()
@@ -43,7 +45,6 @@ async def main():
             print(f"Investor already exists: {e}")
         except Exception as e:
             print(f"Error creating investor: {e}")
-    return
 
 
 if __name__ == "__main__":

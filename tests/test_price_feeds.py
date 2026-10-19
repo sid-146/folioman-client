@@ -2,11 +2,8 @@
 
 from datetime import date
 from decimal import Decimal
-import io
-import zipfile
-import pytest
+
 import respx
-import httpx
 
 from folioman_client.core.price_feeds import (
     amfi_bulk,
@@ -17,7 +14,6 @@ from folioman_client.core.price_feeds import (
     nse_history,
     yfinance_feed,
 )
-from folioman_client.core.price_feeds.errors import NAVFetchError, PriceFetchError
 
 
 def test_mfapi_fetch_latest():

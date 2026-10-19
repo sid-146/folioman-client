@@ -49,12 +49,12 @@ class UnsupportedCASTransaction(CASParseError):
     """A casparser transaction type folioman does not yet handle."""
 
 
-_ZERO = Decimal("0")
+_ZERO = Decimal(0)
 # A unit-bearing buy with no recoverable NAV is only safe to book at zero cost when
 # it is sub-unit "dust" — an Additional-Allotment / rounding artifact. A material lot
 # (>= this many units) with no NAV would mint a phantom zero-cost lot that overstates
 # capital gains, so it fails loud (the scheme becomes a snapshot) instead.
-_DUST_UNITS = Decimal("1")
+_DUST_UNITS = Decimal(1)
 
 _BUY_TXNS = frozenset(
     {

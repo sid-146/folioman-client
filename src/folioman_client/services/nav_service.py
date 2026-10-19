@@ -8,9 +8,9 @@ equities, ETFs, bonds, foreign equities, crypto).
 from __future__ import annotations
 
 import asyncio
+import logging
 from datetime import date, datetime, time, timedelta
 from decimal import Decimal
-import logging
 from typing import Any
 
 from sqlalchemy import func, select

@@ -17,7 +17,8 @@ import httpx
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from folioman_client.auth import JWTAuthManager
-from folioman_client.config import FoliomanSettings, settings as default_settings
+from folioman_client.config import FoliomanSettings
+from folioman_client.config import settings as default_settings
 from folioman_client.db.engine import create_folioman_engine
 from folioman_client.errors import (
     FoliomanAPIError,
@@ -25,9 +26,9 @@ from folioman_client.errors import (
     FoliomanNotFoundError,
 )
 from folioman_client.models import (
-    CASImportResult,
     CapitalGainsFyPoint,
     CapitalGainsReport,
+    CASImportResult,
     CorporateActionApplyResult,
     CorporateActionReference,
     CorporateActionRefreshResult,
@@ -1072,18 +1073,18 @@ class FoliomanClient:
 
 
 __all__ = [
-    "FoliomanClient",
-    "InvestorsResource",
-    "PortfolioResource",
-    "HoldingsResource",
-    "TransactionsResource",
-    "ValuationsResource",
     "CapitalGainsResource",
-    "ImportsResource",
-    "NavsResource",
-    "ISINResource",
+    "CorporateActionsResource",
+    "FoliomanClient",
     "FoliosResource",
+    "HoldingsResource",
+    "ISINResource",
+    "ImportsResource",
+    "InvestorsResource",
+    "NavsResource",
+    "PortfolioResource",
     "ReconcileResource",
     "SymbolsResource",
-    "CorporateActionsResource",
+    "TransactionsResource",
+    "ValuationsResource",
 ]

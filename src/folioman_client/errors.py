@@ -87,14 +87,14 @@ class FoliomanAPIError(FoliomanError):
 
 
 __all__ = [
-    "FoliomanError",
-    "FoliomanAuthError",
-    "FoliomanNotFoundError",
-    "FoliomanParseError",
-    "FoliomanPasswordError",
-    "FoliomanFeedError",
-    "FoliomanDatabaseError",
     "DuplicateInvestorError",
     "FernetKeyUnavailable",
     "FoliomanAPIError",
+    "FoliomanAuthError",
+    "FoliomanDatabaseError",
+    "FoliomanError",
+    "FoliomanFeedError",
+    "FoliomanNotFoundError",
+    "FoliomanParseError",
+    "FoliomanPasswordError",
 ]

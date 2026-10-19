@@ -13,7 +13,7 @@ from datetime import date
 from decimal import Decimal
 from itertools import groupby
 
-_ZERO = Decimal("0")
+_ZERO = Decimal(0)
 
 
 @dataclass(frozen=True, slots=True)
@@ -97,8 +97,7 @@ def compute_xirr(
         if abs(derivative) < tolerance:
             break
         next_rate = rate - npv / derivative
-        if next_rate <= -0.999999:
-            next_rate = -0.999999
+        next_rate = max(-0.999999, next_rate)
         if abs(next_rate - rate) < tolerance:
             return next_rate
         rate = next_rate

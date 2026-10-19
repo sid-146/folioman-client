@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from sqlalchemy import select, update
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from folioman_client.core.models.security import SecurityType

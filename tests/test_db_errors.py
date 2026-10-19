@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import sqlite3
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
+
 import pytest
 from click.testing import CliRunner
 from sqlalchemy.exc import (

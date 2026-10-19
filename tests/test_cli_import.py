@@ -6,6 +6,7 @@ from datetime import date
 from decimal import Decimal
 from pathlib import Path
 from unittest.mock import patch
+
 from click.testing import CliRunner
 
 from folioman_client.cli.main import cli
@@ -18,7 +19,8 @@ from folioman_client.core.models.cas import (
     MfCasStatement,
 )
 from folioman_client.core.models.investor import Folio as CoreFolio
-from folioman_client.core.models.security import Security as CoreSecurity, SecurityType
+from folioman_client.core.models.security import Security as CoreSecurity
+from folioman_client.core.models.security import SecurityType
 from folioman_client.core.models.transaction import TransactionType
 from folioman_client.core.parser import CASPasswordError
 
@@ -42,8 +44,8 @@ def test_cli_import_cas_success(tmp_path: Path, monkeypatch) -> None:
     block = MfCasSchemeBlock(
         security=sec,
         folio=fol,
-        opening_units=Decimal("0"),
-        closing_units=Decimal("50"),
+        opening_units=Decimal(0),
+        closing_units=Decimal(50),
         transactions=[
             MfCasLineItem(
                 date=date(2026, 2, 1),

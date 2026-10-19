@@ -239,6 +239,6 @@ class JWTAuthManager:
 
 
 __all__ = [
-    "JWTAuthManager",
     "EXP_SKEW_SECONDS",
+    "JWTAuthManager",
 ]

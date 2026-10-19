@@ -28,7 +28,7 @@ from decimal import Decimal
 from folioman_client.core.corporate_action_subject import CorpActionType
 from folioman_client.core.reconciliation import TOLERANCE
 
-_ZERO = Decimal("0")
+_ZERO = Decimal(0)
 _SCALING_TYPES = frozenset({CorpActionType.BONUS.value, CorpActionType.SPLIT.value})
 
 

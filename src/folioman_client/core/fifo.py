@@ -20,7 +20,7 @@ from folioman_client.core.models.transaction import (
     TransactionType,
 )
 
-_ZERO = Decimal("0")
+_ZERO = Decimal(0)
 _BALANCE_EPSILON = Decimal("0.0001")
 
 
@@ -35,7 +35,7 @@ class OpenLot:
     units: Decimal
     cost_per_unit: Decimal
     acquired_on: date
-    stamp_duty: Decimal = Decimal("0")
+    stamp_duty: Decimal = Decimal(0)
 
 
 @dataclass(frozen=True, slots=True)
@@ -50,7 +50,7 @@ class ConsumedLot:
     acquired_on: date
     units: Decimal
     cost_per_unit: Decimal
-    stamp_allocated: Decimal = Decimal("0")
+    stamp_allocated: Decimal = Decimal(0)
 
     @property
     def cost_total(self) -> Decimal:

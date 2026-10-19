@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import date
 from decimal import Decimal
+
 import pytest
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError

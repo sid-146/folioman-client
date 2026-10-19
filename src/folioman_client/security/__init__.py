@@ -10,12 +10,12 @@ from folioman_client.security.pan import (
 )
 
 __all__ = [
-    "resolve_fernet_key",
+    "decrypt_pan",
+    "encrypt_pan",
     "get_fernet",
     "get_key_bytes",
-    "normalize_pan",
     "mask_pan",
+    "normalize_pan",
     "pan_hash",
-    "encrypt_pan",
-    "decrypt_pan",
+    "resolve_fernet_key",
 ]

@@ -19,7 +19,7 @@ def _bonus_3_1() -> CachedCorporateAction:
         ex_date=date(2024, 1, 2),
         subject="Bonus 3:1",
         parsed_type=CorpActionType.BONUS.value,
-        unit_multiplier=Decimal("4"),
+        unit_multiplier=Decimal(4),
         needs_review=False,
         reference_id=1,
     )
@@ -30,21 +30,21 @@ def _bonus_1_1(reference_id: int = 7) -> CachedCorporateAction:
         ex_date=date(2018, 9, 5),
         subject="Bonus 1:1",
         parsed_type=CorpActionType.BONUS.value,
-        unit_multiplier=Decimal("2"),
+        unit_multiplier=Decimal(2),
         needs_review=False,
         reference_id=reference_id,
     )
 
 
 def test_clean_unit_ratio_allcargo_gap():
-    assert clean_unit_ratio(Decimal("960"), Decimal("240")) == Decimal("4")
+    assert clean_unit_ratio(Decimal(960), Decimal(240)) == Decimal(4)
 
 
 def test_allcargo_auto_suggests_bonus_3_1():
     # No replay supplied -> aggregate-ratio fallback (whole position scaled 4x).
     issues = detect_corporate_action_issues(
-        net_units=Decimal("240"),
-        holding_units=Decimal("960"),
+        net_units=Decimal(240),
+        holding_units=Decimal(960),
         incomplete_history=False,
         cached_actions=[_bonus_3_1()],
     )
@@ -58,8 +58,8 @@ def test_allcargo_auto_suggests_bonus_3_1():
 
 def test_orphan_never_auto_suggests():
     issues = detect_corporate_action_issues(
-        net_units=Decimal("-2"),
-        holding_units=Decimal("168"),
+        net_units=Decimal(-2),
+        holding_units=Decimal(168),
         incomplete_history=False,
         cached_actions=[_bonus_3_1()],
     )
@@ -70,8 +70,8 @@ def test_orphan_never_auto_suggests():
 
 def test_incomplete_history_flag_never_auto_suggests_without_replay():
     issues = detect_corporate_action_issues(
-        net_units=Decimal("240"),
-        holding_units=Decimal("960"),
+        net_units=Decimal(240),
+        holding_units=Decimal(960),
         incomplete_history=True,
         cached_actions=[_bonus_3_1()],
     )
@@ -84,20 +84,20 @@ def test_incomplete_history_replay_match_still_suggests():
         ex_date=date(2019, 9, 19),
         subject="Stock Split From Rs.2/- to Rs.1/-",
         parsed_type=CorpActionType.SPLIT.value,
-        unit_multiplier=Decimal("2"),
+        unit_multiplier=Decimal(2),
         needs_review=False,
         reference_id=9,
     )
     issues = detect_corporate_action_issues(
         net_units=None,
-        holding_units=Decimal("0"),
+        holding_units=Decimal(0),
         incomplete_history=True,
         cached_actions=[split],
         replay=ReplayMatch(
-            replayed_units=Decimal("0"),
+            replayed_units=Decimal(0),
             steps=[
                 ReplayStep(
-                    action=split, units_before=Decimal("1"), units_after=Decimal("2")
+                    action=split, units_before=Decimal(1), units_after=Decimal(2)
                 ),
             ],
         ),
@@ -119,15 +119,15 @@ def test_oversold_with_no_holding_flags_incomplete_not_a_suggestion():
         reference_id=1021,
     )
     issues = detect_corporate_action_issues(
-        net_units=Decimal("-3"),  # sold 3 more than the imported buys
+        net_units=Decimal(-3),  # sold 3 more than the imported buys
         holding_units=None,  # fully sold — no snapshot to reconcile to
         incomplete_history=True,
         cached_actions=[bonus],
         replay=ReplayMatch(
-            replayed_units=Decimal("0"),  # the bonus lifts the orphan to net 0
+            replayed_units=Decimal(0),  # the bonus lifts the orphan to net 0
             steps=[
                 ReplayStep(
-                    action=bonus, units_before=Decimal("17"), units_after=Decimal("20")
+                    action=bonus, units_before=Decimal(17), units_after=Decimal(20)
                 ),
             ],
         ),
@@ -140,8 +140,8 @@ def test_oversold_with_no_holding_flags_incomplete_not_a_suggestion():
 def test_reconciled_no_issues():
     assert (
         detect_corporate_action_issues(
-            net_units=Decimal("100"),
-            holding_units=Decimal("100"),
+            net_units=Decimal(100),
+            holding_units=Decimal(100),
             incomplete_history=False,
             cached_actions=[_bonus_3_1()],
         )
@@ -152,7 +152,7 @@ def test_reconciled_no_issues():
 def test_ledger_position_not_in_holdings_flags_merged_out():
     """Net > 0 with no eCAS line (merged-away ISIN) must not read as OK."""
     issues = detect_corporate_action_issues(
-        net_units=Decimal("50"),
+        net_units=Decimal(50),
         holding_units=None,
         incomplete_history=False,
         cached_actions=[],
@@ -165,7 +165,7 @@ def test_ledger_position_not_in_holdings_flags_merged_out():
 def test_zero_net_no_holding_is_ok():
     assert (
         detect_corporate_action_issues(
-            net_units=Decimal("0"),
+            net_units=Decimal(0),
             holding_units=None,
             incomplete_history=False,
             cached_actions=[],
@@ -176,8 +176,8 @@ def test_zero_net_no_holding_is_ok():
 
 def test_non_integer_ratio_manual():
     issues = detect_corporate_action_issues(
-        net_units=Decimal("100"),
-        holding_units=Decimal("350"),
+        net_units=Decimal(100),
+        holding_units=Decimal(350),
         incomplete_history=False,
         cached_actions=[_bonus_3_1()],
     )
@@ -187,8 +187,8 @@ def test_non_integer_ratio_manual():
 
 def test_ratio_without_feed_match_manual():
     issues = detect_corporate_action_issues(
-        net_units=Decimal("100"),
-        holding_units=Decimal("400"),
+        net_units=Decimal(100),
+        holding_units=Decimal(400),
         incomplete_history=False,
         cached_actions=[],
     )
@@ -205,8 +205,8 @@ def test_needs_review_event_does_not_match():
         needs_review=True,
     )
     issues = detect_corporate_action_issues(
-        net_units=Decimal("240"),
-        holding_units=Decimal("960"),
+        net_units=Decimal(240),
+        holding_units=Decimal(960),
         incomplete_history=False,
         cached_actions=[flagged],
     )
@@ -216,7 +216,7 @@ def test_needs_review_event_does_not_match():
 def test_snapshot_only_manual():
     issues = detect_corporate_action_issues(
         net_units=None,
-        holding_units=Decimal("50"),
+        holding_units=Decimal(50),
         incomplete_history=False,
         cached_actions=[],
     )
@@ -227,17 +227,17 @@ def test_replay_match_suggests_despite_post_event_buys():
     """INFOSYS case: 15 held at the 1:1 bonus, more bought after, so global ratio 70/55
     is fractional, but replaying the bonus over the timeline reproduces 70."""
     issues = detect_corporate_action_issues(
-        net_units=Decimal("55"),
-        holding_units=Decimal("70"),
+        net_units=Decimal(55),
+        holding_units=Decimal(70),
         incomplete_history=False,
         cached_actions=[_bonus_1_1()],
         replay=ReplayMatch(
-            replayed_units=Decimal("70"),
+            replayed_units=Decimal(70),
             steps=[
                 ReplayStep(
                     action=_bonus_1_1(),
-                    units_before=Decimal("15"),
-                    units_after=Decimal("30"),
+                    units_before=Decimal(15),
+                    units_after=Decimal(30),
                 )
             ],
         ),
@@ -255,23 +255,23 @@ def test_replay_match_handles_several_events():
         ex_date=date(2020, 3, 1),
         subject="Split 1:2",
         parsed_type=CorpActionType.SPLIT.value,
-        unit_multiplier=Decimal("2"),
+        unit_multiplier=Decimal(2),
         needs_review=False,
         reference_id=8,
     )
     issues = detect_corporate_action_issues(
-        net_units=Decimal("50"),
-        holding_units=Decimal("220"),
+        net_units=Decimal(50),
+        holding_units=Decimal(220),
         incomplete_history=False,
         cached_actions=[a, b],
         replay=ReplayMatch(
-            replayed_units=Decimal("220"),
+            replayed_units=Decimal(220),
             steps=[
                 ReplayStep(
-                    action=a, units_before=Decimal("50"), units_after=Decimal("100")
+                    action=a, units_before=Decimal(50), units_after=Decimal(100)
                 ),
                 ReplayStep(
-                    action=b, units_before=Decimal("110"), units_after=Decimal("220")
+                    action=b, units_before=Decimal(110), units_after=Decimal(220)
                 ),
             ],
         ),
@@ -283,17 +283,17 @@ def test_replay_match_handles_several_events():
 
 def test_replay_that_does_not_reconcile_flags_manual():
     issues = detect_corporate_action_issues(
-        net_units=Decimal("55"),
-        holding_units=Decimal("70"),
+        net_units=Decimal(55),
+        holding_units=Decimal(70),
         incomplete_history=False,
         cached_actions=[_bonus_1_1()],
         replay=ReplayMatch(
-            replayed_units=Decimal("60"),
+            replayed_units=Decimal(60),
             steps=[
                 ReplayStep(
                     action=_bonus_1_1(),
-                    units_before=Decimal("15"),
-                    units_after=Decimal("30"),
+                    units_before=Decimal(15),
+                    units_after=Decimal(30),
                 )
             ],
         ),
@@ -304,11 +304,11 @@ def test_replay_that_does_not_reconcile_flags_manual():
 
 def test_replay_with_no_applicable_events_flags_no_match():
     issues = detect_corporate_action_issues(
-        net_units=Decimal("55"),
-        holding_units=Decimal("70"),
+        net_units=Decimal(55),
+        holding_units=Decimal(70),
         incomplete_history=False,
         cached_actions=[],
-        replay=ReplayMatch(replayed_units=Decimal("55"), steps=[]),
+        replay=ReplayMatch(replayed_units=Decimal(55), steps=[]),
     )
     assert issues[0]["reason"] == "no_matching_event"
 
@@ -320,7 +320,7 @@ def test_suggestion_drops_already_applied_no_op_steps():
         ex_date=date(2019, 9, 19),
         subject="Face Value Split",
         parsed_type=CorpActionType.SPLIT.value,
-        unit_multiplier=Decimal("2"),
+        unit_multiplier=Decimal(2),
         needs_review=False,
         reference_id=42,
     )
@@ -328,17 +328,17 @@ def test_suggestion_drops_already_applied_no_op_steps():
         ex_date=date(2025, 8, 26),
         subject="Bonus 1:1",
         parsed_type=CorpActionType.BONUS.value,
-        unit_multiplier=Decimal("2"),
+        unit_multiplier=Decimal(2),
         needs_review=False,
         reference_id=99,
     )
     issues = detect_corporate_action_issues(
-        net_units=Decimal("84"),
-        holding_units=Decimal("168"),
+        net_units=Decimal(84),
+        holding_units=Decimal(168),
         incomplete_history=False,
         cached_actions=[split, bonus],
         replay=ReplayMatch(
-            replayed_units=Decimal("168"),
+            replayed_units=Decimal(168),
             steps=[
                 ReplayStep(
                     action=split,
@@ -346,7 +346,7 @@ def test_suggestion_drops_already_applied_no_op_steps():
                     units_after=Decimal("3.68"),
                 ),
                 ReplayStep(
-                    action=bonus, units_before=Decimal("84"), units_after=Decimal("168")
+                    action=bonus, units_before=Decimal(84), units_after=Decimal(168)
                 ),
             ],
         ),
@@ -362,20 +362,20 @@ def test_orphan_cleared_by_split_suggests_partial_when_gap_remains():
         ex_date=date(2019, 9, 19),
         subject="Stock Split From Rs.2/- to Rs.1/-",
         parsed_type=CorpActionType.SPLIT.value,
-        unit_multiplier=Decimal("2"),
+        unit_multiplier=Decimal(2),
         needs_review=False,
         reference_id=42,
     )
     issues = detect_corporate_action_issues(
-        net_units=Decimal("-1"),
-        holding_units=Decimal("168"),
+        net_units=Decimal(-1),
+        holding_units=Decimal(168),
         incomplete_history=True,
         cached_actions=[split],
         replay=ReplayMatch(
-            replayed_units=Decimal("0"),
+            replayed_units=Decimal(0),
             steps=[
                 ReplayStep(
-                    action=split, units_before=Decimal("1"), units_after=Decimal("2")
+                    action=split, units_before=Decimal(1), units_after=Decimal(2)
                 )
             ],
         ),
@@ -391,11 +391,11 @@ def test_reconciled_units_clear_a_stale_incomplete_flag():
     suggested or flagged — even with a lingering incomplete_history flag and an
     already-applied (empty-steps) replay."""
     issues = detect_corporate_action_issues(
-        net_units=Decimal("168"),
-        holding_units=Decimal("168"),
+        net_units=Decimal(168),
+        holding_units=Decimal(168),
         incomplete_history=True,
         cached_actions=[_bonus_1_1()],
-        replay=ReplayMatch(replayed_units=Decimal("168"), steps=[]),
+        replay=ReplayMatch(replayed_units=Decimal(168), steps=[]),
     )
     assert issues == []
 
@@ -403,17 +403,17 @@ def test_reconciled_units_clear_a_stale_incomplete_flag():
 def test_orphan_not_cleared_stays_incomplete():
     """Replay leaves the ledger negative → still incomplete history, no suggestion."""
     issues = detect_corporate_action_issues(
-        net_units=Decimal("-600"),
-        holding_units=Decimal("0"),
+        net_units=Decimal(-600),
+        holding_units=Decimal(0),
         incomplete_history=True,
         cached_actions=[_bonus_1_1()],
         replay=ReplayMatch(
-            replayed_units=Decimal("-600"),
+            replayed_units=Decimal(-600),
             steps=[
                 ReplayStep(
                     action=_bonus_1_1(),
-                    units_before=Decimal("0"),
-                    units_after=Decimal("0"),
+                    units_before=Decimal(0),
+                    units_after=Decimal(0),
                 )
             ],
         ),

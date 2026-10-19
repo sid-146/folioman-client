@@ -1,7 +1,9 @@
 import asyncio
 import os
-from folioman_client import FoliomanClient
+
 from dotenv import load_dotenv
+
+from folioman_client import FoliomanClient
 
 load_dotenv()
 
@@ -40,7 +42,6 @@ async def main():
         gains = await client.capital_gains.get(investor_id=1, fy="2025-26")
         print(f"FY 2025-26 Realized LTCG: INR {gains.ltcg_total:,.2f}")
         print(f"FY 2025-26 Realized STCG: INR {gains.stcg_total:,.2f}")
-    return
 
 
 if __name__ == "__main__":

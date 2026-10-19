@@ -7,9 +7,9 @@ No database rows are mutated.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from datetime import date
 from decimal import Decimal
-from typing import Sequence
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -245,9 +245,9 @@ async def projected_transactions(
 
 
 __all__ = [
-    "event_from_applied",
     "compute_ledger",
+    "demerger_reductions",
+    "event_from_applied",
     "projected_transactions",
     "security_key",
-    "demerger_reductions",
 ]

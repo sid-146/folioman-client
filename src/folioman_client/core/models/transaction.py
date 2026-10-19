@@ -61,17 +61,17 @@ class Transaction(DomainModel):
     nav_or_price: DecimalField
     amount: OptionalDecimalField = None
     currency: CurrencyField = "INR"
-    fx_rate_to_inr: DecimalField = Field(default=Decimal("1"))
-    fees: DecimalField = Field(default=Decimal("0"))
+    fx_rate_to_inr: DecimalField = Field(default=Decimal(1))
+    fees: DecimalField = Field(default=Decimal(0))
     # Buy-side stamp duty (or similar acquisition-side transfer charge). Stored
     # per-lot and allocated to disposals as a transfer expense on sells — does
     # NOT enter cost basis. Mirrors casparser's MergedTransaction.stamp_duty.
-    stamp_duty: DecimalField = Field(default=Decimal("0"))
+    stamp_duty: DecimalField = Field(default=Decimal(0))
     # Buy-side brokerage / commission. UNLIKE `fees` (sell-side STT) and
     # `stamp_duty` (transfer expense), this IS part of the cost of acquisition
     # (Section 48) and is folded into the lot's effective per-unit cost by FIFO.
     # Zero for CAS-sourced MF rows; populated for manual / CSV equity entries.
-    brokerage: DecimalField = Field(default=Decimal("0"))
+    brokerage: DecimalField = Field(default=Decimal(0))
     # Exact lot cost of acquisition preserved through a corporate action. A
     # split/merger rewrites `units` and per-unit `nav_or_price`, but `total / units`
     # is a repeating decimal for an indivisible ratio, so per-unit can't carry the
