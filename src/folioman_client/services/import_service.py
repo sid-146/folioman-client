@@ -755,7 +755,6 @@ class CASImportService:
                     )
 
             # 6. Finalize ImportJob
-            print(summary)
             final_status = (
                 "partially_reconciled"
                 if summary["quarantined"] or summary["incomplete_history"]
