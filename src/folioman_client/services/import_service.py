@@ -455,6 +455,8 @@ class CASImportService:
 
             # 4. Process Mutual Fund CAS Statement
             if parsed.mf:
+                # Block is nothing but a single scheme.
+                # Contains Folio info, security info and transactions.
                 for block in parsed.mf.schemes:
                     try:
                         async with session.begin_nested():
@@ -483,28 +485,18 @@ class CASImportService:
                             gap = scheme_history_gap(block, prior_balance=prior_balance)
                             is_complete = gap is None
 
+                            # Todo: understand this behavior; Select any one right now; If any one value present at initial dedup
+                            # but re-population of any one which was not present might change the sec_ident.
+                            # So using only security.id.
                             sec_ident = (
-                                security.amfi_code
-                                or security.isin
-                                or security.symbol
-                                or str(security.id)
+                                str(security.id)
+                                # security.amfi_code
+                                # or security.isin
+                                # or security.symbol
                             )
                             # This code ensures that existing transactions are not duplicated in the database.
-                            for line in block.transactions:
-                                key = _dedup_key(sec_ident, folio.number, line)
-                                # Check duplicate
-                                stmt_dup = select(Transaction.id).where(
-                                    Transaction.investor_id == investor.id,
-                                    Transaction.dedup_key == key,
-                                )
-                                dup = (
-                                    await session.execute(stmt_dup)
-                                ).scalar_one_or_none()
-                                if dup is not None:
-                                    summary["transactions_skipped"] += 1
-                                    continue
-
-                                txn = Transaction(
+                            batch: dict[str, Transaction] = {
+                                _dedup_key(sec_ident, folio.number, line): Transaction(
                                     investor_id=investor.id,
                                     security_id=security.id,
                                     folio_id=folio.id,
@@ -518,14 +510,48 @@ class CASImportService:
                                     source="cas_pdf",
                                     source_ref=calc_ref,
                                     narration=line.description,
-                                    dedup_key=key,
+                                    dedup_key=_dedup_key(sec_ident, folio.number, line),
                                     cost_basis_complete=is_complete,
                                 )
-                                session.add(txn)
+                                for line in block.transactions
+                            }
+                            # All dedup key for this batch
+                            batch_keys = list(batch.keys())
+                            existing_keys: set[str] = set()
+                            if batch_keys:
+                                # chunked to prevent SQlite Param limit
+                                chunk_size = 500
+                                for i in range(0, len(batch_keys), chunk_size):
+                                    chunk = batch_keys[i : i + chunk_size]
+                                    stmt_dup = select(Transaction.dedup_key).where(
+                                        Transaction.investor_id == investor.id,
+                                        Transaction.dedup_key.in_(chunk),
+                                    )
+                                    rows = (
+                                        (await session.execute(stmt_dup))
+                                        .scalars()
+                                        .all()
+                                    )
+                                    existing_keys.update(rows)
+
+                            seen: set[str] = set()
+                            new_transactions: list[Transaction] = []
+                            for key, line in batch.items():
+                                # Already seen or existing transaction.
+                                if key in existing_keys or key in seen:
+                                    summary["transactions_skipped"] += 1
+                                    continue
+
+                                seen.add(key)
+                                new_transactions.append(line)
+                                # session.add(txn)
                                 if is_complete:
                                     summary["transactions_created"] += 1
                                 else:
                                     summary["partial_transactions"] += 1
+
+                            if new_transactions:
+                                session.add_all(new_transactions)
 
                             if not is_complete:
                                 # Record partial block and holding snapshot
@@ -729,6 +755,7 @@ class CASImportService:
                     )
 
             # 6. Finalize ImportJob
+            print(summary)
             final_status = (
                 "partially_reconciled"
                 if summary["quarantined"] or summary["incomplete_history"]
