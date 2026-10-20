@@ -528,7 +528,11 @@ class ValuationService:
             for txn_date, ttype, cash in rec["cash"]:
                 if ttype in _BUY_TYPES:
                     by_sec[sec_id].append((txn_date, cash))
-                elif ttype in _SELL_TYPES or ttype == TransactionType.DIVIDEND.value and cash:
+                elif (
+                    ttype in _SELL_TYPES
+                    or ttype == TransactionType.DIVIDEND.value
+                    and cash
+                ):
                     by_sec[sec_id].append((txn_date, -cash))
         return by_sec
 
@@ -702,7 +706,11 @@ class ValuationService:
             for txn_date, ttype, cash in rec["cash"]:
                 if ttype in _BUY_TYPES:
                     flows.append((txn_date, cash))
-                elif ttype in _SELL_TYPES or ttype == TransactionType.DIVIDEND.value and cash:
+                elif (
+                    ttype in _SELL_TYPES
+                    or ttype == TransactionType.DIVIDEND.value
+                    and cash
+                ):
                     flows.append((txn_date, -cash))
         if not flows:
             return None
@@ -757,7 +765,11 @@ class ValuationService:
                     continue
                 if ttype in _BUY_TYPES:
                     flows.append((txn_date, cash))
-                elif ttype in _SELL_TYPES or ttype == TransactionType.DIVIDEND.value and cash:
+                elif (
+                    ttype in _SELL_TYPES
+                    or ttype == TransactionType.DIVIDEND.value
+                    and cash
+                ):
                     flows.append((txn_date, -cash))
         if not flows:
             return None
@@ -1890,9 +1902,9 @@ class ValuationService:
                     inv.valuation_attempts = (inv.valuation_attempts or 0) + 1
                     inv.valuation_error = str(exc)[:500]
                     if inv.valuation_attempts < _MAX_ATTEMPTS:
-                        inv.valuation_next_attempt_at = datetime.now(
-                            UTC
-                        ) + _backoff(inv.valuation_attempts)
+                        inv.valuation_next_attempt_at = datetime.now(UTC) + _backoff(
+                            inv.valuation_attempts
+                        )
                     else:
                         inv.valuation_next_attempt_at = None
                     await session.commit()

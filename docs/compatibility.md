@@ -86,12 +86,12 @@ The new capabilities introduced in v0.2.0 run against a local or database-backed
 
 ## Deprecation Notice: Remote Mode Removal
 
-> [!WARNING] Deprecation Notice
-> Remote REST client mode (`base_url`, `username`, `password`, `JWTAuthManager`, and HTTP dispatching) is **deprecated** as of `v0.2.0`.
->
-> It will be **completely removed in a future release** (planned for `v0.3.0` / `v1.0.0`).
->
-> Moving forward, `folioman-client` will exclusively operate as an embedded, self-contained Python engine with direct database access.
+!!! warning "Deprecation Notice"
+    Remote REST client mode (`base_url`, `username`, `password`, `JWTAuthManager`, and HTTP dispatching) is **deprecated** as of `v0.2.0`.
+
+    It will be **completely removed in a future release** (planned for `v0.3.0` / `v1.0.0`).
+
+    Moving forward, `folioman-client` will exclusively operate as an embedded, self-contained Python engine with direct database access.
 
 If your architecture requires a separate HTTP microservice, we recommend wrapping the `folioman-client` embedded engine inside a lightweight FastAPI or Litestar service within your infrastructure.
 

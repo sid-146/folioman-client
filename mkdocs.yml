@@ -49,7 +49,13 @@ plugins:
 markdown_extensions:
     - admonition
     - attr_list
+    - md_in_html
+    - pymdownx.arithmatex:
+          generic: true
     - pymdownx.details
+    - pymdownx.emoji:
+          emoji_index: !!python/name:material.extensions.emoji.twemoji
+          emoji_generator: !!python/name:material.extensions.emoji.to_svg
     - pymdownx.highlight:
           anchor_linenums: true
           line_spans: __span
@@ -67,14 +73,24 @@ markdown_extensions:
     - toc:
           permalink: true
 
+extra_css:
+    - stylesheets/extra.css
+
+extra_javascript:
+    - javascripts/mathjax.js
+    - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+
 nav:
     - Overview:
         - Home: index.md
         - Getting Started: getting-started.md
-        - Setup & Configuration: setup-and-configuration.md
+        - Installation & Setup: installation.md
+        - Quickstart Guide: quickstart.md
         - System Architecture: architecture.md
+        - Setup & Configuration: setup-and-configuration.md
         - Project & Module Structure: project-structure.md
         - Codebase Audit Report: CODEBASE_AUDIT.md
+        - Audit Inspection Manifest: audit-appendix.md
     - Subsystems & Modules:
         - Application Services: modules/services.md
         - Core Math & Parsers: modules/core-math-and-parsers.md
@@ -103,9 +119,17 @@ nav:
         - Stocks & Equities Flow: walk through/stocks.md
         - ETFs & Other Assets Flow: walk through/etfs-and-others.md
     - Reference & Technical Specs:
-        - API Reference: api-reference.md
+        - API Reference:
+            - Overview: api/index.md
+            - Client & Resources: api/client.md
+            - Configuration & Settings: api/config.md
+            - Application Services: api/services.md
+            - Exceptions & Errors: api/errors.md
         - Domain Models: models.md
         - Error Hierarchy: errors.md
+        - Financial & Technical Glossary: glossary.md
+        - Frequently Asked Questions (FAQ): faq.md
         - Backward Compatibility: compatibility.md
         - Development Guide: development.md
         - Future Enhancements & Roadmap: future_enhancement.md
+        - Contributing Guide: contributing.md

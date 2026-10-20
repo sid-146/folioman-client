@@ -197,6 +197,7 @@ If `net_units > 0`, the position is included in the valuation.
 ### B. Mark-to-Market (MTM) Valuation
 1. Looks up the latest available NAV on or before `as_of` date in `nav_history`.
 2. Computes current value:
+
    $$\text{value\_inr} = \text{net\_units} \times \text{latest\_nav}$$
 
 ### C. First-In-First-Out (FIFO) Accounting
@@ -209,6 +210,7 @@ For capital invested and tax purposes, [`apply_fifo`](file:///Users/raptor/code/
 * Assembles cash outflows (redemptions, dividends) as positive cash flows.
 * Appends current mark-to-market value as positive cash flow on valuation date.
 * Uses the **Newton-Raphson method** with bisection fallback to solve for discount rate $r$ such that:
+
   $$\sum_{i=1}^{n} \frac{C_i}{(1 + r)^{\frac{d_i - d_0}{365}}} = 0$$
 
 ---
@@ -223,6 +225,8 @@ For tax filing in India, [`CapitalGainsService`](file:///Users/raptor/code/folio
 2. **Section 112A Grandfathering**:
    * For units acquired on or before **31-Jan-2018**, FMV is looked up from `ref_grandfathering_navs`.
    * Deemed cost of acquisition is:
+
      $$\max\Big(\text{Actual Cost}, \min(\text{FMV as of 31-Jan-2018}, \text{Sale Price})\Big)$$
+
 3. **Budget 2024 Regime Transitions**:
    * Applies split tax rates for disposals before vs. after **23-Jul-2024** (LTCG 10% vs 12.5%, STCG 15% vs 20%).

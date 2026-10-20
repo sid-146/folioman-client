@@ -105,6 +105,7 @@ Folioman supports international portfolios (e.g., US stocks held via Vested, IND
      ORDER BY date DESC LIMIT 1;
      ```
 3. **INR Value Calculation**:
+
    $$\text{value\_inr} = \text{units} \times \text{price}_{\text{usd}} \times \text{fx\_rate}_{\text{inr}}$$
 
 ---
@@ -150,6 +151,7 @@ rollup = self._rollup(valuation, meta_by_sec, extras)
 ### Generated Portfolio Outputs
 
 #### 1. Total Portfolio Valuation
+
 $$\text{total\_inr} = \sum_{\text{all assets}} \text{value\_inr}$$
 
 #### 2. Multi-Asset Allocation Mix

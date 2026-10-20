@@ -67,6 +67,7 @@ sequenceDiagram
 - **Action**:
   - Replays all approved corporate actions (`AppliedCorporateAction`) over historical transaction records.
   - Aggregates share counts:
+
     $$\text{Ledger Units} = \sum (\text{BUY} + \text{BONUS} + \text{TRANSFER\_IN}) - \sum (\text{SELL} + \text{TRANSFER\_OUT})$$
 
 ### Step 3: Snapshot Balance Comparison & Tolerance Check
@@ -74,7 +75,9 @@ sequenceDiagram
 - **Action**:
   - Fetches the most recent snapshot row from `Holding` for this `(investor_id, security_id, folio_id)`.
   - Computes unit delta:
+
     $$\Delta U = |\text{Ledger Units} - \text{Snapshot Units}|$$
+
   - Compares $\Delta U$ against `TOLERANCE = Decimal("0.001")`.
   - If $\Delta U \le \text{TOLERANCE}$, the position is considered mathematically sound: status is set to `MATCH`.
 

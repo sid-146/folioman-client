@@ -10,13 +10,18 @@ The FIFO (First-In, First-Out) module implements tax-compliant lot matching for 
 
 ### 1.1 Why Standard Per-Unit Price Fails
 Traditional portfolio systems store lot cost as a per-unit price:
+
 $$\text{Cost} = \text{Units} \times \text{Price}$$
-In real-world equity accounting, corporate actions (such as a 1:3 bonus issue or a 7:10 merger ratio) create non-terminating repeating decimals (e.g., $100 / 3 = 33.333333...$). If per-unit prices are stored and rounded, the total invested capital gradually drifts over successive splits or partial sales.
+
+In real-world equity accounting, corporate actions (such as a 1:3 bonus issue or a 7:10 merger ratio) create non-terminating repeating decimals (e.g., `100 / 3 = 33.333333...`). If per-unit prices are stored and rounded, the total invested capital gradually drifts over successive splits or partial sales.
 
 **Folioman Invariant: Cost Total Basis Preservation**
 `OpenLot` preserves `cost_total` as an exact, unrounded `Decimal`. When partial lots are sold, the cost basis is proportionally allocated:
+
 $$\text{Consumed Cost} = \text{cost\_total} \times \left(\frac{\text{Sold Units}}{\text{Lot Units}}\right)$$
+
 $$\text{Remaining Cost} = \text{cost\_total} - \text{Consumed Cost}$$
+
 This ensures that the sum of consumed costs across all partial disposals plus remaining open lots is always identical to the original cash paid, down to the exact paisa.
 
 ### 1.2 Core Data Structures
@@ -68,7 +73,9 @@ stateDiagram-v2
 #### Key Methods:
 - `buy(date, units, nav_or_price, amount, fees=0, stamp_duty=0, source="manual", source_ref="")`:
   Appends an `OpenLot` to the internal queue. Automatically factors in transfer expenses and stamp duty:
+
   $$\text{cost\_total} = \text{amount} + \text{stamp\_duty} + \text{fees}$$
+
 - `sell(date, units, nav_or_price, amount, fees=0, source_ref="") -> list[ConsumedLot]`:
   Dequeues units from the earliest open lots. If the head lot has fewer units than required, it is completely consumed, and consumption cascades to the next lot.
   - **Exception**: Raises `InsufficientUnitsError` if total queued units $< \text{requested sale units}$.
@@ -120,7 +127,9 @@ flowchart TD
 
 #### Stage 1: Newton-Raphson Iteration
 Uses the analytical first derivative with respect to $r$:
+
 $$f'(r) = \sum_{i=1}^{N} -C_i \cdot \frac{d_i - d_0}{365.0} \cdot (1 + r)^{-\left(\frac{d_i - d_0}{365.0} + 1\right)}$$
+
 Updating $r_{k+1} = r_k - \frac{f(r_k)}{f'(r_k)}$. Converges quadratically in 4–8 iterations for typical investment schedules.
 
 #### Stage 2: Bisection Search Fallback
@@ -145,7 +154,9 @@ Real-world mutual fund statements frequently contain bounced transactions, cance
 `_cancel_reversals(scheme_txns: Sequence) -> list`:
 1. **Forward Scan**: Traverses transactions and matches any reversal indicator (e.g., narration containing `"REVERSAL"`, `"BOUNCE"`, `"REJECTED"`, or `"CANCELLATION"`).
 2. **Backward Proximity Search**: Searches backwards within a 30-day temporal window for an identical prior transaction with the opposite sign:
+
    $$\text{units}_A = -\text{units}_B \quad \text{and} \quad \text{amount}_A = -\text{amount}_B$$
+
 3. **Cancellation**: Drops both the original failed transaction and the offsetting reversal line from the ledger, preventing corrupted cost basis history.
 
 ### 3.2 Stamp Duty & Fee Allocation
@@ -156,11 +167,16 @@ Scans statement narrations for statutory deductions and charges:
 Allocates these expenses directly to the parent transaction record to ensure Section 48 tax deductibility.
 
 ### 3.3 History Gap & Continuity Analysis
-- `scheme_history_gap(block, prior_balance=0) -> str | None`:
-  Determines whether a statement scheme block represents complete, unbroken history:
-  - If `block.opening_units == 0`: History starts at scheme inception (Complete).
+- `scheme_history_gap(block: MfCasSchemeBlock, prior_balance=0) -> str | None`:
+  Evaluates whether an internal [`MfCasSchemeBlock`](../models.md#mfcasschemeblock) from a parsed statement cleanly chains onto existing portfolio ledger records without missing trade history:
+  - If `block.opening_units == 0` (with 0 prior balance): History starts at scheme inception (Complete).
   - If `block.opening_units > 0` and `prior_balance == block.opening_units`: Prior statement already established the opening balance (Complete).
-  - If `block.opening_units > 0` and `prior_balance != block.opening_units`: Transactions prior to statement start date are missing (Incomplete History Gap).
+  - If `block.opening_units > 0` and `prior_balance != block.opening_units`: Transactions prior to statement start date are missing (`"history_gap"` or `"opening_nonzero"`).
+  - If `block.opening_units + net_units != block.closing_units`: The listed transactions do not reconcile to the closing units (`"rows_unreconciled"`).
+
+!!! note "Internal Model Specification"
+    `MfCasSchemeBlock` is an internal core domain model (`folioman_client.core.models.cas`) and is not exposed to the public API. See [Data Models Documentation](../models.md#mfcasschemeblock) for complete specification.
+
 
 ---
 

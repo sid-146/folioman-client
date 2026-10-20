@@ -12,15 +12,16 @@ All `folioman` commands support the following global options:
 - `--help`: Display help and usage information.
 - `--version`: Display the installed `folioman` version.
 
-> [!TIP]
-> **Global Option Placement**: In Click, global options like `--database-url` must appear **before** the subcommand name:
-> ```bash
-> # Correct:
-> folioman --database-url sqlite:////path/to/my.db isin status
->
-> # Incorrect (will report unknown option):
-> folioman isin status --database-url sqlite:////path/to/my.db
-> ```
+!!! tip "Global Option Placement"
+    In Click, global options like `--database-url` must appear **before** the subcommand name:
+
+    ```bash
+    # Correct:
+    folioman --database-url sqlite:////path/to/my.db isin status
+
+    # Incorrect (will report unknown option):
+    folioman isin status --database-url sqlite:////path/to/my.db
+    ```
 
 ---
 

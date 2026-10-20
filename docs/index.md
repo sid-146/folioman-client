@@ -69,10 +69,12 @@ graph TD
 
 | Section | Focus Area | Key Documents |
 | :--- | :--- | :--- |
-| **System Architecture** | Subsystem design, Three Model Layers, and lifecycles | [Architecture](architecture.md) • [Project Structure](project-structure.md) • [Audit Report](CODEBASE_AUDIT.md) |
+| **Getting Started** | Setup, quick tour, and first working steps | [Installation](installation.md) • [Quickstart Guide](quickstart.md) • [Getting Started](getting-started.md) • [Setup & Configuration](setup-and-configuration.md) |
+| **System Architecture** | Subsystem design, Three Model Layers, and lifecycles | [Architecture](architecture.md) • [Project Structure](project-structure.md) • [Domain Models](models.md) • [Audit Report](CODEBASE_AUDIT.md) |
 | **Module Deep-Dives** | Function-level implementations, queries, and algorithms | [Services](modules/services.md) • [Core Math & Parsers](modules/core-math-and-parsers.md) • [Corporate Actions](modules/core-corporate-actions.md) • [Tax Engine](modules/core-tax.md) • [Price Feeds](modules/price-feeds.md) • [Database & Diagnostics](modules/database-and-persistence.md) • [Security & PAN Crypto](modules/security.md) |
 | **Execution Flows** | Step-by-step sequence diagrams and transaction lifecycles | [Statement Ingestion](execution-flows/statement-ingestion.md) • [Valuation & XIRR](execution-flows/valuation-and-xirr.md) • [Capital Gains](execution-flows/capital-gains-tax.md) • [Corporate Actions](execution-flows/corporate-actions.md) • [Reconciliation](execution-flows/reconciliation.md) • [NAV Synchronization](execution-flows/nav-synchronization.md) |
-| **Operations & Testing** | Environment configuration, debugging, and verification | [Setup & Config](setup-and-configuration.md) • [Error Handling & Debugging](error-handling-and-debugging.md) • [Testing Guide](testing.md) • [CLI Reference](cli.md) • [Python SDK Client](client.md) |
+| **API & Reference** | Public SDK resources, settings, errors, and models | [API Overview](api/index.md) • [Client & Resources](api/client.md) • [Configuration](api/config.md) • [Application Services](api/services.md) • [Errors](api/errors.md) • [CLI Reference](cli.md) |
+| **Community & Contributing** | Development setup, invariants, tests, and FAQ | [Contributing Guide](contributing.md) • [FAQ](faq.md) • [Glossary](glossary.md) • [Testing Guide](testing.md) • [Development](development.md) • [Roadmap](future_enhancement.md) |
 
 ---
 

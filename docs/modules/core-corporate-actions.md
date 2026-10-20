@@ -71,7 +71,9 @@ For Indian listed equities, share counts are strictly integer quantities. Fracti
 - **Example**: 5-for-1 split (`ratio_from = 1`, `ratio_to = 5`).
 - **Multiplier**: $M = \text{ratio\_to} / \text{ratio\_from} = 5.0$.
 - **Prior Buy Lots**: Every open purchase lot acquired *prior* to `ex_date` has its units multiplied:
+
   $$\text{units}_{\text{new}} = \text{units}_{\text{old}} \times M$$
+
 - **Cost Basis Invariant**: `cost_total` remains strictly unchanged. The virtual unit price becomes $\text{cost\_total} / \text{units}_{\text{new}}$.
 
 #### 2. Reverse Split / Consolidation (`apply_reverse_split`)
@@ -82,9 +84,13 @@ For Indian listed equities, share counts are strictly integer quantities. Fracti
 #### 3. Bonus Issue (`apply_bonus` / `apply_bonus_from_multiplier`)
 - **Example**: 1:1 bonus (`ratio_from = 1`, `ratio_to = 1`).
 - **Eligible Units**: Held units as of record date:
+
   $$\text{held\_units} = \sum_{\text{prior}} \text{BUY} - \sum_{\text{prior}} \text{SELL}$$
+
 - **Bonus Units Issued**:
+
   $$\text{bonus\_units} = \text{held\_units} \times \left(\frac{\text{ratio\_to}}{\text{ratio\_from}}\right)$$
+
 - **Synthetic Acquisition Lot**: Injects a virtual `Transaction` on `ex_date`:
   - `transaction_type = "BONUS"`
   - `units = bonus_units`
@@ -120,9 +126,13 @@ When an investor imports an updated statement after a stock split, the balance o
 
 ### 3.1 Rational Ratio Solver (`clean_unit_ratio`)
 Given snapshot units $U_{\text{snap}}$ and ledger units $U_{\text{ledger}}$:
+
 $$R = \frac{U_{\text{snap}}}{U_{\text{ledger}}}$$
+
 The solver tests common corporate action ratios:
+
 $$\{2/1, 3/1, 4/1, 5/1, 10/1, 3/2, 5/2, 4/1, 1/2, 1/5, 1/10\}$$
+
 If $|R - \text{candidate}| < 0.0001$, the candidate is selected as the matched multiplier.
 
 ### 3.2 Detection Workflow (`detect_corporate_action_issues`)

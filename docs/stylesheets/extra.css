@@ -1,0 +1,95 @@
+/* ==========================================================================
+   MkDocstrings Visual Boundaries & Class Container Styling
+   ========================================================================== */
+
+/* 1. Class Containers */
+.doc.doc-object.doc-class {
+    margin-top: 3rem !important;
+    margin-bottom: 3.5rem !important;
+    padding: 1.5rem !important;
+    border: 1px solid var(--md-default-fg-color--lighter) !important;
+    border-left: 6px solid var(--md-primary-fg-color) !important;
+    border-radius: 0.5rem !important;
+    background-color: var(--md-default-bg-color);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    position: relative;
+}
+
+/* Dark mode adjustment for class containers */
+[data-md-color-scheme="slate"] .doc.doc-object.doc-class {
+    background-color: rgba(255, 255, 255, 0.02) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    border-left: 6px solid #5c6bc0 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+/* 2. Class Heading Banner */
+.doc.doc-object.doc-class > .doc-heading {
+    margin-top: 0 !important;
+    padding-bottom: 0.75rem !important;
+    margin-bottom: 1.25rem !important;
+    border-bottom: 2px solid var(--md-default-fg-color--lightest) !important;
+    font-size: 1.35rem !important;
+    font-weight: 700 !important;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+/* "CLASS" visual badge prefix on class headings */
+.doc.doc-object.doc-class > .doc-heading::before {
+    content: "CLASS";
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    border-radius: 0.25rem;
+    background-color: var(--md-primary-fg-color);
+    color: #ffffff;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+[data-md-color-scheme="slate"] .doc.doc-object.doc-class > .doc-heading::before {
+    background-color: #5c6bc0;
+    color: #ffffff;
+}
+
+/* Class docstring typography */
+.doc.doc-object.doc-class > .doc-contents > p:first-child {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--md-default-fg-color--light);
+    margin-bottom: 1.5rem;
+}
+
+/* 3. Method & Function Dividers inside a Class */
+.doc.doc-object.doc-class .doc.doc-object.doc-function {
+    margin-top: 2rem !important;
+    padding-top: 1.5rem !important;
+    border-top: 1px dashed var(--md-default-fg-color--lightest) !important;
+}
+
+/* Function Heading */
+.doc.doc-object.doc-function > .doc-heading {
+    font-size: 1.05rem !important;
+    font-weight: 600 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0.5rem !important;
+}
+
+/* 4. Explicit End-of-Class Footer Banner */
+/* .doc.doc-object.doc-class::after {
+    content: "▲ End of Class";
+    display: block;
+    text-align: right;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--md-default-fg-color--lighter);
+    margin-top: 2rem;
+    padding-top: 0.75rem;
+    border-top: 2px solid var(--md-default-fg-color--lightest);
+} */
