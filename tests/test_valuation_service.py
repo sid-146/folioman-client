@@ -105,12 +105,8 @@ async def test_build_investor_summary_mark_to_market(
         # NAV history
         n1 = NAVHistory(security_id=sec_mf.id, date=date(2024, 1, 1), nav=Decimal(50))
         n2 = NAVHistory(security_id=sec_mf.id, date=date(2024, 6, 1), nav=Decimal(60))
-        n3 = NAVHistory(
-            security_id=sec_eq.id, date=date(2024, 1, 1), nav=Decimal(1500)
-        )
-        n4 = NAVHistory(
-            security_id=sec_eq.id, date=date(2024, 6, 1), nav=Decimal(1600)
-        )
+        n3 = NAVHistory(security_id=sec_eq.id, date=date(2024, 1, 1), nav=Decimal(1500))
+        n4 = NAVHistory(security_id=sec_eq.id, date=date(2024, 6, 1), nav=Decimal(1600))
         session.add_all([n1, n2, n3, n4])
         await session.commit()
 

@@ -623,7 +623,14 @@ class Security(DomainModel):
 - **Identity-Only Equality & Hashing (`_identity`)**:
   ```python
   def _identity(self) -> tuple:
-      return (self.type, self.isin, self.symbol, self.exchange, self.amfi_code, self.currency)
+      return (
+          self.type,
+          self.isin,
+          self.symbol,
+          self.exchange,
+          self.amfi_code,
+          self.currency,
+      )
   ```
   `name` and `metadata` are **excluded** from `__hash__` and `__eq__`. This prevents name drift across statements (e.g. `"Parag Parikh Flexi Cap Fund - Direct"` vs `"PPFAS Flexi Cap Direct Growth"`) from creating separate dict entries, splitting FIFO tax lot queues, or dropping Schedule 112A LTCG rows.
 - **ISIN Regex Validation**: Enforces structural validity `^[A-Z]{2}[A-Z0-9]{9}[0-9]$` for all non-empty ISIN strings.

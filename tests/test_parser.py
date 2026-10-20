@@ -539,8 +539,7 @@ def test_scheme_chains_onto_matching_prior_ledger_balance():
     # Chains cleanly when the prior ledger holds 50; a partial-period gap otherwise.
     assert parser.scheme_history_gap(block, prior_balance=Decimal(50)) is None
     assert (
-        parser.scheme_history_gap(block, prior_balance=Decimal(0))
-        == "opening_nonzero"
+        parser.scheme_history_gap(block, prior_balance=Decimal(0)) == "opening_nonzero"
     )
 
 
@@ -553,9 +552,7 @@ def test_scheme_history_gap_when_opening_does_not_match_prior_ledger():
         close_units="30",
     )
     block = parser.map_cas_data(cas).schemes[0]
-    assert (
-        parser.scheme_history_gap(block, prior_balance=Decimal(50)) == "history_gap"
-    )
+    assert parser.scheme_history_gap(block, prior_balance=Decimal(50)) == "history_gap"
 
 
 def test_read_mf_cas_wraps_wrong_password(monkeypatch):

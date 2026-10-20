@@ -63,13 +63,15 @@ Default zero-configuration local database mode. All portfolio valuation, CAS sta
 import asyncio
 from folioman_client import FoliomanClient
 
+
 async def main():
     # Connects to default embedded SQLite database (~/.folioman/folioman.db)
     client = FoliomanClient()
-    
+
     # Query investor portfolio summary
     summary = await client.portfolio.get(investor_id=1)
     print(f"Total Portfolio Value: INR {summary.total_value:,.2f}")
+
 
 asyncio.run(main())
 ```
@@ -82,16 +84,18 @@ Connects asynchronously to a remote Folioman server via HTTP REST APIs with auto
 import asyncio
 from folioman_client import FoliomanClient
 
+
 async def main():
     client = FoliomanClient(
         base_url="https://api.folioman.example.com",
         username="advisor@example.com",
         password="secure_password",
     )
-    
+
     investors = await client.investors.list()
     for inv in investors:
         print(f"Investor: {inv.name} (ID: {inv.id})")
+
 
 asyncio.run(main())
 ```

@@ -14,37 +14,38 @@ from datetime import date
 from decimal import Decimal
 from folioman_client import FoliomanClient
 
+
 async def main():
     # 1. Initialize embedded engine (zero-config SQLite)
     client = FoliomanClient()
 
     # 2. Create an investor profile (PAN is automatically masked and encrypted)
     investor = await client.investors.create(
-        name="Vikram Mehta",
-        pan="ABCDE1234F",
-        email="vikram@example.com"
+        name="Vikram Mehta", pan="ABCDE1234F", email="vikram@example.com"
     )
-    print(f"Created Investor: {investor.name} (ID: {investor.id}, PAN: {investor.pan_masked})")
+    print(
+        f"Created Investor: {investor.name} (ID: {investor.id}, PAN: {investor.pan_masked})"
+    )
 
     # 3. Create a Mutual Fund Folio
     folio = await client.folios.create(
         investor_id=investor.id,
         folio_number="1234567/89",
         folio_type="mf",
-        amc_code="HDFC_MF"
+        amc_code="HDFC_MF",
     )
     print(f"Created Folio: {folio.folio_number} (ID: {folio.id})")
 
     # 4. Record a Purchase Transaction
     txn = await client.transactions.create(
         folio_id=folio.id,
-        isin="INF179K01BE2",       # HDFC Flexi Cap Fund - Direct Plan - Growth
+        isin="INF179K01BE2",  # HDFC Flexi Cap Fund - Direct Plan - Growth
         date=date(2023, 1, 15),
         type="BUY",
         units=Decimal("500.000"),
         nav=Decimal("1050.2500"),
         amount=Decimal("525125.00"),
-        description="SIP Investment"
+        description="SIP Investment",
     )
     print(f"Recorded Buy: {txn.units} units @ INR {txn.nav} (Txn ID: {txn.id})")
 
@@ -57,8 +58,11 @@ async def main():
     print("\n--- Portfolio Summary ---")
     print(f"Total Invested Value : INR {portfolio.total_cost:,.2f}")
     print(f"Current Market Value : INR {portfolio.total_value:,.2f}")
-    print(f"Unrealized Gain / P&L: INR {portfolio.unrealized_gain:,.2f} ({portfolio.gain_percentage:.2f}%)")
+    print(
+        f"Unrealized Gain / P&L: INR {portfolio.unrealized_gain:,.2f} ({portfolio.gain_percentage:.2f}%)"
+    )
     print(f"Annualized XIRR      : {portfolio.xirr:.2f}%")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

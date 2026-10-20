@@ -60,9 +60,9 @@ When modifying or adding code in this repository, strictly adhere to these 6 gol
   from folioman_client.security.pan import normalize_pan, mask_pan, encrypt_pan, hash_pan
 
   pan_clean = normalize_pan(raw_pan)
-  masked = mask_pan(pan_clean)         # e.g., "XXXXXX234F"
-  enc_bytes = encrypt_pan(pan_clean)   # Store in pan_encrypted
-  lookup_hash = hash_pan(pan_clean)    # Store in pan_hash
+  masked = mask_pan(pan_clean)  # e.g., "XXXXXX234F"
+  enc_bytes = encrypt_pan(pan_clean)  # Store in pan_encrypted
+  lookup_hash = hash_pan(pan_clean)  # Store in pan_hash
   ```
 
 ### Rule 3: Transaction Immutability & Corporate Actions
@@ -113,6 +113,7 @@ from folioman_client.db.engine import create_folioman_engine
 from folioman_client.db.migrations import init_schema
 from folioman_client.services.ledger_service import LedgerService
 
+
 @pytest.fixture
 async def ledger_service():
     engine = create_folioman_engine("sqlite+aiosqlite:///:memory:")
@@ -122,6 +123,7 @@ async def ledger_service():
         yield service
     finally:
         await engine.dispose()
+
 
 @pytest.mark.asyncio
 async def test_my_new_feature(ledger_service: LedgerService):

@@ -283,9 +283,7 @@ def test_cli_capital_gains_report_with_csv(tmp_path):
         assert "Capital Gains Report: Investor 1 (FY 2024-25)" in result.output
         assert "Tata Motors" in result.output
         assert "10,000.00" in result.output
-        assert (
-            f"Exporting official Schedule 112A CSV to {csv_file!s}" in result.output
-        )
+        assert f"Exporting official Schedule 112A CSV to {csv_file!s}" in result.output
         assert f"Successfully exported 1 rows to {csv_file!s}" in result.output
         mock_report.assert_awaited_once_with(1, "2024-25", include_unreconciled=False)
         mock_csv.assert_awaited_once_with(1, "2024-25", include_unreconciled=False)

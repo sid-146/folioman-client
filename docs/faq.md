@@ -20,7 +20,9 @@ export FOLIOMAN_DATABASE_URL="postgresql+psycopg://user:password@localhost:5432/
 ```
 Or in Python:
 ```python
-client = FoliomanClient(database_url="postgresql+psycopg://user:pass@localhost:5432/folioman_db")
+client = FoliomanClient(
+    database_url="postgresql+psycopg://user:pass@localhost:5432/folioman_db"
+)
 ```
 
 ### Can I run `folioman-client` inside a FastAPI, Django, or Litestar web app?
