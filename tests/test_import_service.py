@@ -7,7 +7,7 @@ from decimal import Decimal
 from unittest.mock import patch
 
 import pytest
-from sqlalchemy import select
+from sqlalchemy import event, select
 
 from folioman_client.core.cas_reader import ParsedCas
 from folioman_client.core.models.cas import (
@@ -145,6 +145,174 @@ async def test_import_idempotent_deduplication(
     async with import_service.session_factory() as session:
         txns = (await session.execute(select(Transaction))).scalars().all()
         assert len(txns) == 1
+
+
+@pytest.mark.asyncio
+async def test_import_mixed_new_and_duplicate_transactions(
+    import_service: CASImportService,
+) -> None:
+    """Verify that importing an overlapping statement correctly distinguishes duplicates from new transactions."""
+    sec = CoreSecurity(
+        type=SecurityType.MF,
+        name="PPFAS Flexi Cap Fund - Direct Plan - Growth",
+        isin="INF879O01019",
+        amfi_code="119551",
+    )
+    fol = CoreFolio(folio_type="mf", number="12345/0", amc_code="PPFAS")
+    identity = CasInvestorIdentity(
+        name="Rahul Sharma", email="rahul@example.com", pan="ABCDE1234F"
+    )
+
+    def _make_line(i: int, day: int) -> MfCasLineItem:
+        return MfCasLineItem(
+            date=date(2026, 1, day),
+            transaction_type=TransactionType.BUY,
+            units=Decimal("10.0000"),
+            nav=Decimal("100.0000"),
+            amount=Decimal("1000.00"),
+            balance=Decimal(str(10 * i)),
+            description=f"SIP #{i}",
+        )
+
+    # Initial statement has transactions 1 through 5
+    txns_first = [_make_line(i, day=i) for i in range(1, 6)]
+    block1 = MfCasSchemeBlock(
+        security=sec,
+        folio=fol,
+        opening_units=Decimal(0),
+        closing_units=Decimal("50.0000"),
+        transactions=txns_first,
+    )
+    stmt1 = MfCasStatement(
+        statement_from=date(2026, 1, 1),
+        statement_to=date(2026, 1, 5),
+        schemes=[block1],
+    )
+
+    with patch(
+        "folioman_client.services.import_service.read_cas",
+        return_value=ParsedCas(mf=stmt1, investor=identity),
+    ):
+        res1 = await import_service.import_cas(b"%PDF-1.4 dummy", "password123")
+        assert res1["transactions_created"] == 5
+        assert res1["transactions_skipped"] == 0
+
+    # Overlapping statement has transactions 3 through 8 (3 duplicates, 3 new)
+    txns_second = [_make_line(i, day=i) for i in range(3, 9)]
+    block2 = MfCasSchemeBlock(
+        security=sec,
+        folio=fol,
+        opening_units=Decimal("20.0000"),
+        closing_units=Decimal("80.0000"),
+        transactions=txns_second,
+    )
+    stmt2 = MfCasStatement(
+        statement_from=date(2026, 1, 3),
+        statement_to=date(2026, 1, 8),
+        schemes=[block2],
+    )
+
+    with patch(
+        "folioman_client.services.import_service.read_cas",
+        return_value=ParsedCas(mf=stmt2, investor=identity),
+    ):
+        res2 = await import_service.import_cas(b"%PDF-1.4 dummy", "password123")
+        assert res2["transactions_created"] == 3
+        assert res2["transactions_skipped"] == 3
+
+    # Total in DB should be exactly 8 unique transactions (1 through 8)
+    async with import_service.session_factory() as session:
+        all_txns = (await session.execute(select(Transaction))).scalars().all()
+        assert len(all_txns) == 8
+
+
+@pytest.mark.asyncio
+async def test_import_batch_dedup_large_statement_query_efficiency(
+    import_service: CASImportService,
+) -> None:
+    """Verify that a large statement loads dedup keys in batches rather than querying row-by-row,
+
+    demonstrating fewer database round trips (e.g. 3 chunk queries vs 1,200 individual queries).
+    """
+    total_txns = 1200
+    sec = CoreSecurity(
+        type=SecurityType.MF,
+        name="Large Scale Equity Fund",
+        isin="INF999K01001",
+        amfi_code="199001",
+    )
+    fol = CoreFolio(folio_type="mf", number="BATCH/100", amc_code="LARGE")
+    identity = CasInvestorIdentity(
+        name="Suresh Kumar", email="suresh@example.com", pan="ABCDE5678G"
+    )
+
+    txns = [
+        MfCasLineItem(
+            date=date(2025, 1, 1),
+            transaction_type=TransactionType.BUY,
+            units=Decimal("10.0000"),
+            nav=Decimal("50.0000"),
+            amount=Decimal("500.00"),
+            balance=Decimal(str(10 * (i + 1))),
+            description=f"Transaction #{i}",
+        )
+        for i in range(total_txns)
+    ]
+    block = MfCasSchemeBlock(
+        security=sec,
+        folio=fol,
+        opening_units=Decimal(0),
+        closing_units=Decimal(str(10 * total_txns)),
+        transactions=txns,
+    )
+    stmt = MfCasStatement(
+        statement_from=date(2025, 1, 1),
+        statement_to=date(2025, 12, 31),
+        schemes=[block],
+    )
+    mock_parsed = ParsedCas(mf=stmt, investor=identity)
+
+    # Intercept queries using SQLAlchemy's event hook on the underlying engine
+    captured_queries: list[str] = []
+
+    def before_cursor_execute(
+        conn, cursor, statement, parameters, context, executemany
+    ):
+        captured_queries.append(statement)
+
+    event.listen(
+        import_service.engine.sync_engine,
+        "before_cursor_execute",
+        before_cursor_execute,
+    )
+
+    try:
+        with patch(
+            "folioman_client.services.import_service.read_cas",
+            return_value=mock_parsed,
+        ):
+            res = await import_service.import_cas(b"%PDF-1.4 dummy", "secret")
+    finally:
+        event.remove(
+            import_service.engine.sync_engine,
+            "before_cursor_execute",
+            before_cursor_execute,
+        )
+
+    assert res["status"] == "completed"
+    assert res["transactions_created"] == total_txns
+
+    # Identify batch dedup check queries (SELECT transactions.dedup_key ... IN (...))
+    dedup_queries = [
+        q
+        for q in captured_queries
+        if "transactions.dedup_key" in q and "IN" in q and "SELECT" in q
+    ]
+
+    # With chunk_size=500, 1,200 items should take ceil(1200 / 500) = 3 batch queries.
+    # Under the old N+1 implementation, this would have taken 1,200 individual queries.
+    assert len(dedup_queries) == 3
+    assert len(dedup_queries) < total_txns
 
 
 @pytest.mark.asyncio
@@ -393,17 +561,23 @@ async def test_import_ecas_statement(import_service: CASImportService) -> None:
 
 @pytest.mark.asyncio
 async def test_import_password_error_wrapping(import_service: CASImportService) -> None:
-    with patch(
-        "folioman_client.services.import_service.read_cas",
-        side_effect=CASPasswordError("Bad password"),
-    ), pytest.raises(FoliomanPasswordError):
+    with (
+        patch(
+            "folioman_client.services.import_service.read_cas",
+            side_effect=CASPasswordError("Bad password"),
+        ),
+        pytest.raises(FoliomanPasswordError),
+    ):
         await import_service.import_cas(b"%PDF-1.4 dummy", "wrong")
 
 
 @pytest.mark.asyncio
 async def test_import_parse_error_wrapping(import_service: CASImportService) -> None:
-    with patch(
-        "folioman_client.services.import_service.read_cas",
-        side_effect=CASParseError("Corrupted stream"),
-    ), pytest.raises(FoliomanParseError):
+    with (
+        patch(
+            "folioman_client.services.import_service.read_cas",
+            side_effect=CASParseError("Corrupted stream"),
+        ),
+        pytest.raises(FoliomanParseError),
+    ):
         await import_service.import_cas(b"%PDF-1.4 dummy", "secret")
