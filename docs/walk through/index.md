@@ -49,19 +49,19 @@ Explore the detailed flow for each asset category:
 
 <div class="grid cards" markdown>
 
--   :material-chart-pie: **[Mutual Funds Flow](mutual-funds.md)**
+-   :material-chart-pie:{ .lg .middle } **[Mutual Funds Flow](mutual-funds.md)**
     
     ---
     
     Complete flow for CAMS and KFintech CAS PDFs: parser extraction, folio normalization, inception gap detection, dual-entry transaction ledger, partial block chaining, AMFI/mfapi pricing, FIFO lot matching, and Schedule 112A capital gains.
 
--   :material-finance: **[Stocks & Equities Flow](stocks.md)**
+-   :material-finance:{ .lg .middle } **[Stocks & Equities Flow](stocks.md)**
     
     ---
     
     Complete flow for NSDL and CDSL eCAS demat statements: depository extraction, ISIN-to-NSE/BSE symbol resolution via national reference catalogs, snapshot holding storage, corporate actions event replay (splits, bonuses, demergers), and NSE Bhavcopy pricing.
 
--   :material-gold: **[ETFs, Bonds & Other Assets Flow](etfs-and-others.md)**
+-   :material-gold:{ .lg .middle } **[ETFs, Bonds & Other Assets Flow](etfs-and-others.md)**
     
     ---
     

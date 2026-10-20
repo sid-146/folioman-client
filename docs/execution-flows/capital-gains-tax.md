@@ -90,9 +90,13 @@ sequenceDiagram
      - If $\text{sold\_on} \ge \text{2024-07-23}$: STCG @ 20%, LTCG @ 12.5%.
   3. **Section 112A Grandfathering**:
      - If lot was acquired on or before January 31, 2018:
+
        $$\text{Deemed Cost} = \max(\text{Actual Cost}, \min(\text{FMV as of 31-Jan-2018}, \text{Sale Value}))$$
+
      - If acquired after January 31, 2018:
+
        $$\text{Deemed Cost} = \text{Actual Purchase Cost}$$
+
   4. **Section 48 Deductions**:
      - Deducts brokerage, exchange turnover charges, and transfer fees from the sale proceeds.
 

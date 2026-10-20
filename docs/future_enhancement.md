@@ -68,9 +68,13 @@ flowchart LR
 - **Proposed Solution:**
   - Download and cache monthly AMC portfolio disclosure sheets (mandated by SEBI).
   - Compute stock-level exposure across all funds:
+
     $$\text{Effective Weight of Stock } S = \sum_{F \in \text{Funds}} (\text{Weight of } S \text{ in Fund } F) \times (\text{Value of Fund } F) / \text{Total Portfolio Value}$$
+
   - Calculate pairwise fund overlap percentage:
+
     $$\text{Overlap}(A, B) = \sum_{i} \min(w_{A,i}, w_{B,i})$$
+
 - **Target Interface:**
   ```python
   overlap = await client.analytics.fund_overlap(

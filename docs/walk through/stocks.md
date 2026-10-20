@@ -101,7 +101,9 @@ Depositories only report **how many shares you hold on the statement date**, not
 If trade transactions are separately provided (via broker CSV import or `client.transactions.create()`):
 1. Trades are stored in the `transactions` table.
 2. [`ReconciliationService`](file:///Users/raptor/code/folioman-client/src/folioman_client/services/reconciliation_service.py) automatically runs:
+
    $$\Delta = \text{net\_units\_from\_trades} - \text{statement\_units}$$
+
 3. Sets `SecurityIntegrityStatus`:
    * `MATCH`: Trade ledger perfectly matches statement holding ($\Delta < 0.001$).
    * `SNAPSHOT_ONLY`: Demat holding exists, but individual trades haven't been imported yet.
@@ -201,9 +203,12 @@ When building portfolio summaries:
 1. **Unit Aggregation**:
    If transactions exist, computes units via ledger replay; if only eCAS is available, takes the latest snapshot units from `holdings`.
 2. **Current Valuation**:
+
    $$\text{value\_inr} = \text{units} \times \text{latest\_market\_price}$$
+
 3. **Asset Mix Allocation**:
    All securities with `security_type="EQUITY"` are automatically aggregated into the `"Equity"` asset mix slice.
 4. **Day Change**:
    Calculates daily price change and day change value in INR:
+
    $$\text{day\_change\_inr} = \text{units} \times (\text{price}_{\text{today}} - \text{price}_{\text{yesterday}})$$

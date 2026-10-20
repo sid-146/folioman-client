@@ -170,7 +170,9 @@ The mapper module provides bidirectional, lossless translations between database
 - **FIFO Allocation Engine (`core/fifo.py`)**: Maintains a FIFO queue of open lots (`FIFOUnits`). When a sale occurs, it consumes the oldest available lots, computes realized gain/loss, and allocates buy-side stamp duty across sold slices with 2-decimal banker's rounding (`ROUND_HALF_EVEN`).
 - **Cost Basis Preservation**: Cost basis is carried as a **total amount** (`cost_total`) on open lots rather than per-unit price. This prevents rounding drift from recurring decimals when non-divisible stock split or merger ratios are applied.
 - **XIRR Solver (`core/xirr.py`)**: Solves the internal rate of return for irregular cash flows using Newton-Raphson root finding:
+
   $$r_{n+1} = r_n - \frac{\text{NPV}(r_n)}{\text{NPV}'(r_n)}$$
+
   If Newton-Raphson diverges, encounters zero derivatives, or crosses the $-100\%$ boundary ($r \le -0.999999$), it automatically falls back to a bracketed bisection algorithm in the range $[-0.999999, 100.0]$.
 
 ### 4.3 Corporate Actions & Projected Ledger Subsystem
@@ -183,7 +185,9 @@ The mapper module provides bidirectional, lossless translations between database
   - Long-term threshold: held $> 12$ calendar months.
 - **Section 112A Grandfathering (Jan 31, 2018)**:
   For shares acquired on or before January 31, 2018, Section 55(2)(ac) defines the deemed cost of acquisition:
+
   $$\text{Deemed Cost} = \max(\text{Actual Cost}, \min(\text{FMV as of 31-Jan-2018}, \text{Sale Price}))$$
+
 - **Budget 2024 Transition Rules**:
   Splits transactions around July 23, 2024:
   - Transfers before July 23, 2024: LTCG taxed at 10% (beyond ₹1 lakh exemption).

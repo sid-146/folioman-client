@@ -12,17 +12,17 @@ The Indian Income Tax Act, 1961 governs capital gains through several key sectio
 flowchart TD
     Asset["Disposal of Security"] --> CheckType{"Asset Classification"}
     
-    CheckType -->|Listed Equity / Equity MF| EquityPath["Section 112A / 111A"]
-    CheckType -->|Debt Mutual Fund (Acquired >= 1 Apr 2023)| Sec50AA["Section 50AA\n(Deemed Short-Term regardless of holding period)"]
-    CheckType -->|Debt MF (Acquired < 1 Apr 2023)| TraditionalDebt["Section 112\n(LTCG with indexation if held > 36M)"]
+    CheckType -->|"Listed Equity / Equity MF"| EquityPath["Section 112A / 111A"]
+    CheckType -->|"Debt Mutual Fund (Acquired on or after 1 Apr 2023)"| Sec50AA["Section 50AA<br/>(Deemed Short-Term regardless of holding period)"]
+    CheckType -->|"Debt MF (Acquired before 1 Apr 2023)"| TraditionalDebt["Section 112<br/>(LTCG with indexation if held over 36M)"]
     
-    EquityPath --> CheckHolding{"Holding Period > 12 Months?"}
-    CheckHolding -->|No (<= 12M)| STCG["Short-Term Capital Gain (STCG)\nSection 111A\nTaxed at 15% (pre-Budget 2024) or 20% (post-Budget 2024)"]
-    CheckHolding -->|Yes (> 12M)| LTCG["Long-Term Capital Gain (LTCG)\nSection 112A\nTaxed at 10% (pre-Budget 2024) or 12.5% (post-Budget 2024)"]
+    EquityPath --> CheckHolding{"Holding Period over 12 Months?"}
+    CheckHolding -->|"No (12M or less)"| STCG["Short-Term Capital Gain (STCG)<br/>Section 111A<br/>Taxed at 15% (pre-Budget 2024) or 20% (post-Budget 2024)"]
+    CheckHolding -->|"Yes (over 12M)"| LTCG["Long-Term Capital Gain (LTCG)<br/>Section 112A<br/>Taxed at 10% (pre-Budget 2024) or 12.5% (post-Budget 2024)"]
     
     LTCG --> CheckAcq{"Acquired on or before 31 Jan 2018?"}
-    CheckAcq -->|Yes| Grandfathering["Section 112A Grandfathering\nFMV as of 31-Jan-2018 applied"]
-    CheckAcq -->|No| StandardLTCG["Standard LTCG\nCost = Purchase Price + Sec 48 expenses"]
+    CheckAcq -->|"Yes"| Grandfathering["Section 112A Grandfathering<br/>FMV as of 31-Jan-2018 applied"]
+    CheckAcq -->|"No"| StandardLTCG["Standard LTCG<br/>Cost = Purchase Price + Sec 48 expenses"]
 ```
 
 ---
@@ -63,10 +63,10 @@ Where:
 ### 3.2 Visualizing the Three Scenarios
 
 ```mermaid
-graph TD
-    Scenario1["Scenario 1: Full Gain Protected\nSale Price > FMV > Cost\nDeemed Cost = FMV\nTaxable Gain = Sale Price - FMV"]
-    Scenario2["Scenario 2: Partial Fall below FMV\nFMV > Sale Price > Cost\nDeemed Cost = Sale Price\nTaxable Gain = ₹0.00 (No artificial loss)"]
-    Scenario3["Scenario 3: Absolute Loss\nCost > Sale Price (regardless of FMV)\nDeemed Cost = Cost\nTaxable Loss = Sale Price - Cost"]
+flowchart TD
+    Scenario1["Scenario 1: Full Gain Protected<br/>Sale Price &gt; FMV &gt; Cost<br/>Deemed Cost = FMV<br/>Taxable Gain = Sale Price - FMV"]
+    Scenario2["Scenario 2: Partial Fall below FMV<br/>FMV &gt; Sale Price &gt; Cost<br/>Deemed Cost = Sale Price<br/>Taxable Gain = INR 0.00 (No artificial loss)"]
+    Scenario3["Scenario 3: Absolute Loss<br/>Cost &gt; Sale Price (regardless of FMV)<br/>Deemed Cost = Cost<br/>Taxable Loss = Sale Price - Cost"]
 ```
 
 1. **Scenario 1 (Price has appreciated past Jan 2018)**:
@@ -90,8 +90,8 @@ Under Section 48(i) of the Act, deductions are permitted for:
 - Expenditure incurred wholly and exclusively in connection with the transfer (brokerage, exchange turnover fees, SEBI charges, clearing charges).
 - Stamp duty paid upon acquisition (added to acquisition cost basis).
 
-> [!IMPORTANT]
-> Securities Transaction Tax (STT) is explicitly **disallowed** as a deduction under Section 48 proviso. `folioman-client` isolates STT into a separate field and does not deduct it from taxable gains.
+!!! warning "STT Deduction Disallowance"
+    Securities Transaction Tax (STT) is explicitly **disallowed** as a deduction under Section 48 proviso. `folioman-client` isolates STT into a separate field and does not deduct it from taxable gains.
 
 ---
 

@@ -88,7 +88,9 @@ sequenceDiagram
 - **Action**:
   - Upserts quotes into `NAVHistory` with `(security_id, date, nav, feed_source)`.
   - Calculates quote freshness lag:
+
     $$\text{Lag} = \text{trading\_days\_between}(\text{latest\_quote\_date}, \text{today})$$
+
   - If $\text{Lag} \le 1$, marks status as `Current`.
   - If $\text{Lag} == 2$, marks status as `Lagging`.
   - If $\text{Lag} \ge 3$, marks status as `Stale`.

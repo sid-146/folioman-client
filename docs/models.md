@@ -471,12 +471,10 @@ Corporate action discovery and replay tracking.
 
 ## 4. Layer 2: Core Domain Models (`folioman_client.core.models`)
 
-> [!WARNING]
-> **INTERNAL ENGINE USE ONLY — NEVER EXPOSED VIA THE PUBLIC API**
->
-> All models under `folioman_client.core.models` are framework-free domain structures designed strictly for **internal statement parsing, validation, First-In-First-Out (FIFO) lot matching, XIRR numerical solving, and Schedule 112A grandfathering computations**.
-> 
-> They are **NOT** returned by public SDK methods or REST endpoints. They use strict configuration (`extra="forbid"`, `str_strip_whitespace=True`) and strictly enforce the `Decimal` financial invariant (rejecting IEEE 754 `float` and `bool` literals).
+!!! warning "Internal Engine Use Only — Never Exposed via Public API"
+    All models under `folioman_client.core.models` are framework-free domain structures designed strictly for **internal statement parsing, validation, First-In-First-Out (FIFO) lot matching, XIRR numerical solving, and Schedule 112A grandfathering computations**.
+
+    They are **NOT** returned by public SDK methods or REST endpoints. They use strict configuration (`extra="forbid"`, `str_strip_whitespace=True`) and strictly enforce the `Decimal` financial invariant (rejecting IEEE 754 `float` and `bool` literals).
 
 ### 4.1 Base Model & Custom Field Validators
 
@@ -674,11 +672,22 @@ Observed point-in-time holding position.
 #### `FolioType`
 `StrEnum`: `MF` (`"mf"`), `DEMAT` (`"demat"`).
 
-#### `normalize_folio_number(number: str) -> str`
+#### `normalize_folio_number`
+
+```python
+def normalize_folio_number(number: str) -> str
+```
+
 Canonical folio identity matching function across statements:
 - Strips whitespace.
 - Drops default zero sub-account suffixes (`"/0"`, `"/00"`).
 - Preserves legally distinct non-zero holding suffixes (e.g. `"/20"` for joint holdings).
+
+**Arguments:**
+- `number` (`str`): Raw folio string from statement or user input.
+
+**Returns:**
+- `str`: Canonical normalized folio number.
 
 <a id="core-folio-coremodelsinvestorpy"></a>
 #### `Folio` & `Investor` {: #core-folio }
@@ -739,10 +748,10 @@ The adapter module `folioman_client.services.mappers` translates data losslessly
 
 ```mermaid
 flowchart LR
-    L2["Core Domain Model\n(e.g. core.models.Transaction)"] 
-    -->|domain_transaction_to_db()| L3["Database ORM Model\n(db.models.Transaction)"]
-    L3 -->|db_transaction_to_api()| L1["Public API Model\n(models.Transaction)"]
-    L3 -->|db_to_domain_transaction()| L2
+    L2["Core Domain Model<br/>(e.g. core.models.Transaction)"] 
+    -->|"domain_transaction_to_db()"| L3["Database ORM Model<br/>(db.models.Transaction)"]
+    L3 -->|"db_transaction_to_api()"| L1["Public API Model<br/>(models.Transaction)"]
+    L3 -->|"db_to_domain_transaction()"| L2
 ```
 
 ### Key Mapping Rules:

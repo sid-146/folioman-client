@@ -92,6 +92,7 @@ sequenceDiagram
   - Queries historical portfolio value from `InvestorValue` as of $T - \Delta t$.
   - For horizons $< 1\text{Y}$: computes simple percentage gain.
   - For horizons $\ge 1\text{Y}$: computes Compound Annual Growth Rate (CAGR):
+
     $$\text{CAGR} = \left(\frac{V_{\text{now}}}{V_{\text{past}}}\right)^{\frac{1}{\text{years}}} - 1$$
 
 ### Step 6: Daily Time-Series Roll-Forward (`recompute_investor_valuation`)
